@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "615545720563",
+    "project_id": "remarkablehr-91b2e",
+    "storage_bucket": "remarkablehr-91b2e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615545720563:android:2e50c2c15152a8ded63186",
+        "android_client_info": {
+          "package_name": "com.example.remark_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615545720563-j4rkkkaj7ajqmdo62l9r53q74eu52dip.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.remark_app",
+            "certificate_hash": "99ee6ef46c926666792c09206a7f60e9c4291655"
+          }
+        },
+        {
+          "client_id": "615545720563-1fot7kqrivr5u9n8apecuelcpdp76rt6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYyCifb8eOwnlrSI02NSh_ifMCtWBN6N0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "615545720563-1fot7kqrivr5u9n8apecuelcpdp76rt6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
