@@ -13,11 +13,11 @@ import 'package:remark_app/model/response/interview/get_all_interviews_model.dar
 import 'package:remark_app/notifier/interview_calling_notifier.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class ViewInterview extends StatefulWidget {
   final Datum interview;
   const ViewInterview({Key key, this.interview}) : super(key: key);
-
   @override
   _ViewInterviewState createState() => _ViewInterviewState();
 }
@@ -32,28 +32,97 @@ class _ViewInterviewState extends State<ViewInterview> {
   MediaStream _localStream;
   MediaStream _peerStream;
   String userType;
+  String userMobile;
   bool _offer = false;
   var sendCandidate = false;
   bool setremotedescription = false;
   var offerMsg;
   bool offerReceived = false;
   bool _voiceMuted = false;
-
-
-
+  String targetUsername;
+  Socket socket;
 
   @override
   void initState() {
     // TODO: implement initState
     _getUserData();
     _initializerRenderer();
+    _createPeerConnection().then((value) {
+      setState(() {
+        _peerConnection = value;
+      });
+    });
     _getFirebaseNotification();
     super.initState();
   }
 
+  _socketSetup() {
 
-  _checkPeerConnection() async {
-    _peerConnection = context.watch<InterviewCallingNotifier>().peerConnection;
+    socket = io('https://remarkablehr.in:8443' , <String, dynamic>{
+        'transports' : ['websocket'],
+        'autoConnect' : false
+    });
+
+    socket.connect();
+
+    setState(() {
+
+    });
+
+    socket.emit('registerMe' , {
+      "id" : userMobile
+    });
+
+    socket.emit('add user' , {
+        "username" : "abhi App",
+        "id" : userMobile
+      });
+
+
+      socket.on('new message', (data) => print(data));
+
+      socket.on('get_call', (data) {
+          print(data);
+        _handleGetCall(data);
+      });
+
+      socket.on('receive-answer' , (data) {
+
+          print(data);
+          var desc = data['data']['sdp']['sdp'];
+
+          var parseDes = parse(desc);
+          
+          Provider.of<InterviewCallingNotifier>(context , listen: false).changeScreenResponse(2);
+
+          var writeDes = write(parseDes , null);
+
+          _setRemoteDescription(jsonEncode(writeDes), 'answer');
+      });
+
+
+      socket.on('receive-ice-candidate', (data) {
+          print(data);
+          _setCandidate(jsonEncode(data['data']['data']['candidate']));
+      });
+
+  }
+
+  _handleGetCall(sdp) async {
+      // print(['sdp']);
+
+      print(sdp);
+
+      setState(() {
+        targetUsername = sdp['data']['from'];
+        offerMsg = parse(sdp['data']['sdp']['sdp']);
+      });
+      
+      print(offerMsg);
+
+      Provider.of<InterviewCallingNotifier>(context , listen: false).changeScreenResponse(1);
+
+          
   }
 
   // CREATED PEER CONNECTION SUCCESSFULLY
@@ -155,11 +224,13 @@ class _ViewInterviewState extends State<ViewInterview> {
       });
 
       if(userType == "1"){
-        print("candidate is sending");
-        SendPushNotification().send(data, widget.interview.employerToken);
+        socket.emit('send-ice-candidate' , {
+          "to" : targetUsername,
+          "data" : {
+            "candidate" : e.toMap()
+          }
+        });
       }
-
-
     }
   }
 
@@ -168,11 +239,11 @@ class _ViewInterviewState extends State<ViewInterview> {
 
     if(_peerConnection.iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed){
 
-      var data = jsonEncode({
-        "notification_type" : "connection_failed",
-      });
+      // var data = jsonEncode({
+      //   "notification_type" : "connection_failed",
+      // });
 
-      SendPushNotification().send(data, widget.interview.employerToken);
+      // SendPushNotification().send(data, widget.interview.employerToken);
 
     }
 
@@ -190,22 +261,17 @@ class _ViewInterviewState extends State<ViewInterview> {
       Provider.of<InterviewCallingNotifier>(context , listen: false).changeOffer(true);
 
       _peerConnection.setLocalDescription(description);
+
+      return description;
     })
-    .then((_) async {
-
-
-        var data = jsonEncode({
-          "notification_type" : "callOfferInitialize",
-          'interviewType' : widget.interview.interviewType,
-          "interviewID" : widget.interview.interviewId,
-          "employerToken" : widget.interview.employerToken
+    .then((desc) async {
+        socket.emit('send_call' , {
+          "to" : widget.interview.employeeMobile,
+          "data" : {
+            "from" : widget.interview.employerMobile,
+            "sdp" : desc.toMap()
+          }
         });
-
-        await GetAllInterviewsApi().sendInterviewSession(widget.interview.interviewId, jsonEncode(session), userType);
-
-        await SendPushNotification().send(data, widget.interview.employeeToken);
-
-
     });
 
     print("==============OFFER CREATED==================");
@@ -229,12 +295,12 @@ class _ViewInterviewState extends State<ViewInterview> {
 
     print("========================CREATED ANSWER ============");
 
-    var data = jsonEncode({
-      "notification_type" : "callAnswerInitialize",
-      "interviewID" : widget.interview.interviewId,
+    socket.emit('send-answer' , {
+      "to" : targetUsername,
+      "data" : {
+        "sdp" : session
+      }
     });
-
-    SendPushNotification().send(data, widget.interview.employerToken);
 
   }
 
@@ -256,14 +322,70 @@ class _ViewInterviewState extends State<ViewInterview> {
 
   }
 
+  _handleVideoOfferMsg(description , type) async {
+
+    // var descr = jsonDecode(sdp['data']['data']['sdp']);
+    // targetUsername = sdp['data']['data']['to'];
+    // console.log();
+    print(description);
+
+    String transform = write(description , null);
+
+    RTCSessionDescription desc = RTCSessionDescription(transform,type);
+
+    print("++++++++++ RTC SESSION SET +++++++ ");
+
+    print(desc.toMap());
+
+    await _peerConnection.setRemoteDescription(desc).then((desc) {
+            print("++++++++++ REMOTE DESCRIPTION SET ++++++++++");
+
+            print("++++++++++ CREATING ANSWER +++++++++++++");
+            return _peerConnection.createAnswer();
+        })  
+        .then((answer) {
+            
+            print("+++++++++++++ SETTING LOCAL DESCRIPTION ++++++++++");
+            _peerConnection.setLocalDescription(answer);
+            return answer;
+        })
+        .then((des) {
+
+           print(targetUsername);
+
+            var data = {
+                "from" : userMobile,
+                "sdp": des.toMap()
+            };
+
+            print(data);
+
+            socket.emit('send-answer' , {
+              "to" : targetUsername.toString(),
+              "data" : data
+            });
+
+            print(socket.id);
+
+            // var msg = {
+            //     name: myUsername,
+            //     target: targetUsername,
+            //     type: "video-answer",
+            //     sdp: myPeerConnection.localDescription
+            // };
+
+            // sendToServer(msg);
+        }).catchError((e) => print(e));
+}
+
   // SET REMOTE DESCRIPTION
-  _setRemoteDescription(jsonString) async {
+  _setRemoteDescription(jsonString , type) async {
 
-    dynamic session = await jsonDecode(jsonString);
+    dynamic sdp = await jsonDecode(jsonString);
 
-    String sdp = write(session , null);
+    // String sdp = write(session , null);
 
-    RTCSessionDescription description = RTCSessionDescription(sdp, _offer ? 'answer' : 'offer');
+    RTCSessionDescription description = RTCSessionDescription(sdp , type);
 
     print("=============SETTING REMOTE DESCRIPTION==================");
     print(description.toMap());
@@ -271,7 +393,6 @@ class _ViewInterviewState extends State<ViewInterview> {
     await _peerConnection.setRemoteDescription(description);
 
     print("============REMOTE DESCRIPTION SET SUCCESSFULLY===============");
-
 
   }
 
@@ -282,14 +403,19 @@ class _ViewInterviewState extends State<ViewInterview> {
     dynamic session = await jsonDecode(jsonString);
 
     print(session['candidate']);
+    print(session['sdpMid']);
+    print(session['sdpMLineIndex']);
+    int sdpMLineIndex = session['sdpMLineIndex'];
 
-    dynamic candidate = RTCIceCandidate(session['candidate'] , session['sdpMid'] , session['sdpMlineIndex']);
+    RTCIceCandidate candidate = RTCIceCandidate(session['candidate'] , session['sdpMid'] , sdpMLineIndex);
+
+    print("ICE CANDIDATE CREATED");
 
     await _peerConnection.addCandidate(candidate);
 
     print("=================CANDIDATE SET SUCCESSFULLY=================");
 
-    _handleNegotiationNeededEvent();
+    // _handleNegotiationNeededEvent();
 
   }
 
@@ -327,27 +453,27 @@ class _ViewInterviewState extends State<ViewInterview> {
         // GETTING OFFER VIA FIREBASE PUSH NOTIFICATION
         if(message.data['notification_type'] == "callOfferInitialize" && message.data['interviewID'] == widget.interview.interviewId){
 
-          final response = GetAllInterviewsApi().getInterviewSession(widget.interview.interviewId);
+          // final response = GetAllInterviewsApi().getInterviewSession(widget.interview.interviewId);
 
-          if(!offerReceived){
+          // if(!offerReceived){
 
-            _createPeerConnection().then((value) {
-              _peerConnection = value;
-            });
+          //   _createPeerConnection().then((value) {
+          //     _peerConnection = value;
+          //   });
 
-            Provider.of<InterviewCallingNotifier>(context , listen: false).changeScreenResponse(1);
-            setState(() {
-              offerReceived = true;
-            });
-          }
+          //   Provider.of<InterviewCallingNotifier>(context , listen: false).changeScreenResponse(1);
+          //   setState(() {
+          //     offerReceived = true;
+          //   });
+          // }
 
-          response.then((value) {
-                offerMsg = {
-                  "offerString" : value['data']['employer_session'],
-                };
+          // response.then((value) {
+          //       offerMsg = {
+          //         "offerString" : value['data']['employer_session'],
+          //       };
 
-                _setRemoteDescription(value['data']['employer_session']);
-            });
+          //       _setRemoteDescription(value['data']['employer_session']);
+          //   });
           }
 
         // GETTING ANSWER VIA FIREBASE PUSH NOTIFICATION
@@ -359,7 +485,7 @@ class _ViewInterviewState extends State<ViewInterview> {
 
           response.then((value){
             remoteDescription = value['data']['employee_session'];
-            _setRemoteDescription(remoteDescription);
+            _setRemoteDescription(remoteDescription , 'answer');
           });
         }
 
@@ -390,19 +516,18 @@ class _ViewInterviewState extends State<ViewInterview> {
 
   _endCall() async {
 
-
-
-      Provider.of<InterviewCallingNotifier>(context , listen: false).muteLocalRendererStream(_localRenderer, false);
-
       _localRenderer.srcObject.getTracks().forEach((element) {
         element.stop();
       });
 
-      if(_remoteRenderer != null || _remoteRenderer.srcObject != null){
-        _remoteRenderer.srcObject.getTracks().forEach((element) {
-          element.stop();
-        });
+      if(_remoteRenderer != null){
+        if(_remoteRenderer.srcObject != null){  
+           _remoteRenderer.srcObject.getTracks().forEach((element) {
+              element.stop();
+            });
+        }
       }
+
 
     setState(() {
       _voiceMuted = false;
@@ -416,27 +541,21 @@ class _ViewInterviewState extends State<ViewInterview> {
         element = null;
       });
 
-
       _peerStream.getTracks().forEach((element) {
         element.stop();
         element = null;
       });
-
 
     _peerConnection.onIceCandidate = null;
     _peerConnection.onIceConnectionState = null;
 
     _peerConnection.close();
 
-    _peerConnection = null;
-
     setState(() {
       _offer = false;
     });
 
     Provider.of<InterviewCallingNotifier>(context , listen: false).changeScreenResponse(0);
-
-    Navigator.pop(context);
 
   }
 
@@ -445,31 +564,40 @@ class _ViewInterviewState extends State<ViewInterview> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       userType = pref.getString("userType");
+      userMobile = pref.getString("userMobile");
     });
+
+    _socketSetup();
+    
   }
 
   // DISPOSE INITIALIZERS
   @override
   void dispose() {
     // TODO: implement dispose
-      _localRenderer.dispose();
+    // if(_localRenderer != null){
+    //   _localRenderer.dispose();
+    //   _localRenderer = null;
+    // }
+
+    _localRenderer.dispose();
+    _remoteRenderer.dispose();
+
+    // if(_remoteRenderer != null){
+    //   _remoteRenderer.dispose();
+    //   _remoteRenderer = null;
+    // }
 
 
-    if(_remoteRenderer != null){
-      _remoteRenderer.dispose();
-    }
-
-
-    if(_peerStream != null){
+    if(_peerStream != null) {
       _peerStream.dispose();
+      _peerStream = null;
     }
 
-      _localStream.dispose();
-
-    if(_peerConnection != null){
-      _peerConnection.close();
-    }
-
+     if( _localStream != null ){
+       _localStream.dispose();
+       _localStream = null;
+     }
 
     super.dispose();
   }
@@ -672,7 +800,7 @@ class _ViewInterviewState extends State<ViewInterview> {
                                   });
                                 });
 
-                                _createOffer();
+                                _handleNegotiationNeededEvent();
 
                                 Provider.of<InterviewCallingNotifier>(context , listen: false).changeScreenResponse(1);
 
@@ -750,7 +878,11 @@ class _ViewInterviewState extends State<ViewInterview> {
                   Container(
                     child: IconCircleButton(
                       onPressed: () {
-                        _createAnswer();
+                                           
+
+                        var description = jsonEncode(offerMsg['sdp']);
+                        var type = "offer";
+                        _handleVideoOfferMsg(offerMsg, type);
                         Provider.of<InterviewCallingNotifier>(context , listen: false).changeScreenResponse(2);
                       },
                       icon: widget.interview.interviewType == "0" ? Icons.call : Icons.videocam,
@@ -802,9 +934,15 @@ class _ViewInterviewState extends State<ViewInterview> {
             Container(
 
               child: IconCircleButton(
-                onPressed: () {
-
-                  Navigator.pop(context);
+                onPressed: () async {
+                  print("ending call");
+                    var data = jsonEncode({
+                      "notification_type" : "end_call"
+                    });
+                    var sendEndCall = userType == "1" ? widget.interview.employerToken : userType == "2" ? widget.interview.employeeToken : "";
+                    await SendPushNotification().send(data, sendEndCall).then((_) => {
+                    _endCall()
+                    });
                 },
                 iconSize: 30,
                 icon: Icons.call_end_rounded,

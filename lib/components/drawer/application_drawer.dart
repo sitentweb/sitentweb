@@ -231,8 +231,6 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                         title: "Logout",
                         icon: Icon(Icons.logout),
                         action: () async {
-
-                          await UserApi().updateUser(userID);
                           UserSetting.unsetUserSession();
                           Navigator.pushReplacementNamed(context, '/login');
                         },

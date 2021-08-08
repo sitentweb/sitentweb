@@ -132,14 +132,7 @@ class _OtpValidateState extends State<OtpValidate> {
                         var _token = await _firebaseMessaging.getToken();
                         var _mobile = pref.getString('userMobile');
                         print(_token);
-
-                        final snackBarMessage = SnackBar(
-                          content: Text("Correct OTP, Session Started"),
-                        );
-
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(snackBarMessage);
-
+                        
                         var userResp = await UserApi()
                             .getUserByMobileNumber(_mobile.toString(), _token);
                         UserDataModel user = userResp;

@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:remark_app/config/constants.dart';
+import 'package:remark_app/config/userSetting.dart';
 import 'package:remark_app/notifier/select_company_notifier.dart';
 import 'package:remark_app/pages/auth/login.dart';
 import 'package:remark_app/pages/auth/mobile_validate.dart';
@@ -15,6 +16,7 @@ import 'package:remark_app/pages/profile/complete_your_profile.dart';
 import 'package:remark_app/pages/splashscreen/splashscreen.dart';
 import 'config/appSetting.dart';
 import 'notifier/interview_calling_notifier.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'high_importance_channel', // id
@@ -35,6 +37,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
 
+  
 
 
   WidgetsFlutterBinding.ensureInitialized();

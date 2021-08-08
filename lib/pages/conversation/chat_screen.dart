@@ -13,16 +13,16 @@ import 'package:remark_app/apis/conversation/change_room_status_api.dart';
 import 'package:remark_app/apis/conversation/get_all_message.dart';
 import 'package:remark_app/apis/conversation/get_all_rooms.dart';
 import 'package:remark_app/apis/conversation/send_chat_message_api.dart';
+import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
-import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
-import 'package:remark_app/main.dart';
 import 'package:remark_app/model/conversation/get_all_messages_model.dart';
 import 'package:remark_app/model/conversation/get_single_room_model.dart';
-import 'package:remark_app/model/conversation/send_chat_message_model.dart';
+import 'package:remark_app/model/user/fetch_user_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeAgo;
+import 'package:socket_io_client/socket_io_client.dart';
 
 class ChatScreen extends StatefulWidget {
 
@@ -47,11 +47,14 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Datum> _conversationList = <Datum>[];
   String userID;
   String userType;
+  String userMobile;
   String roomStatus = "1";
   bool switchBtn = false;
   String userToken;
+  String receiverMobile;
   TextEditingController newMessage = TextEditingController();
   AdvancedSwitchController _advancedSwitchController;
+  Socket socket;
 
   @override
   void initState() {
@@ -68,12 +71,6 @@ class _ChatScreenState extends State<ChatScreen> {
       }
 
       updateRoom(roomValue);
-    });
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("Message Received ${message.data['message_id']}");
-
-      addMessageToConversation(message);
-
     });
 
     getUserData();
@@ -105,16 +102,41 @@ class _ChatScreenState extends State<ChatScreen> {
     return _getSingleRoom;
   }
 
-  addMessageToConversation(RemoteMessage message) {
+  _socketSetup() async {
+       socket = io('https://remarkablehr.in:8443' , <String, dynamic>{
+        'transports' : ['websocket'],
+        'autoConnect' : false
+    });
+
+    socket.connect();
+
+    socket.emit('registerMe' , {
+      "id" : userMobile
+    });
+
+    socket.on("receivemessage", (data) {
+      print(data);
+      addMessageToConversation(data);
+    });
+
+    socket.on("toggleconversation" , (data) {
+      print(data);
+      setState(() {
+        roomStatus = data['roomStatus'].toString();
+      });
+    });
+
+  }
+
+  addMessageToConversation(message) {
     print("message received");
 
-    if(message.data['notification_type'] == 'newMessage'){
-      setState(() {
         _futureConversation.then((value) {
-          value.data.add(
+          setState(() {
+            value.data.add(
               Datum(
-                  messageId: message.data['message_id'],
-                  message: message.data['body'],
+                  messageId: "1",
+                  message: message['message'],
                   roomId: widget.roomId,
                   senderId: widget.senderID,
                   receiverId: widget.receiverID,
@@ -122,17 +144,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   messageCreatedAt: DateTime.now()
               )
           );
-          changeMessageStatus(message.data['message_id']);
+          });
         });
 
 
-      });
-    }else if(message.data['notification_type'] == 'roomStatus'){
-        var roomValue = message.data['room_status'];
-        setState(() {
-          roomStatus = roomValue;
-        });
-    }
+    // if(message.data['notification_type'] == 'newMessage'){
+      
+    // }else if(message.data['notification_type'] == 'roomStatus'){
+    //     var roomValue = message.data['room_status'];
+    //     setState(() {
+    //       roomStatus = roomValue;
+    //     });
+    // }
 
   }
 
@@ -144,9 +167,21 @@ class _ChatScreenState extends State<ChatScreen> {
       userID = pref.getString("userID");
       userType = pref.getString("userType");
       userToken = pref.getString("userToken");
+      userMobile = pref.getString("userMobile");
       _futureConversation = GetAllMessages().getAllMessages(widget.senderID, widget.receiverID);
       // GETTING MY CONVERSATION
     });
+
+    FetchUserDataModel userData = await UserApi().fetchUserData(widget.senderID);
+
+    if(userData.status){
+      setState(() {
+        receiverMobile = userData.data.userMobile;
+      });
+    }
+
+    _socketSetup();
+
   }
 
 
@@ -187,9 +222,19 @@ class _ChatScreenState extends State<ChatScreen> {
     }
       });
 
+      socket.emit('newmessage' , {
+        "to" : receiverMobile,
+        "roomID" : roomID,
+        "message" : message 
+      });
+
   }
 
   updateRoom(roomValue) async {
+      socket.emit("toggleConversation" , {
+        "to" : receiverMobile,
+        "roomStatus" : roomValue
+      });
       await ChangeRoomStatusApi().changeRoomStatus(widget.senderID, widget.roomId, roomValue , userToken).then((value) => {
         print("Room Status Changed"),
       });
@@ -276,7 +321,6 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: Text("${snapshot.error}"),
                           );
                         }else if(snapshot.hasData){
-                          print('Data Got');
 
                           if(snapshot.data.status){
                             isConversationAvailable = true;

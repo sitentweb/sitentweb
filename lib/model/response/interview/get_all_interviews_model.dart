@@ -44,9 +44,11 @@ class Datum {
     this.interviewAgreeStatus,
     this.interviewRescheduleStatus,
     this.employeeName,
+    this.employeeMobile,
     this.employeePhoto,
     this.employeeToken,
     this.employerName,
+    this.employerMobile,
     this.employerLogo,
     this.employerToken,
   });
@@ -61,9 +63,11 @@ class Datum {
   String interviewAgreeStatus;
   String interviewRescheduleStatus;
   String employeeName;
+  String employeeMobile;
   String employeePhoto;
   String employeeToken;
   String employerName;
+  String employerMobile;
   String employerLogo;
   String employerToken;
 
@@ -78,9 +82,11 @@ class Datum {
     interviewAgreeStatus: json["interview_agree_status"],
     interviewRescheduleStatus: json["interview_reschedule_status"],
     employeeName: json["employee_name"],
+    employeeMobile : json["employee_mobile"],
     employeePhoto: json["employee_photo"],
     employeeToken: json["employee_token"],
     employerName: json["employer_name"],
+    employerMobile: json["employer_mobile"],
     employerLogo: json["employer_logo"],
     employerToken: json["employer_token"],
   );
@@ -96,9 +102,11 @@ class Datum {
     "interview_agree_status": interviewAgreeStatus,
     "interview_reschedule_status": interviewRescheduleStatus,
     "employee_name": employeeName,
+    "employee_mobile": employeeMobile,
     "employee_photo": employeePhoto,
     "employee_token": employeeToken,
     "employer_name": employerName,
+    "employer_mobile": employerMobile,
     "employer_logo": employerLogo,
     "employer_token": employerToken,
   };

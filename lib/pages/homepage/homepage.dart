@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,6 +9,7 @@ import 'package:quick_actions/quick_actions.dart';
 import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/drawer/application_drawer.dart';
 import 'package:remark_app/config/constants.dart';
+import 'package:remark_app/config/userSetting.dart';
 import 'package:remark_app/pages/candidates/all_candidates.dart';
 import 'package:remark_app/pages/candidates/search_candidates.dart';
 import 'package:remark_app/pages/dashboard/dashboard.dart';
@@ -16,6 +19,7 @@ import 'package:remark_app/pages/jobs/search_job.dart';
 import 'package:remark_app/pages/notification/job_notification.dart';
 import 'package:remark_app/pages/profile/view_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class HomePage extends StatefulWidget {
   final userType;
@@ -31,11 +35,39 @@ class _HomePageState extends State<HomePage> {
   PersistentTabController _tabController =
       PersistentTabController(initialIndex: 0);
 
+  Socket socket;
+
   @override
   void initState() {
     // TODO: implement initState
+    _getFirebaseNotification();
     getUserData();
     super.initState();
+  }
+
+  
+  _getFirebaseNotification() async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) { 
+        if(message.data['notification_type'] == 'logged_out'){
+          UserSetting.unsetUserSession();
+          showDialog(
+            context: context,
+             builder: (context) => AlertDialog(
+               title: Text("You are logged out from this device"),
+                actions: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    height:30,
+                    child: MaterialButton(
+                      onPressed: () => exit(0),
+                      child: Text("Ok")
+                    ),
+                  )
+                ],
+             )
+          );
+      }
+    });
   }
 
   getUserData() async {
