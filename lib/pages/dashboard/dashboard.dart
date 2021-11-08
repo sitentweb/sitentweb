@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:remark_app/apis/dashboard/analytics.dart';
+import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/components/tutorial/tutorial_content.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/dashboard/dashboard_data_model.dart';
+import 'package:remark_app/pages/candidates/hired_candidates.dart';
+import 'package:remark_app/pages/company/employer_company.dart';
 import 'package:remark_app/pages/dashboard/showChart.dart';
+import 'package:remark_app/pages/jobs/employer_all_jobs.dart';
 import 'package:remark_app/pages/jobs/post_job.dart';
 import 'package:remark_app/pages/response/responses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,7 +50,6 @@ class _DashboardState extends State<Dashboard> {
   saveTutorial() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setBool("dashboardTutorial", true);
-
   }
 
   void initTargets() {
@@ -184,12 +187,12 @@ class _DashboardState extends State<Dashboard> {
                       Container(
                         width: size.width,
                         key: _chartDataKey,
-                        child: ShowChart(
+                        child: dashData.jobCount != "0" ? ShowChart(
                           company: dashData.companyCount,
                           job: dashData.jobCount,
                           interview: dashData.interViewCount,
                           questionnaire: dashData.questionnaireCount,
-                        ),
+                        ) : EmptyData(message: "Chart is not ready \n Please post new job by click + icon",),
                       ),
                       SizedBox(height: 30,),
                       Container(
@@ -224,17 +227,20 @@ class _DashboardState extends State<Dashboard> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             DashboardCountData(
+                              link: EmployerAllJobs(),
                               key: _totalCountKey,
                               count: dashData.jobCount,
                               title: "Jobs",
                               type: Colors.blueAccent,
                             ),
                             DashboardCountData(
+                              link: EmployerCompanies(),
                               count: dashData.companyCount,
                               title: "Company",
                               type: Colors.orangeAccent,
                             ),
                             DashboardCountData(
+                              link: HiredCandidates(),
                               count: dashData.hiredCount,
                               title: "Hired",
                               type: Colors.black,
@@ -399,8 +405,9 @@ class DashboardCountData extends StatelessWidget {
   final count;
   final title;
   final type;
+  final Widget link;
 
-  const DashboardCountData({Key key, this.count, this.title, this.type})
+  const DashboardCountData({Key key, this.count, this.title, this.type , this.link})
       : super(key: key);
 
   @override
@@ -413,18 +420,27 @@ class DashboardCountData extends StatelessWidget {
                 ? Colors.redAccent
                 : type;
     return Container(
-      child: Column(
-        children: [
-          Text(
-            count,
-            style: GoogleFonts.poppins(
-                color: color, fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            title,
-            style: GoogleFonts.poppins(color: color, fontSize: 16),
-          )
-        ],
+      child: InkWell(
+        onTap: () {
+          pushNewScreen(
+            context, 
+            withNavBar: false,
+            screen: link
+            );
+        },
+        child: Column(
+          children: [
+            Text(
+              count,
+              style: GoogleFonts.poppins(
+                  color: color, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              title,
+              style: GoogleFonts.poppins(color: color, fontSize: 16),
+            )
+          ],
+        ),
       ),
     );
   }

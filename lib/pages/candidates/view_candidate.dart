@@ -10,7 +10,6 @@ import 'package:remark_app/apis/jobs/fetch_posted_jobs.dart';
 import 'package:remark_app/components/buttons/icon_circle_button.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
-import 'package:remark_app/components/tutorial/tutorial_content.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/candidates/fetch_candidate.dart';
@@ -57,85 +56,11 @@ class _ViewCandidateState extends State<ViewCandidate> {
     }
   }
 
-  saveTutorial() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setBool("viewCandidateTutorial", true);
-  }
-
-  void initTargets() {
-    _targets.add(TargetFocus(
-        identify: "Menus",
-        targetPosition: TargetPosition(
-          Size(25 , 25),
-          Offset(320, 70)
-        ),
-        contents: [
-          TargetContent(
-            align: ContentAlign.bottom,
-            builder: (context, controller) {
-              return CustomTutorialContent(
-                title: "More Options",
-                content: "Here you will get more options to Call or Email this candidate, Schedule an Interview & Take a Quick Test of this Candidate",
-              );
-            },
-          )
-        ]
-    ));
-    _targets.add(TargetFocus(
-        identify: "Hire",
-        keyTarget: _hireButtonKey,
-        contents: [
-          TargetContent(
-              align: ContentAlign.top,
-              builder: (context, controller) => CustomTutorialContent(title: "Hire Candidate", content: "You can direct hire this candidate",)
-          )
-        ]
-    ));
-  }
-
-  void showTutorial() async {
-
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    bool tut = pref.get("viewCandidateTutorial") != null ? pref.getBool("viewCandidateTutorial") ?? false : false;
-    print(tut);
-    tut = false;
-    if(!tut){
-      initTargets();
-      TutorialCoachMark(
-        context,
-        targets: _targets,
-        colorShadow: kLightColor,
-        textSkip: "Skip",
-        alignSkip: Alignment.bottomLeft,
-        skipWidget: Container(
-          padding: EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 30
-          ),
-          decoration: BoxDecoration(
-              color: Colors.white
-          ),
-          child: Text("Skip" , style: GoogleFonts.poppins(
-              color: kDarkColor
-          ),),
-        ),
-        onFinish: () {
-          saveTutorial();
-        },
-        onClickTarget: (target) => print('on click target: $target'),
-        onSkip: () {
-          saveTutorial();
-        },
-        onClickOverlay: (target) => print('overlay clicked : $target'),
-      ).show();
-    }
-  }
 
   @override
   void initState() {
     // TODO: implement initState
     getUserData();
-    showTutorial();
     fetchCandidateDetails();
     super.initState();
   }

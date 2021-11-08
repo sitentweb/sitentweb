@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/pages/auth/login.dart';
@@ -6,28 +8,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class OnBoardingScr extends StatefulWidget {
-
   @override
   _OnBoardingScrState createState() => _OnBoardingScrState();
 }
 
 class _OnBoardingScrState extends State<OnBoardingScr> {
   List<PageViewModel> _onBoardingPages = [
+
     PageViewModel(
-        title: "Find Your Dream Job",
-        body: "Upload your resumes & find your dream jobs with lots of filters",
-        image: Image.asset('assets/logo/logo.png' , width: 150,)
+        title: "Get your Dream Job",
+        body: "We have lots of great job offers you deserve",
+        image: SvgPicture.asset('assets/onboarding/01_team.svg' , width: 180, height: 180 , fit: BoxFit.contain, )
     ),
     PageViewModel(
-        title: "Questionnaire",
-        body: "Online Testing system for employee",
-        image: Image.asset('assets/logo/logo.png' , width: 150,)
+        title: "Your dream jobs just a click away",
+        body: "Online Interview system for employee & employer",
+        image: SvgPicture.asset('assets/onboarding/03_freelancer.svg' ,  width: 180, height: 180 , fit: BoxFit.contain,)
     ),
     PageViewModel(
-        title: "Online Interview",
-        body: "Video & Audio Interview feature",
-        image: Image.asset('assets/logo/logo.png' , width: 150,)
+        title: "Find a perfect employee",
+        body: "Lots of great employees here, find a perfect employee according to your requirements",
+        image: SvgPicture.asset('assets/onboarding/04_employer.svg' ,  width: 180, height: 180 , fit: BoxFit.contain, )
     )
+
   ];
 
   Widget _onBoardingImage(String imageName , [double imageWidth = 150]) {
@@ -60,7 +63,6 @@ class _OnBoardingScrState extends State<OnBoardingScr> {
         pages: _onBoardingPages,
         showDoneButton: true,
         onDone: () async {
-
           print('Done');
           SharedPreferences pref = await SharedPreferences.getInstance();
           pref.setBool('onboard', true);
@@ -69,9 +71,13 @@ class _OnBoardingScrState extends State<OnBoardingScr> {
         showSkipButton: true,
         skipFlex: 0,
         nextFlex: 0,
-        skip: Text('Skip'),
-        next: Icon(Icons.arrow_forward),
-        done: Text('Done'),
+        skip: Text('Skip' , style: GoogleFonts.poppins(
+          color: kDarkColor
+        )),
+        next: Icon(Icons.arrow_forward , color: kDarkColor,),
+        done: Text('Done' , style: GoogleFonts.poppins(
+          color: kDarkColor
+        ) ),
         dotsDecorator: DotsDecorator(
             size: const Size.square(10.0),
             activeSize: const Size(20.0, 10.0),

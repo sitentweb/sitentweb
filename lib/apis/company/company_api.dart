@@ -89,7 +89,7 @@ class CompanyApi {
 
       final responses = http.MultipartRequest("POST" , Uri.parse(createCompanyApiUrl));
       responses.fields['company_data'] = companyData;
-      responses.fields['userID'] = userID;
+      responses.fields['user_id'] = userID;
       responses.files.add(await http.MultipartFile.fromPath('company_logo', logo));
 
       await responses.send().then((response) async {
@@ -98,12 +98,10 @@ class CompanyApi {
               print(jsonDecode(res.body));
               thisResponse = globalStatusModelFromJson(res.body);
             });
-
           }else{
             print('Wrong Status Code : ${response.statusCode}');
           }
       });
-
     }catch(e){
       print(e);
     }

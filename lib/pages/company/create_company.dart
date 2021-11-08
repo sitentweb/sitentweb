@@ -23,7 +23,7 @@ class _CreateCompanyState extends State<CreateCompany> {
 
   FilePickerResult _image;
   bool _isCreating = false;
-  var userID;
+  String userID;
   final _formKey = GlobalKey<FormState>();
   List<S2Choice<String>> _locations = <S2Choice<String>>[];
   TextEditingController _companyName = TextEditingController();

@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/auth/userDataModel.dart';
+import 'package:remark_app/model/user/fetch_user_data.dart';
 import 'package:remark_app/pages/homepage/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -106,6 +108,64 @@ class UserSetting {
 
   }
 
+    static setUserSessionData(FetchUserDataModel user) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    if(user.data.userType == "2"){
+      pref.setString("userOrganization", user.data.userOrganization);
+      pref.setString("userOrganizationType", user.data.userOrganizationType);
+
+    }else if(user.data.userType == "1"){
+      pref.setString('userUsername', user.data.userUsername ?? "");
+      pref.setString('userJobLocation', user.data.userJobLocation ?? "");
+      pref.setString('userExperience', user.data.userExperience ?? "");
+      pref.setString('userSkills', user.data.userSkills ?? "");
+      pref.setString('userLocation', user.data.userLocation ?? "");
+      pref.setString("userQualifications", user.data.userQualifications ?? "");
+      pref.setString('userLanguages', user.data.userLanguages ?? "");
+      pref.setString('userResume', user.data.userResume ?? "");
+
+    }else if(user.data.userType == "0"){
+
+      print("New User is setting up");
+
+      pref.setString('userUsername', "");
+      pref.setString('userJobLocation', "");
+      pref.setString('userExperience', "");
+      pref.setString('userSkills', "");
+      pref.setString('userLocation', "");
+      pref.setString("userQualifications", "");
+      pref.setString('userLanguages', "");
+    }
+
+    pref.setString('userID', user.data.userId ?? "");
+    pref.setString('userToken', user.data.userToken ?? "");
+    pref.setString('userType', user.data.userType ?? "");
+    pref.setString('userBio', user.data.userBio ?? "");
+    pref.setBool('userIsLogged', true);
+    pref.setString("userLogStep", "full");
+
+    if(pref.get("loginType") == null){
+      pref.setString("loginType" , "normal");
+    }
+
+
+    if(pref.getString("loginType") == "normal"){
+      pref.setString("userMobile", user.data.userMobile);
+      pref.setString('userName', user.data.userName ?? "");
+      pref.setString('userPhoto', user.data.userPhoto ?? "");
+      pref.setString('userEmail', user.data.userEmail ?? "");
+    }else{
+
+      pref.setString("userMobile", user.data.userMobile);
+      pref.setString('userName', user.data.userName != "" ? user.data.userName : pref.getString("userName"));
+      pref.setString('userPhoto', user.data.userPhoto != "" ? user.data.userPhoto : pref.getString("userPhoto"));
+      pref.setString('userEmail', user.data.userEmail != "" ? user.data.userEmail : pref.getString("userEmail"));
+
+    }
+
+  }
+
   static setGoogleSignInSession(credential) async {
 
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -126,6 +186,7 @@ class UserSetting {
 
     SharedPreferences pref = await SharedPreferences.getInstance();
 
+    UserApi().updateUser(pref.getString("userID"));
     pref.remove("userID");
     pref.remove("userName");
     pref.remove("userEmail");
@@ -136,6 +197,7 @@ class UserSetting {
     pref.remove("userLogStep");
 
     print('unsetting data');
+
     print(pref.getString("loginType"));
     if(pref.getString("loginType") == "Google"){
       await GoogleSignIn().signOut();

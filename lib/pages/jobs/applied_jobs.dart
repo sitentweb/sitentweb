@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:remark_app/apis/jobs/applied_jobs.dart';
+import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/drawer/application_drawer.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/job_card/job_card.dart';
@@ -45,7 +46,6 @@ class _AppliedJobsState extends State<AppliedJobs> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SafeArea(
         child: Container(
           child: Column(

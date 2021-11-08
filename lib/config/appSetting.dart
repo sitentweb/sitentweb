@@ -136,7 +136,7 @@ class AppSetting {
 
   static showUserImage(String image){
      if(image != null || image != ""){
-       return NetworkImage(base_url+image);
+       return NetworkImage(image);
      }else{
        return AssetImage(application_logo);
      }
@@ -146,6 +146,19 @@ class AppSetting {
     Random otp = new Random();
     var otpGen = 1000 + otp.nextInt(9999 - 1000);
     return otpGen;
+  }
+
+  static Size size(BuildContext context) {
+      Size size;
+      size = MediaQuery.of(context).size;
+      return size;
+  }
+
+  static Widget sizedBox(double width , double height) {
+      return SizedBox(
+        width: width,
+        height: height
+      );
   }
 
 }

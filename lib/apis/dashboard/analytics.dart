@@ -33,6 +33,7 @@ class AnalyticsData {
 
       }catch(e){
         print("Exception in dashboard");
+        print(Uri.parse(getDashboardDataApiUrl));
         print(e);
       }finally{
         client.close();

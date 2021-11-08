@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:remark_app/apis/candidates/hired_candidates.dart';
+import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
@@ -57,7 +58,7 @@ class _HiredCandidatesState extends State<HiredCandidates> {
             future: _fetchHiredCandidates,
             builder: (context, snapshot) {
               if(snapshot.hasData){
-                return ListView.builder(
+                return snapshot.data.status ? ListView.builder(
                   itemCount: snapshot.data.data.length,
                   itemBuilder: (context, index) {
                     var candidates = snapshot.  data.data[index];
@@ -84,7 +85,7 @@ class _HiredCandidatesState extends State<HiredCandidates> {
                       ),
                     );
                   },
-                );
+                ) : Center(child: EmptyData(message: "No Data Found",))  ;
               }else if(snapshot.hasError){
                 print(snapshot.error);
                 return Text("${snapshot.error}");

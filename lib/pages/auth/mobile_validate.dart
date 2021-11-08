@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +10,7 @@ import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/auth/loginModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sms_otp_auto_verify/sms_otp_auto_verify.dart';
 
 class MobileValidate extends StatefulWidget {
   const MobileValidate({Key key}) : super(key: key);
@@ -20,6 +20,7 @@ class MobileValidate extends StatefulWidget {
 }
 
 class _MobileValidateState extends State<MobileValidate> {
+
   bool isLoading = false;
   MobileNumberPicker mobileNumber = MobileNumberPicker();
   MobileNumber mobileNumberObject = MobileNumber();
@@ -43,14 +44,12 @@ class _MobileValidateState extends State<MobileValidate> {
   @override
   void initState() {
     // TODO: implement initState
-
     getUserCredential();
     super.initState();
   }
 
   getUserCredential() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-
     if (pref.get("userMobile") != null) {
       print(pref.get("userMobile"));
       if (pref.getString("userMobile") != "") {
@@ -102,27 +101,47 @@ class _MobileValidateState extends State<MobileValidate> {
         child: Container(
           height: size.height,
           child: SingleChildScrollView(
-            child: Column(
+            child: Stack(
               children: [
                 Container(
+                  alignment: Alignment.topCenter,
+                  width: size.width,
+                  height: size.height * 0.8,
+                  decoration: BoxDecoration(
+                    color: kDarkColor
+                  ),
+                  child: Container(
                   alignment: Alignment.topLeft,
                   width: size.width,
                   height: size.height * 0.3,
                   child: Center(
                     child: Container(
-                        width: 80,
-                        height: 80,
+                        alignment: Alignment.center,
+                        width: 100,
+                        height: 100,
+                        padding: EdgeInsets.all(15),
                         decoration: BoxDecoration(
-                            color: kDarkColor,
+                            color: Colors.white,
                             borderRadius:
-                                BorderRadius.all(Radius.circular(50))),
-                        child: Icon(
-                          FontAwesomeIcons.mobile,
-                          color: Colors.white,
+                                BorderRadius.all(Radius.circular(80))),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: Image.asset(application_logo , width: 80,),
                         )),
                   ),
                 ),
-                SizedBox(
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 200 ),
+                  width: size.width,
+                  height: size.height * 0.7,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(topRight: Radius.circular(50) )
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
                   height: 10,
                 ),
                 Container(
@@ -141,9 +160,9 @@ class _MobileValidateState extends State<MobileValidate> {
                   width: size.width,
                   child: Center(
                     child: Text(
-                      "We will send you OTP on this mobile number to verify your identity",
+                      "Please enter your 10 digit mobile number without +91",
                       style: GoogleFonts.poppins(
-                          color: Colors.grey, fontWeight: FontWeight.bold),
+                          color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -165,7 +184,7 @@ class _MobileValidateState extends State<MobileValidate> {
                             autofocus: true,
                             decoration: InputDecoration(
                               prefix: Container(
-                                width: size.width * 0.22,
+                                width: size.width * 0.16,
                                 child: Row(
                                   children: [
                                     Text("  +91 " , style: GoogleFonts.poppins(),),
@@ -179,8 +198,8 @@ class _MobileValidateState extends State<MobileValidate> {
                                   ],
                                 ),
                               ),
-                              hintText: '1234567890',
-                              hintStyle: GoogleFonts.poppins(fontSize: 20),
+                              hintText: 'Enter Phone Number',
+                              hintStyle: GoogleFonts.poppins(fontSize: 16),
                             ),
                           ),
                         ),
@@ -194,6 +213,8 @@ class _MobileValidateState extends State<MobileValidate> {
                 !isLoading
                     ? GestureDetector(
                         onTap: () async {
+                            String signature = await SmsRetrieved.getAppSignature();
+
                           var otp = AppSetting.randomOTPGenerator();
                           SharedPreferences pref =
                               await SharedPreferences.getInstance();
@@ -202,14 +223,14 @@ class _MobileValidateState extends State<MobileValidate> {
                             setState(() {
                               isLoading = true;
                             });
-                            // Toast.show("Your Generated OTP is ${otp.toString()}", context, duration: Toast.LENGTH_LONG , gravity:  Toast.BOTTOM);
-                            final snackbarotp = SnackBar(
-                              content: Text("Your OTP is ${otp.toString()}" , style: GoogleFonts.poppins(),),
-                            );
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackbarotp);
 
-                            await SendSMS().sendNewSms();
+                            pref.setString('otpSignature', signature);
+
+                            await SendSMS().sendNewSms(_mobileNumber.text , otp.toString() , signature);
+
+                            // var snackbar = SnackBar(content: Text("OTP : ${otp.toString()}"));
+
+                            // ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
                             LoginApiModel loginResp = await LoginApi()
                                 .loginApi(_mobileNumber.text, otp.toString());
@@ -217,9 +238,11 @@ class _MobileValidateState extends State<MobileValidate> {
                               pref.setString('userMobile', _mobileNumber.text);
                               Navigator.pushNamed(context, '/otp_validation');
                             }
+
                             setState(() {
                               isLoading = false;
                             });
+
                           } else {
                             final snackBar = SnackBar(
                               content: IconSnackBar(
@@ -236,7 +259,7 @@ class _MobileValidateState extends State<MobileValidate> {
                           // Navigator.pushNamed(context, '/otp_validation');
                         },
                         child: Container(
-                            width: 50,
+                            width: size.width * 0.8,
                             height: 50,
                             decoration: BoxDecoration(
                                 color: kDarkColor,
@@ -247,10 +270,9 @@ class _MobileValidateState extends State<MobileValidate> {
                                       color: Colors.black.withOpacity(0.1),
                                       blurRadius: 8)
                                 ]),
-                            child: Icon(
-                              Icons.chevron_right,
-                              color: Colors.white,
-                            )),
+                            child: Center(child: Text("Next" , style: TextStyle(
+                              color: Colors.white
+                            ), ))),
                       )
                     : Container(
                         padding: EdgeInsets.all(10),
@@ -270,8 +292,11 @@ class _MobileValidateState extends State<MobileValidate> {
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         )),
+                    ],
+                  ),
+                ),
               ],
-            ),
+            )
           ),
         ),
       ),

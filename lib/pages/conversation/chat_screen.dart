@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:chat_bubbles/bubbles/bubble_special_one.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -102,24 +101,37 @@ class _ChatScreenState extends State<ChatScreen> {
     return _getSingleRoom;
   }
 
-  _socketSetup() async {
+  _socketSetup() {
        socket = io('https://remarkablehr.in:8443' , <String, dynamic>{
         'transports' : ['websocket'],
-        'autoConnect' : false
+        'autoConnect' : FractionalOffset.center
     });
 
     socket.connect();
-
+    
+    print(userMobile);
     socket.emit('registerMe' , {
-      "id" : userMobile
+      "user" : userMobile 
     });
 
-    socket.on("receivemessage", (data) {
+    socket.on('user added' , (data) {
       print(data);
-      addMessageToConversation(data);
     });
 
-    socket.on("toggleconversation" , (data) {
+    // socket.on('receivemessage', (data) {
+    //   print(data);
+    //   addMessageToConversation(data);
+    // });
+
+    socket.on('getChatMessage' , (data) {
+      print(data);
+    });
+
+    socket.on('getmessage' , (data) {
+      print(data);
+    });
+
+    socket.on('toggleconversation' , (data) {
       print(data);
       setState(() {
         roomStatus = data['roomStatus'].toString();
@@ -178,9 +190,11 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         receiverMobile = userData.data.userMobile;
       });
+
+        _socketSetup();
+
     }
 
-    _socketSetup();
 
   }
 
@@ -222,6 +236,8 @@ class _ChatScreenState extends State<ChatScreen> {
     }
       });
 
+      print(receiverMobile);
+
       socket.emit('newmessage' , {
         "to" : receiverMobile,
         "roomID" : roomID,
@@ -231,10 +247,14 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   updateRoom(roomValue) async {
-      socket.emit("toggleConversation" , {
+      
+      if(userType == "2"){
+        socket.emit("toggleConversation" , {
         "to" : receiverMobile,
         "roomStatus" : roomValue
       });
+      }
+
       await ChangeRoomStatusApi().changeRoomStatus(widget.senderID, widget.roomId, roomValue , userToken).then((value) => {
         print("Room Status Changed"),
       });

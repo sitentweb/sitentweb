@@ -76,6 +76,8 @@ dependencies:
   flutter_native_splash: ^1.2.0
   socket_io_client: ^1.0.1
   connectivity: ^3.0.6
+  flutter_svg: ^0.22.0
+  sms_otp_auto_verify: ^1.2.2
 
 
 dev_dependencies:
@@ -99,6 +101,7 @@ flutter:
     - assets/flag/
     - assets/icons/
     - assets/splash/
+    - assets/onboarding/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -60,16 +60,6 @@ class _SplashScrState extends State<SplashScr> {
             ),)
           ],
         ));
-      }else{
-        snackBar = SnackBar(content: Row(
-          children: [
-            Icon(Icons.signal_cellular_4_bar_outlined , color: Colors.green,),
-            SizedBox(width: 5,),
-            Text("You are online" , style: GoogleFonts.poppins(
-                color: Colors.green
-            ), )
-          ],
-        ));
       }
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar);

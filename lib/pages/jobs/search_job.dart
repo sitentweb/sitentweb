@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:remark_app/apis/location/location_api.dart';
+import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/config/tagConfig.dart';
 import 'package:remark_app/pages/jobs/all_jobs.dart';

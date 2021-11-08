@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/candidates/fetch_hired_candidates.dart';
@@ -16,9 +18,14 @@ class HiredCandidatesApi {
 
         if(response.statusCode == 200){
 
-          thisResponse = fetchHiredCandidatesModelFromJson(response.body);
-
-          return thisResponse;
+          if(jsonDecode(response.body)['status']){
+            thisResponse = fetchHiredCandidatesModelFromJson(response.body);
+          }else{
+            thisResponse = FetchHiredCandidatesModel(
+              status: false,
+              data: []
+            );
+          }
 
         }else{
           print("Wrong Status Code : ${response.statusCode}");

@@ -39,7 +39,12 @@ class _PostedJobsState extends State<PostedJobs> {
 
   @override
   Widget build(BuildContext context) {
-    return Template(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        actions: [ApplicationAppBar()],
+        iconTheme: IconThemeData(color: kDarkColor),
+      ),
       body: SafeArea(
         child: Column(
           children: [

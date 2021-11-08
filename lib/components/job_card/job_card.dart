@@ -233,7 +233,7 @@ class _JobCardState extends State<JobCard> {
                           Spacer(),
                           Text(
                             widget.timeAgo,
-                            style: GoogleFonts.poppins(color: Colors.grey),
+                            style: GoogleFonts.poppins(color: Colors.grey , fontSize: 10),
                           )
                         ],
                       ),

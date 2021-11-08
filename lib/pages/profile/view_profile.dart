@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/user/register_buttons.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/config/get_from_session.dart';
 import 'package:remark_app/config/userSetting.dart';
+import 'package:remark_app/model/user/fetch_user_data.dart';
 import 'package:remark_app/pages/profile/edit_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +21,7 @@ class ViewProfile extends StatefulWidget {
   @override
   _ViewProfileState createState() => _ViewProfileState();
 }
-
+ 
 class _ViewProfileState extends State<ViewProfile> {
   String userType;
   String userName;
@@ -32,6 +35,7 @@ class _ViewProfileState extends State<ViewProfile> {
   String userLanguages;
   String userEmail;
   String userID;
+  Data user;
 
   // EXTRA FIELDS
   String userOrganization;
@@ -45,50 +49,69 @@ class _ViewProfileState extends State<ViewProfile> {
   }
 
   getUserType() async {
+
     SharedPreferences pref = await SharedPreferences.getInstance();
+
     setState(() {
       userType = pref.getString("userType");
-      userName = pref.getString("userName");
-      userPhoto = pref.getString("userPhoto");
-      userEmail = pref.getString("userEmail");
-      userBio = pref.getString("userBio");
       userID = pref.getString("userID");
+      userName = pref.getString("userName");  
+      userBio = pref.getString("userBio");
+      userEmail = pref.getString("userEmail");
+      userPhoto = pref.getString("userPhoto");
     });
 
-    userType == "2" ? getEmployerUserData() : getEmployeeUserData();
+    print(userID);
+
+  
+    FetchUserDataModel userData = await UserApi().fetchUserData(userID);
+
+    userType == "2" ? getEmployerUserData(userData) : getEmployeeUserData(userData);
   }
 
-  Future getEmployeeUserData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
+  Future getEmployeeUserData(FetchUserDataModel userData) async {
+
+    if(userData.status){
+        user = userData.data;
+    }
+userType == "2"
+        ? EmployerViewProfile(context)
+        : userType == "0" ? RegisterAs() : EmployeeViewProfile(context);
+    // SharedPreferences pref = await SharedPreferences.getInstance();
 
     var _jobLocation;
     var arrayLocation;
 
-    if (pref.getString("userJobLocation") != "") {
-      _jobLocation = jsonDecode(pref.getString("userJobLocation"));
+    if (await UserApi.user("userJobLocation") != "") {
+      _jobLocation = jsonDecode(await UserApi.user("userJobLocation"));
       arrayLocation = _jobLocation['arrayAddress'].join(", ");
     } else {
       arrayLocation = "";
     }
 
-    setState(() {
-      userExperience = pref.getString("userExperience") ?? "";
-      userQualifications = pref.getString("userQualifications") ?? "";
-      userSkills = pref.getString("userSkills") ?? "";
-      userLocation = pref.getString("userLocation") ?? "";
+      userExperience = await UserApi.user("userExperience") ?? "";
+      userQualifications = await UserApi.user("userQualifications") ?? "";
+      userSkills = await UserApi.user("userSkills") ?? "";
+      userLocation = await UserApi.user("userLocation") ?? "";
       userJobLocation = arrayLocation ?? "";
-      userLanguages = pref.getString("userLanguages") ?? "";
-    });
+      userLanguages = await UserApi.user("userLanguages") ?? "";
+
+      setState(() {});
+    
   }
 
-  Future getEmployerUserData() async {
+  Future getEmployerUserData(FetchUserDataModel userData) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
-    setState(() {
-      userOrganization = pref.getString("userOrganization");
-      userOrganizationType = pref.getString("userOrganizationType");
+    
+      userOrganization = await UserApi.user('userOrganization') ;
+      userOrganizationType = await UserApi.user('userOrganizationType');
       print(userOrganization);
-    });
+
+      setState(() {
+        
+      });
+    
   }
 
   @override
@@ -111,7 +134,7 @@ class _ViewProfileState extends State<ViewProfile> {
           children: [
             Container(
               child: Text(
-                "${label}",
+                "$label",
                 style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -123,7 +146,7 @@ class _ViewProfileState extends State<ViewProfile> {
             ),
             Container(
               child: Text(
-                "${value}",
+                "$value",
                 style: GoogleFonts.poppins(color: Colors.grey[800]),
               ),
             )
@@ -202,12 +225,7 @@ class _ViewProfileState extends State<ViewProfile> {
                       child: FloatingActionButton(
                         backgroundColor: kDarkColor,
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    EditProfile(userID: userID),
-                              ));
+                          pushNewScreen(context, screen: EditProfile(userID: userID , userType: userType,) , withNavBar: false);
                         },
                         child: Icon(
                           FontAwesomeIcons.pencilAlt,
@@ -300,13 +318,7 @@ class _ViewProfileState extends State<ViewProfile> {
                       child: FloatingActionButton(
                         backgroundColor: kDarkColor,
                         onPressed: () => {
-                          showMaterialModalBottomSheet(
-                              context: context,
-                              builder: (context) => EditProfile(
-                                    userID: userID,
-                                  ),
-                              isDismissible: true,
-                              useRootNavigator: true)
+                          pushNewScreen(context, screen: EditProfile(userID: userID , userType: userType,) , withNavBar: false )
                         },
                         child: Icon(
                           FontAwesomeIcons.pencilAlt,

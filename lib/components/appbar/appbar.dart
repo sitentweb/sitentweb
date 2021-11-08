@@ -23,6 +23,9 @@ class ApplicationAppBar extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Container(
+                  width:40
+                ),
                 Spacer(),
                 Hero(tag:"splashscreenImage" ,child: Container(
                     child: Image.asset(application_logo , width: 40,))),

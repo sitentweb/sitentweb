@@ -12,11 +12,15 @@ var application_name = 'Remark';
 const String base_url = 'https://remarkablehr.in';
 
 //SMS GATEWAY GLOBAL 91
-const String smsBaseUrl = 'http://w.global91sms.in/public/sms/sendjson';
-const String smsApi = '4a1572a4e7de497aba4bd602f5470d0f';
-const String smsSender = 'DASEDF';
-const String smsType = 'TRANS';
+const String smsBaseUrl = 'http://www.global91sms.in/app/smsapi/index.php';
+const String smsApi = '560D6D3BEA4938';
+const String smsEntity = '1201162326487946387';
+const String smsOTPTempID = '1207162953792805217 ';
+const String smsSender = 'VISKOR';
+const String smsType = 'text';
 const String smsUnicode = 'no';
+const String routeid = '459';
+// const String smsSenderID = 'VISKOR';
 
 // Authentication URLs
 const String loginApiUrl = base_url + '/loginApi';
@@ -74,3 +78,4 @@ const String createInterviewApiUrl = base_url + '/scheduledInterviewApi';
 const String interviewResponseApiUrl = base_url + '/setInterviewAgree';
 const String createChatRoomApiUrl = base_url + '/createRoom';
 const String updateUserDetailsApiUrl = base_url + '/updateUser';
+const String employerCompanyApiUrl = base_url + '/companies';

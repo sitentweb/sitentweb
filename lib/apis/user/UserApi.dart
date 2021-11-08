@@ -8,10 +8,11 @@ import 'package:remark_app/model/auth/userDataModel.dart';
 import 'package:remark_app/model/global/global_status_model.dart';
 import 'package:remark_app/model/user/fetch_user_data.dart';
 import 'package:remark_app/model/user/update_user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserApi {
 
-  Future getUserByMobileNumber(String mobileNumber ,String userToken) async {
+  Future<UserDataModel> getUserByMobileNumber(String mobileNumber ,String userToken) async {
 
       var client = http.Client();
       UserDataModel thisResponse;
@@ -29,8 +30,10 @@ class UserApi {
           if(thisResponse.status){
             return thisResponse;
           }else{
-            var ErrorMessage = "User not found";
-            return ErrorMessage;
+            thisResponse = UserDataModel(
+              status: false,
+              data: null
+            );
           }
 
         }else{
@@ -182,4 +185,17 @@ class UserApi {
     return thisResponse;
   }
 
+  static user(String userKey) async {
+
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    if(pref.get(userKey) != null){
+      return pref.get(userKey);
+    }else{
+      return null;
+    }
+
+  }
+
 }
+

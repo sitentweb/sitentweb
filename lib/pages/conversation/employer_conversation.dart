@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:remark_app/apis/conversation/get_all_rooms.dart';
+import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/appbar/conversation_room_appbar.dart';
+import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/conversation/get_all_room_model.dart';
@@ -42,10 +44,10 @@ class _EmployerConversationRoomState extends State<EmployerConversationRoom> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chats" , style: TextStyle(
-          color: Colors.white
-        ),),
+        backgroundColor: Colors.white,
         centerTitle: true,
+        actions: [ApplicationAppBar()],
+        iconTheme: IconThemeData(color: kDarkColor),
       ),
       body: Container(
         width: size.width,
@@ -89,7 +91,7 @@ class _EmployerConversationRoomState extends State<EmployerConversationRoom> {
                 );
               }else{
                 print("No Room Here");
-                return Text("No Room Here");
+                return EmptyData(message: "No Room Here",);
               }
             }else{
               return CircularLoading();

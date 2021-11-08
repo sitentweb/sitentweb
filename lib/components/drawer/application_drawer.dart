@@ -4,21 +4,27 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/config/userSetting.dart';
 import 'package:remark_app/pages/auth/login.dart';
 import 'package:remark_app/pages/candidates/hired_candidates.dart';
+import 'package:remark_app/pages/company/employer_company.dart';
 import 'package:remark_app/pages/conversation/employer_conversation.dart';
 import 'package:remark_app/pages/homepage/homepage.dart';
 import 'package:remark_app/pages/jobs/all_jobs.dart';
 import 'package:remark_app/pages/jobs/applied_jobs.dart';
+import 'package:remark_app/pages/jobs/employer_all_jobs.dart';
 import 'package:remark_app/pages/jobs/posted_jobs.dart';
 import 'package:remark_app/pages/jobs/save_job.dart';
+import 'package:remark_app/pages/profile/edit_profile.dart';
+import 'package:remark_app/pages/profile/view_profile.dart';
 import 'package:remark_app/pages/response/interview/interview_employee.dart';
 import 'package:remark_app/pages/response/interview/video_call_screen.dart';
 import 'package:remark_app/pages/response/responses.dart';
+import 'package:remark_app/pages/support/support.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -72,7 +78,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
       child: Container(
         child: Column(
           children: [
-            viewUserPhoto(size),
+            viewUserPhoto(size , context),
             Expanded(
               child: Container(
                   padding: EdgeInsets.all(8),
@@ -103,10 +109,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Jobs(
-                                    isSearch: false,
-                                    searchData: [],
-                                  ),
+                                  builder: (context) => EmployerAllJobs()
                                 ));
                           },
                         ),
@@ -138,6 +141,19 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                                     builder: (context) => PostedJobs(),
                                   ));
                             }),
+                      if (userType == "2")
+                        MenuList(
+                            title: "Companies",
+                            icon: Icon(FontAwesomeIcons.briefcase),
+                            action: () {
+                              Navigator.pop(context);
+
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EmployerCompanies(),
+                                  ));
+                            }),
                       if(userType == "2")
                         MenuList(
                           title: "Hired Candidates",
@@ -164,20 +180,20 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                                 ));
                           }
                         ),
-                      if (userType == "1")
-                        MenuList(
-                          title: "Applied Jobs",
-                          icon: Icon(Icons.thumb_up),
-                          action: ()
-                          {
-                            Navigator.pop(context);
+                      // if (userType == "1")
+                      //   MenuList(
+                      //     title: "Applied Jobs",
+                      //     icon: Icon(Icons.thumb_up),
+                      //     action: ()
+                      //     {
+                      //       Navigator.pop(context);
 
-                            Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => AppliedJobs(),
-                                      ));
-                                }),
+                      //       Navigator.push(
+                      //                 context,
+                      //                 MaterialPageRoute(
+                      //                   builder: (context) => AppliedJobs(),
+                      //                 ));
+                      //           }),
                       if (userType == "1" || userType == "2")
                         MenuList(
                           title: "Conversation",
@@ -211,7 +227,12 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                       MenuList(
                         title: "Support",
                         icon: Icon(Icons.support_agent),
-                        action: () => print("Support"),
+                        action: () {
+                          Navigator.pop(context);
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => Support()
+                            ));
+                        },
                       ),
                       MenuList(
                         title: "Share",
@@ -244,51 +265,73 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
     );
   }
 
-  Widget viewUserPhoto(Size size) {
+  Widget viewUserPhoto(Size size , BuildContext context) {
     return Container(
       width: size.width,
       height: size.height * 0.3,
       color: kLightColor,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          userPhoto != null
-              ? AvatarGlow(
-                  glowColor: Colors.white,
-                  duration: Duration(milliseconds: 2000),
-                  repeat: true,
-                  repeatPauseDuration: Duration(milliseconds: 100),
-                  animate: true,
-                  endRadius: 50,
-                  shape: BoxShape.circle,
-                  curve: Curves.fastOutSlowIn,
-                  showTwoGlows: true,
-                  child: Material(
-                    elevation: 5,
-                    shape: CircleBorder(),
-                    child: CircleAvatar(
-                      backgroundColor: kDarkColor,
-                      radius: 40,
-                      backgroundImage: AppSetting.showUserImage(userPhoto),
-                    ),
-                  ),
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            userPhoto != null
+                ? Stack(
+                  children: [
+                    AvatarGlow(
+                        glowColor: Colors.white,
+                        duration: Duration(milliseconds: 2000),
+                        repeat: true,
+                        repeatPauseDuration: Duration(milliseconds: 100),
+                        animate: true,
+                        endRadius: 50,
+                        shape: BoxShape.circle,
+                        curve: Curves.fastOutSlowIn,
+                        showTwoGlows: true,
+                        child: Material(
+                          elevation: 5,
+                          shape: CircleBorder(),
+                          child: CircleAvatar(
+                            backgroundColor: kDarkColor,
+                            radius: 40,
+                            backgroundImage: AppSetting.showUserImage(userPhoto),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 5,
+                        right: 5,
+                        child: InkWell(
+                          onTap: () => pushNewScreen(
+                            context,
+                            screen: EditProfile(userID : userID , userType: userType),
+                            withNavBar: true),
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle
+                            ),
+                            child: Icon(Icons.edit , size: 15, color: kDarkColor, )),
+                        ))
+                  ],
                 )
-              : CircularProgressIndicator(),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            "$userName",
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Text(
-            "$userDetail",
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
-          )
-        ],
+                : CircularProgressIndicator(),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              "$userName",
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Text(
+              "$userDetail",
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
+            )
+          ],
+        ),
       ),
     );
   }

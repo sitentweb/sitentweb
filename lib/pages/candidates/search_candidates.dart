@@ -3,6 +3,7 @@ import 'package:flutter_tags/flutter_tags.dart';
 import 'package:remark_app/apis/candidates/all_candidates_api.dart';
 import 'package:remark_app/apis/education/education_api.dart';
 import 'package:remark_app/apis/location/location_api.dart';
+import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/pages/candidates/all_candidates.dart';
@@ -66,6 +67,12 @@ class _SearchCandidatesState extends State<SearchCandidates> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        actions: [ApplicationAppBar()],
+        iconTheme: IconThemeData(color: kDarkColor),
+      ),
       body: SafeArea(
           child: Container(
             padding: EdgeInsets.all(8),
@@ -173,10 +180,11 @@ class _SearchCandidatesState extends State<SearchCandidates> {
                   Container(
                     child: Row(
                       children: [
-                        MaterialButton(
-                          child: Text("Save this Search"),
-                          onPressed: () => print("Saved"),
-                        ),
+                        // MaterialButton(
+                        //   child: Text(""),
+                        //   onPressed: () => print("Saved"),
+                        // ),
+                        Spacer(),
                         MaterialButton(
                           onPressed: () {
                             print(_nameController.text);
@@ -203,7 +211,8 @@ class _SearchCandidatesState extends State<SearchCandidates> {
                           child: Text("Search" , style: TextStyle(
                               color: Colors.white
                           ),),
-                        )
+                        ),
+                        Spacer(),
                       ],
                     ),
                   )

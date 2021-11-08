@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/drawer/application_drawer.dart';
+import 'package:remark_app/config/constants.dart';
 
 class Template extends StatefulWidget {
   final Widget body;
@@ -23,7 +24,9 @@ class _TemplateState extends State<Template> {
       backgroundColor: Colors.white,
       elevation: 0,
       actions: [
+        ApplicationAppBar()
       ],
+      iconTheme: IconThemeData(color: kDarkColor),
     ),
       drawer: Drawer(
         child: ApplicationDrawer(),

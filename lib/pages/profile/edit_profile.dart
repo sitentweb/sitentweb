@@ -5,19 +5,24 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:remark_app/apis/location/location_api.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
+import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
+import 'package:remark_app/config/userSetting.dart';
 import 'package:remark_app/model/global/global_status_model.dart';
 import 'package:remark_app/model/location/location.dart';
 import 'package:remark_app/model/user/fetch_user_data.dart';
+import 'package:remark_app/pages/homepage/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
+  final String userType;
   final String userID;
-  const EditProfile({Key key, this.userID}) : super(key: key);
+  const EditProfile({Key key, this.userID, this.userType}) : super(key: key);
 
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -48,6 +53,7 @@ class _EditProfileState extends State<EditProfile> {
   // EDITING CONTROLLERS
   String _userPhoto;
   String _userMobile;
+  String _userToken;
   TextEditingController _userNameController = TextEditingController();
   TextEditingController _userEmailController = TextEditingController();
   TextEditingController _userMobileController = TextEditingController();
@@ -88,8 +94,9 @@ class _EditProfileState extends State<EditProfile> {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     setState(() {
-      userType = pref.getString("userType");
+      userType = widget.userType;
       userID = pref.getString("userID");
+      _userToken = pref.getString("userToken");
     });
 
     user = await UserApi().fetchUserData(widget.userID);
@@ -97,6 +104,7 @@ class _EditProfileState extends State<EditProfile> {
     Data u = user.data;
 
     setState(() {
+
       _userPhoto = u.userPhoto;
       _userMobile = u.userMobile;
       _userNameController.text = u.userName;
@@ -129,6 +137,11 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        actions:[ApplicationAppBar()],
+        iconTheme: IconThemeData(color: kDarkColor )
+      ) ,
       body: SafeArea(
         child: !_isLoadingData ? Container(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -354,6 +367,21 @@ class _EditProfileState extends State<EditProfile> {
                 SizedBox(
                   height: 10,
                 ),
+                 if(userType == "1")
+                TextFormField(
+                  controller: _userLocationController,
+                  decoration: InputDecoration(
+                      contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10),
+                      labelText: "Location",
+                      labelStyle: GoogleFonts.poppins(),
+                      hintText: "Indore, Madhya Pradesh",
+                      border: OutlineInputBorder()),
+                ),
+                if(userType == "1")
+                SizedBox(
+                  height: 10,
+                ),
                 if(userType == "1")
                 TextFormField(
                   controller: _userJobLocationController,
@@ -447,7 +475,8 @@ class _EditProfileState extends State<EditProfile> {
 
                     Map<String, dynamic> data = {
                       "user_name" : _userNameController.text ?? "",
-                      "user_email" : _userEmailController.text ?? ""
+                      "user_email" : _userEmailController.text ?? "",
+                      "user_type" : widget.userType,
                     };
 
                     if(userType == "2"){
@@ -455,17 +484,39 @@ class _EditProfileState extends State<EditProfile> {
                         "user_organization" : _userOrganizationController.text ?? "",
                         "user_organization_type" : _userOrganizationType.toString() ?? ""
                       });
+
                     }else{
 
-
+                      data.addAll({
+                        "user_bio" : _userBioController.text ?? "",
+                        "user_skills" : _userSkillsController.text ?? "",
+                        "user_experience" : _userExpController.text ?? "",
+                        "user_qualification" : _userQualificationController.text ?? "",
+                        "user_languages" : _userLangController.text ?? "",
+                        "user_location" : _userLocationController.text ?? "",
+                        "user_job_location" : _userJobLocationController.text ?? ""
+                      });
                     }
 
                     print(jsonEncode(data));
 
-
                     final updateReport = await UserApi().updateUserDetails(userID, jsonEncode(data) , imagePath);
 
                     if(updateReport.status){
+                      
+                      final user = await UserApi().fetchUserData(widget.userID);
+
+                      if(user.status){
+
+                        UserSetting.setUserSessionData(user);
+
+                        pushNewScreen(
+                          context,
+                          withNavBar: false,
+                          customPageRoute: MaterialPageRoute(builder: (context) => HomePage(userType: userType,),)
+                          );
+
+                      }
 
                       var snackBar = SnackBar(
                         content: Text("Profile Updated Successfully" , style: GoogleFonts.poppins()),
@@ -473,8 +524,10 @@ class _EditProfileState extends State<EditProfile> {
                       setState(() {
                         _isUpdatingProfile = false;
                       });
-
+ 
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(userType: userType)));
 
                     }else{
                       print("Something went wrong");
@@ -593,6 +646,7 @@ class _EditProfileState extends State<EditProfile> {
 
                               pref.setString("userMobile", _userMobileController.text);
                               setState(() {
+                                _userMobile = _userMobileController.text;
                                 mobileNumberVerified = true;
                               });
                             }
