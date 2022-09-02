@@ -3,13 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
-import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/user/register_buttons.dart';
 import 'package:remark_app/config/constants.dart';
-import 'package:remark_app/config/get_from_session.dart';
 import 'package:remark_app/config/userSetting.dart';
 import 'package:remark_app/model/user/fetch_user_data.dart';
 import 'package:remark_app/pages/profile/edit_profile.dart';
@@ -21,7 +18,7 @@ class ViewProfile extends StatefulWidget {
   @override
   _ViewProfileState createState() => _ViewProfileState();
 }
- 
+
 class _ViewProfileState extends State<ViewProfile> {
   String userType;
   String userName;
@@ -49,13 +46,12 @@ class _ViewProfileState extends State<ViewProfile> {
   }
 
   getUserType() async {
-
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     setState(() {
       userType = pref.getString("userType");
       userID = pref.getString("userID");
-      userName = pref.getString("userName");  
+      userName = pref.getString("userName");
       userBio = pref.getString("userBio");
       userEmail = pref.getString("userEmail");
       userPhoto = pref.getString("userPhoto");
@@ -63,20 +59,22 @@ class _ViewProfileState extends State<ViewProfile> {
 
     print(userID);
 
-  
     FetchUserDataModel userData = await UserApi().fetchUserData(userID);
 
-    userType == "2" ? getEmployerUserData(userData) : getEmployeeUserData(userData);
+    userType == "2"
+        ? getEmployerUserData(userData)
+        : getEmployeeUserData(userData);
   }
 
   Future getEmployeeUserData(FetchUserDataModel userData) async {
-
-    if(userData.status){
-        user = userData.data;
+    if (userData.status) {
+      user = userData.data;
     }
-userType == "2"
+    userType == "2"
         ? EmployerViewProfile(context)
-        : userType == "0" ? RegisterAs() : EmployeeViewProfile(context);
+        : userType == "0"
+            ? RegisterAs()
+            : EmployeeViewProfile(context);
     // SharedPreferences pref = await SharedPreferences.getInstance();
 
     var _jobLocation;
@@ -84,34 +82,29 @@ userType == "2"
 
     if (await UserApi.user("userJobLocation") != "") {
       _jobLocation = jsonDecode(await UserApi.user("userJobLocation"));
-      arrayLocation = _jobLocation['arrayAddress'].join(", ");
+      arrayLocation = _jobLocation['stringAddress'];
     } else {
       arrayLocation = "";
     }
 
-      userExperience = await UserApi.user("userExperience") ?? "";
-      userQualifications = await UserApi.user("userQualifications") ?? "";
-      userSkills = await UserApi.user("userSkills") ?? "";
-      userLocation = await UserApi.user("userLocation") ?? "";
-      userJobLocation = arrayLocation ?? "";
-      userLanguages = await UserApi.user("userLanguages") ?? "";
+    userExperience = await UserApi.user("userExperience") ?? "";
+    userQualifications = await UserApi.user("userQualifications") ?? "";
+    userSkills = await UserApi.user("userSkills") ?? "";
+    userLocation = await UserApi.user("userLocation") ?? "";
+    userJobLocation = arrayLocation ?? "";
+    userLanguages = await UserApi.user("userLanguages") ?? "";
 
-      setState(() {});
-    
+    setState(() {});
   }
 
   Future getEmployerUserData(FetchUserDataModel userData) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
-    
-      userOrganization = await UserApi.user('userOrganization') ;
-      userOrganizationType = await UserApi.user('userOrganizationType');
-      print(userOrganization);
+    userOrganization = await UserApi.user('userOrganization');
+    userOrganizationType = await UserApi.user('userOrganizationType');
+    print(userOrganization);
 
-      setState(() {
-        
-      });
-    
+    setState(() {});
   }
 
   @override
@@ -119,7 +112,9 @@ userType == "2"
     Size size = MediaQuery.of(context).size;
     return userType == "2"
         ? EmployerViewProfile(context)
-        : userType == "0" ? RegisterAs() : EmployeeViewProfile(context);
+        : userType == "0"
+            ? RegisterAs()
+            : EmployeeViewProfile(context);
   }
 
   Widget userDetail(String label, String value) {
@@ -170,9 +165,9 @@ userType == "2"
                     ? Hero(
                         tag: "userPhoto",
                         child: CircleAvatar(
+                          backgroundColor: Colors.white,
                           radius: 30,
-                          backgroundImage:
-                              NetworkImage("${base_url}${userPhoto}"),
+                          backgroundImage: NetworkImage(base_url + userPhoto),
                         ),
                       )
                     : CircularProgressIndicator(),
@@ -225,7 +220,12 @@ userType == "2"
                       child: FloatingActionButton(
                         backgroundColor: kDarkColor,
                         onPressed: () {
-                          pushNewScreen(context, screen: EditProfile(userID: userID , userType: userType,) , withNavBar: false);
+                          pushNewScreen(context,
+                              screen: EditProfile(
+                                userID: userID,
+                                userType: userType,
+                              ),
+                              withNavBar: false);
                         },
                         child: Icon(
                           FontAwesomeIcons.pencilAlt,
@@ -260,8 +260,7 @@ userType == "2"
                         child: CircleAvatar(
                           backgroundColor: Colors.white,
                           radius: 30,
-                          backgroundImage:
-                              NetworkImage("${base_url}${userPhoto}"),
+                          backgroundImage: NetworkImage(base_url + userPhoto),
                         ),
                       )
                     : CircularProgressIndicator(),
@@ -318,7 +317,12 @@ userType == "2"
                       child: FloatingActionButton(
                         backgroundColor: kDarkColor,
                         onPressed: () => {
-                          pushNewScreen(context, screen: EditProfile(userID: userID , userType: userType,) , withNavBar: false )
+                          pushNewScreen(context,
+                              screen: EditProfile(
+                                userID: userID,
+                                userType: userType,
+                              ),
+                              withNavBar: false)
                         },
                         child: Icon(
                           FontAwesomeIcons.pencilAlt,

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -10,7 +11,7 @@ import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/auth/loginModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms_otp_auto_verify/sms_otp_auto_verify.dart';
+// import 'package:sms_otp_auto_verify/sms_otp_auto_verify.dart';
 
 class MobileValidate extends StatefulWidget {
   const MobileValidate({Key key}) : super(key: key);
@@ -20,7 +21,6 @@ class MobileValidate extends StatefulWidget {
 }
 
 class _MobileValidateState extends State<MobileValidate> {
-
   bool isLoading = false;
   MobileNumberPicker mobileNumber = MobileNumberPicker();
   MobileNumber mobileNumberObject = MobileNumber();
@@ -56,7 +56,9 @@ class _MobileValidateState extends State<MobileValidate> {
         _mobileNumber.text = pref.getString("userMobile");
       }
     } else {
-      askAboutMobileNumber();
+      if (Platform.isAndroid) {
+        askAboutMobileNumber();
+      }
     }
   }
 
@@ -101,16 +103,14 @@ class _MobileValidateState extends State<MobileValidate> {
         child: Container(
           height: size.height,
           child: SingleChildScrollView(
-            child: Stack(
-              children: [
-                Container(
-                  alignment: Alignment.topCenter,
-                  width: size.width,
-                  height: size.height * 0.8,
-                  decoration: BoxDecoration(
-                    color: kDarkColor
-                  ),
-                  child: Container(
+              child: Stack(
+            children: [
+              Container(
+                alignment: Alignment.topCenter,
+                width: size.width,
+                height: size.height * 0.8,
+                decoration: BoxDecoration(color: kDarkColor),
+                child: Container(
                   alignment: Alignment.topLeft,
                   width: size.width,
                   height: size.height * 0.3,
@@ -126,140 +126,167 @@ class _MobileValidateState extends State<MobileValidate> {
                                 BorderRadius.all(Radius.circular(80))),
                         child: Padding(
                           padding: const EdgeInsets.only(left: 5),
-                          child: Image.asset(application_logo , width: 80,),
+                          child: Image.asset(
+                            application_logo,
+                            width: 80,
+                          ),
                         )),
                   ),
                 ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 200 ),
-                  width: size.width,
-                  height: size.height * 0.7,
-                  decoration: BoxDecoration(
+              ),
+              Container(
+                margin: EdgeInsets.only(top: 200),
+                width: size.width,
+                height: size.height * 0.7,
+                decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.only(topRight: Radius.circular(50) )
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  width: size.width,
-                  height: size.height * 0.1,
-                  child: Center(
-                    child: Text(
-                      "Enter Phone Number",
-                      style: GoogleFonts.poppins(
-                          fontSize: 22, fontWeight: FontWeight.bold),
+                    borderRadius:
+                        BorderRadius.only(topRight: Radius.circular(50))),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10,
                     ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 25),
-                  width: size.width,
-                  child: Center(
-                    child: Text(
-                      "Please enter your 10 digit mobile number without +91",
-                      style: GoogleFonts.poppins(
-                          color: Colors.grey),
-                      textAlign: TextAlign.center,
+                    Container(
+                      width: size.width,
+                      height: size.height * 0.1,
+                      child: Center(
+                        child: Text(
+                          "Enter Phone Number",
+                          style: GoogleFonts.poppins(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 25),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 15),
-                          child: TextFormField(
-                            controller: _mobileNumber,
-                            keyboardType: TextInputType.number,
-                            style: GoogleFonts.poppins(fontSize: 20),
-                            autofocus: true,
-                            decoration: InputDecoration(
-                              prefix: Container(
-                                width: size.width * 0.16,
-                                child: Row(
-                                  children: [
-                                    Text("  +91 " , style: GoogleFonts.poppins(),),
-                                    Container(
-                                      height: 25,
-                                      child: VerticalDivider(
-                                        color: kDarkColor,
-                                        thickness: 2,
-                                      ),
-                                    )
-                                  ],
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 25),
+                      width: size.width,
+                      child: Center(
+                        child: Text(
+                          "Please enter your 10 digit mobile number without +91",
+                          style: GoogleFonts.poppins(color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 25),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 15),
+                              child: TextFormField(
+                                controller: _mobileNumber,
+                                keyboardType: TextInputType.number,
+                                style: GoogleFonts.poppins(fontSize: 20),
+                                autofocus: true,
+                                decoration: InputDecoration(
+                                  prefix: Container(
+                                    width: size.width * 0.16,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "  +91 ",
+                                          style: GoogleFonts.poppins(),
+                                        ),
+                                        Container(
+                                          height: 25,
+                                          child: VerticalDivider(
+                                            color: kDarkColor,
+                                            thickness: 2,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  hintText: 'Enter Phone Number',
+                                  hintStyle: GoogleFonts.poppins(fontSize: 16),
                                 ),
                               ),
-                              hintText: 'Enter Phone Number',
-                              hintStyle: GoogleFonts.poppins(fontSize: 16),
                             ),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 50,
-                ),
-                !isLoading
-                    ? GestureDetector(
-                        onTap: () async {
-                            String signature = await SmsRetrieved.getAppSignature();
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    !isLoading
+                        ? GestureDetector(
+                            onTap: () async {
+                              // String signature = await SmsRetrieved.getAppSignature();
 
-                          var otp = AppSetting.randomOTPGenerator();
-                          SharedPreferences pref =
-                              await SharedPreferences.getInstance();
-                          pref.setInt('otp', otp);
-                          if (validateMobileNumber(_mobileNumber.text)) {
-                            setState(() {
-                              isLoading = true;
-                            });
+                              var otp = AppSetting.randomOTPGenerator();
+                              SharedPreferences pref =
+                                  await SharedPreferences.getInstance();
+                              pref.setInt('otp', otp);
+                              if (validateMobileNumber(_mobileNumber.text)) {
+                                setState(() {
+                                  isLoading = true;
+                                });
 
-                            pref.setString('otpSignature', signature);
+                                pref.setString('otpSignature', 'sd');
 
-                            await SendSMS().sendNewSms(_mobileNumber.text , otp.toString() , signature);
+                                await SendSMS().sendNewSms(
+                                    _mobileNumber.text, otp.toString(), 'sd');
 
-                            // var snackbar = SnackBar(content: Text("OTP : ${otp.toString()}"));
+                                // var snackbar = SnackBar(content: Text("OTP : ${otp.toString()}"));
 
-                            // ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                                // ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
-                            LoginApiModel loginResp = await LoginApi()
-                                .loginApi(_mobileNumber.text, otp.toString());
-                            if (loginResp.status) {
-                              pref.setString('userMobile', _mobileNumber.text);
-                              Navigator.pushNamed(context, '/otp_validation');
-                            }
+                                LoginApiModel loginResp = await LoginApi()
+                                    .loginApi(
+                                        _mobileNumber.text, otp.toString());
+                                if (loginResp.status) {
+                                  pref.setString(
+                                      'userMobile', _mobileNumber.text);
+                                  Navigator.pushNamed(
+                                      context, '/otp_validation');
+                                }
 
-                            setState(() {
-                              isLoading = false;
-                            });
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              } else {
+                                final snackBar = SnackBar(
+                                  content: IconSnackBar(
+                                    iconData: Icons.dangerous,
+                                    textData: "Invalid Mobile Number",
+                                    textColor: Colors.red,
+                                  ),
+                                );
 
-                          } else {
-                            final snackBar = SnackBar(
-                              content: IconSnackBar(
-                                iconData: Icons.dangerous,
-                                textData: "Invalid Mobile Number",
-                                textColor: Colors.red,
-                              ),
-                            );
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
+                              }
 
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
-                          }
-
-                          // Navigator.pushNamed(context, '/otp_validation');
-                        },
-                        child: Container(
-                            width: size.width * 0.8,
+                              // Navigator.pushNamed(context, '/otp_validation');
+                            },
+                            child: Container(
+                                width: size.width * 0.8,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                    color: kDarkColor,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(50)),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 8)
+                                    ]),
+                                child: Center(
+                                    child: Text(
+                                  "Next",
+                                  style: TextStyle(color: Colors.white),
+                                ))),
+                          )
+                        : Container(
+                            padding: EdgeInsets.all(10),
+                            width: 50,
                             height: 50,
                             decoration: BoxDecoration(
                                 color: kDarkColor,
@@ -270,34 +297,17 @@ class _MobileValidateState extends State<MobileValidate> {
                                       color: Colors.black.withOpacity(0.1),
                                       blurRadius: 8)
                                 ]),
-                            child: Center(child: Text("Next" , style: TextStyle(
-                              color: Colors.white
-                            ), ))),
-                      )
-                    : Container(
-                        padding: EdgeInsets.all(10),
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                            color: kDarkColor,
-                            borderRadius: BorderRadius.all(Radius.circular(50)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 8)
-                            ]),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 5,
-                          backgroundColor: kLightColor,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        )),
-                    ],
-                  ),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 5,
+                              backgroundColor: kLightColor,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            )),
+                  ],
                 ),
-              ],
-            )
-          ),
+              ),
+            ],
+          )),
         ),
       ),
     );

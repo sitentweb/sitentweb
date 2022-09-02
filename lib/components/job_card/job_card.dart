@@ -92,16 +92,16 @@ class _JobCardState extends State<JobCard> {
 
   getJobSkills() async {
     var skills = "";
-     if(widget.jobSkills.isNotEmpty){
-       var decode = jsonDecode(widget.jobSkills);
-       skills = decode.join(",");
-     }else{
-       skills = "";
-     }
+    if (widget.jobSkills.isNotEmpty) {
+      var decode = jsonDecode(widget.jobSkills);
+      skills = decode.join(",");
+    } else {
+      skills = "";
+    }
 
-     setState(() {
-       jobSkills = skills;
-     });
+    setState(() {
+      jobSkills = skills;
+    });
   }
 
   Future<bool> userSavedThis(bool isLiked) async {
@@ -116,7 +116,14 @@ class _JobCardState extends State<JobCard> {
   }
 
   Future<bool> userSharedThis(bool isLiked) async {
-    Share.share("Check out this job https://remarkablehr.in/job-listing-${widget.jobLink}",
+    // String jobLink = "https://remarkhr.com/job-listing-${widget.jobLink}";
+    String jobLink = "https://remarkhr.page.link/job/${widget.jobLink}";
+
+    final jLink = await AppSetting()
+        .createDynamicLink("job-listing-${widget.jobLink}", "job");
+
+    Share.share(
+        "${widget.jobTitle} \nPlace : ${widget.companyLocation} \nSalary : ${widget.maximumSalary} \n\nCheck out this job $jLink \n \nDownload Remark App for more jobs \nhttps://remarkhr.com/downloads",
         subject: "${widget.jobTitle}");
     return !isLiked;
   }
@@ -148,7 +155,7 @@ class _JobCardState extends State<JobCard> {
                     useRootNavigator: true,
                     builder: (context) => ViewJob(
                           jobID: widget.jobID,
-                          userID: widget.userID,
+                          userID: userID,
                         )),
                 child: Container(
                   child: Column(
@@ -175,7 +182,8 @@ class _JobCardState extends State<JobCard> {
                           children: [
                             CircleAvatar(
                               backgroundColor: Colors.grey[200],
-                              backgroundImage: AppSetting.showUserImage(widget.companyImage),
+                              backgroundImage:
+                                  AppSetting.showUserImage(widget.companyImage),
                               radius: 10,
                             ),
                             SizedBox(
@@ -185,7 +193,7 @@ class _JobCardState extends State<JobCard> {
                               child: Text(
                                 widget.companyName,
                                 style: GoogleFonts.poppins(
-                                    fontSize: 14,
+                                  fontSize: 14,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -206,7 +214,9 @@ class _JobCardState extends State<JobCard> {
                           ),
                           Spacer(),
                           IconText(
-                            title: widget.experience.isNotEmpty ? 'Experienced' : 'Fresher',
+                            title: widget.experience.isNotEmpty
+                                ? 'Experienced'
+                                : 'Fresher',
                             icon: Icons.add,
                           ),
                           Spacer()
@@ -233,7 +243,8 @@ class _JobCardState extends State<JobCard> {
                           Spacer(),
                           Text(
                             widget.timeAgo,
-                            style: GoogleFonts.poppins(color: Colors.grey , fontSize: 10),
+                            style: GoogleFonts.poppins(
+                                color: Colors.grey, fontSize: 10),
                           )
                         ],
                       ),
@@ -311,18 +322,23 @@ class _JobCardState extends State<JobCard> {
           return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(20))),
-            title: Text("Apply for this job?" , style: GoogleFonts.poppins(),),
+            title: Text(
+              "Apply for this job?",
+              style: GoogleFonts.poppins(),
+            ),
             content: Text("$jobTitle"),
             actions: <Widget>[
               TextButton(
-                  onPressed: () => Navigator.pop(context), child: Text("No" , style: GoogleFonts.poppins(),)),
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "No",
+                    style: GoogleFonts.poppins(),
+                  )),
               TextButton(
                   onPressed: () async {
-                    if (userResume != null ||
-                        userResume.toString().isNotEmpty) {
-
+                    if (userResume != "") {
                       await JobApplyStatusApi()
-                          .jobApplyStatus(jobID, userID , widget.userID)
+                          .jobApplyStatus(jobID, userID, widget.userID)
                           .then((response) {
                         if (response.status) {
                           print(widget.userID);
@@ -331,7 +347,9 @@ class _JobCardState extends State<JobCard> {
                         } else {
                           var snackBar = SnackBar(
                             content: Text(
-                                "Something went wrong. please again later" , style: GoogleFonts.poppins(),),
+                              "Something went wrong. please again later",
+                              style: GoogleFonts.poppins(),
+                            ),
                           );
 
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -339,12 +357,31 @@ class _JobCardState extends State<JobCard> {
                       });
                     } else {
                       var snackBar = SnackBar(
-                        content: Text("Upload Resume first" , style: GoogleFonts.poppins(),),
+                        content: Row(
+                          children: [
+                            Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Upload Resume first",
+                              style: GoogleFonts.poppins(),
+                            ),
+                          ],
+                        ),
                       );
+
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                     Navigator.pop(context);
                   },
-                  child: Text("Yes" , style: GoogleFonts.poppins(),)),
+                  child: Text(
+                    "Yes",
+                    style: GoogleFonts.poppins(),
+                  )),
             ],
           );
         },

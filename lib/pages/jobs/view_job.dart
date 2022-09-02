@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:like_button/like_button.dart';
+import 'package:remark_app/apis/jobs/job_apply_status.dart';
 import 'package:remark_app/apis/jobs/similar_jobs_api.dart';
 import 'package:remark_app/apis/jobs/view_job.dart';
+import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/components/buttons/apply_button.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/job_card/job_card.dart';
@@ -15,6 +17,7 @@ import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/jobs/similar_jobs_model.dart';
 import 'package:remark_app/model/jobs/view_job_model.dart';
+import 'package:remark_app/model/user/fetch_user_data.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeAgo;
@@ -32,6 +35,8 @@ class _ViewJobState extends State<ViewJob> {
   var userType;
 
   bool userSaved = false;
+  bool userApplied = false;
+  int appliedBtn;
 
   Future<bool> userSavedThis(bool isLiked) async {
     setState(() {
@@ -79,18 +84,20 @@ class _ViewJobState extends State<ViewJob> {
           if (snapshot.hasData) {
             if (snapshot.data.status) {
               var job = snapshot.data.data;
-              print(job.jobKeySkills);
-              print(widget.userID);
-              print(job.jobId);
               // JOB KEY SKILL JOINED
               var jobSkillList = jsonDecode(job.jobKeySkills);
               var jobSkills = jobSkillList.join(",");
 
               if (job.jobSaveStatus == "0") {
-                userSaved = true;
-              } else {
                 userSaved = false;
+              } else {
+                userSaved = true;
               }
+
+              FetchUserDataModel userData;
+              UserApi().fetchUserData(widget.userID).then((value) {
+                userData = value;
+              });
 
               // JOB EXPERIENCE
               List jobExperienceList = jsonDecode(job.jobExtExperience);
@@ -125,8 +132,9 @@ class _ViewJobState extends State<ViewJob> {
                         GestureDetector(
                             onTap: () {
                               var jobLink =
-                                  "https://remarkblehr.in/job-listing-${job.jobSlug}";
-                              Share.share("Check out this job $jobLink",
+                                  "https://remarkhr.com/job-listing-${job.jobSlug}";
+                              Share.share(
+                                  "${job.jobTitle} \nPlace : ${job.companyAddress} \nSalary : ${job.jobMaximumSalary} \n\nCheck out this job $jobLink \n \nDownload Remark App for more jobs \nhttps://remarkhr.com/downloads",
                                   subject: "${job.jobTitle}");
                             },
                             child: Icon(
@@ -179,6 +187,7 @@ class _ViewJobState extends State<ViewJob> {
                               InkWell(
                                 onTap: () => print("Company Details"),
                                 child: Container(
+                                  width: size.width,
                                   padding: EdgeInsets.all(15),
                                   child: Row(
                                     children: [
@@ -187,7 +196,8 @@ class _ViewJobState extends State<ViewJob> {
                                           curve: Curves.fastOutSlowIn,
                                           animate: true,
                                           repeat: true,
-                                          duration: Duration(milliseconds: 1000),
+                                          duration:
+                                              Duration(milliseconds: 1000),
                                           glowColor: kDarkColor,
                                           showTwoGlows: true,
                                           child: Material(
@@ -196,7 +206,9 @@ class _ViewJobState extends State<ViewJob> {
                                             child: CircleAvatar(
                                               radius: 20,
                                               backgroundColor: Colors.white,
-                                              backgroundImage: AppSetting.showUserImage(job.companyLogo),
+                                              backgroundImage:
+                                                  AppSetting.showUserImage(
+                                                      job.companyLogo),
                                             ),
                                           ),
                                           endRadius: 30),
@@ -204,13 +216,35 @@ class _ViewJobState extends State<ViewJob> {
                                         width: 10,
                                       ),
                                       Expanded(
-                                        child: Text(
-                                          job.companyName,
-                                          style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18),
-                                          softWrap: true,
-                                          overflow: TextOverflow.ellipsis,
+                                        child: Container(
+                                          height: 50,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  job.companyName,
+                                                  style: GoogleFonts.poppins(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18),
+                                                  softWrap: true,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              Expanded(
+                                                  child: Text(
+                                                job.companyAddress,
+                                                style: GoogleFonts.poppins(
+                                                    color: Colors.grey),
+                                                overflow: TextOverflow.ellipsis,
+                                              ))
+                                            ],
+                                          ),
                                         ),
                                       )
                                     ],
@@ -239,36 +273,98 @@ class _ViewJobState extends State<ViewJob> {
                                           SizedBox(
                                             width: 5,
                                           ),
-                                          Text("Report" , style: GoogleFonts.poppins(),)
+                                          Text(
+                                            "Report",
+                                            style: GoogleFonts.poppins(),
+                                          )
                                         ],
                                       ),
                                     ),
                                     Spacer(),
                                     if (userType == "1")
                                       ApplyButton(
-                                        onTap: () {
-                                          if(int.parse(job.jobAppliedStatus) == 4){
+                                        onTap: () async {
+                                          print("Applying for job");
+                                          if (int.parse(job.jobAppliedStatus) ==
+                                              4) {
+                                            print("not applied before");
+                                            // HERE EMPLOYEE CAN APPLY FOR JOB..........
+                                            if (userData.data.userResume !=
+                                                "") {
+                                              print("You can apply");
 
-                                          }else{
+                                              await JobApplyStatusApi()
+                                                  .jobApplyStatus(job.jobId,
+                                                      widget.userID, job.userId)
+                                                  .then((response) {
+                                                if (response.status) {
+                                                  print(widget.userID);
+                                                  print("Applied for this job");
+                                                  userAppliedThisJob();
+                                                } else {
+                                                  var snackBar = SnackBar(
+                                                    content: Text(
+                                                      "Something went wrong. please again later",
+                                                      style:
+                                                          GoogleFonts.poppins(),
+                                                    ),
+                                                  );
+
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(snackBar);
+                                                }
+                                              });
+                                            } else {
+                                              print("Upload Resume first");
+
+                                              return await showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  content: Container(
+                                                    child: Text(
+                                                      "Please upload your resume first",
+                                                      style:
+                                                          GoogleFonts.poppins(),
+                                                    ),
+                                                  ),
+                                                  actions: [
+                                                    MaterialButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context),
+                                                      child: Text("OK"),
+                                                    )
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                          } else {
                                             print("nothing here");
                                           }
                                         },
                                         padding: EdgeInsets.symmetric(
                                             vertical: 13, horizontal: 35),
-                                        abtnType: int.parse(job.jobAppliedStatus),
+                                        abtnType:
+                                            int.parse(job.jobAppliedStatus),
                                       ),
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 10,),
+                              SizedBox(
+                                height: 10,
+                              ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text("Similar Jobs" , style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.bold
-                                    ),),
+                                    Text(
+                                      "Similar Jobs",
+                                      style: GoogleFonts.poppins(
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -276,49 +372,61 @@ class _ViewJobState extends State<ViewJob> {
                                 width: size.width,
                                 height: 260,
                                 child: FutureBuilder<SimilarJobsModel>(
-                                  future: SimilarJobsApi().similarJobs(job.jobKeySkills, job.jobId , widget.userID),
+                                  future: SimilarJobsApi().similarJobs(
+                                      job.jobKeySkills,
+                                      job.jobId,
+                                      widget.userID),
                                   builder: (context, snapshot) {
-                                    if(snapshot.hasData){
-                                      if(snapshot.data.status){
+                                    if (snapshot.hasData) {
+                                      if (snapshot.data.status) {
                                         return ListView.builder(
                                           scrollDirection: Axis.horizontal,
                                           itemCount: snapshot.data.data.length,
                                           itemBuilder: (context, index) {
-                                            var sjob = snapshot.data.data[index];
+                                            var sjob =
+                                                snapshot.data.data[index];
                                             return JobCard(
                                               userID: sjob.userId,
                                               jobID: sjob.jobId,
                                               companyImage: sjob.companyLogo,
                                               jobTitle: sjob.jobTitle,
-                                              applyBtn: int.parse(sjob.jobAppliedStatus),
-                                              companyLocation: sjob.companyAddress,
+                                              applyBtn: int.parse(
+                                                  sjob.jobAppliedStatus),
+                                              companyLocation:
+                                                  sjob.companyAddress,
                                               companyName: sjob.companyName,
                                               experience: sjob.jobExtExperience,
                                               isUserApplied: false,
-                                              isUserSavedThis: sjob.jobSaved == "0" ? false : true,
-                                              jobLink: "https://remarkablehr.in/job-listing-${sjob.jobSlug}",
+                                              isUserSavedThis:
+                                                  sjob.jobSaved == "0"
+                                                      ? false
+                                                      : true,
+                                              jobLink:
+                                                  "https://remarkablehr.in/job-listing-${sjob.jobSlug}",
                                               jobSkills: sjob.jobKeySkills,
-                                              maximumSalary: sjob.jobMaximumSalary,
-                                              minimumSalary: sjob.jobMinimumSalary,
-                                              timeAgo: timeAgo.format(sjob.jobCreatedAt),
+                                              maximumSalary:
+                                                  sjob.jobMaximumSalary,
+                                              minimumSalary:
+                                                  sjob.jobMinimumSalary,
+                                              timeAgo: timeAgo
+                                                  .format(sjob.jobCreatedAt),
                                             );
                                           },
                                         );
-                                      }else{
+                                      } else {
                                         return EmptyData(
                                           message: "No Similar Jobs",
                                         );
                                       }
-                                    }else if(snapshot.hasError){
+                                    } else if (snapshot.hasError) {
                                       return Text("${snapshot.error}");
-                                    }else{
+                                    } else {
                                       return CircularLoading();
                                     }
                                   },
                                 ),
                               )
-                            ]
-                            ),
+                            ]),
                           ),
                         ),
                       ],
@@ -339,10 +447,16 @@ class _ViewJobState extends State<ViewJob> {
               child: CircularLoading(),
             );
           }
-
         },
       ),
     );
+  }
+
+  userAppliedThisJob() {
+    setState(() {
+      userApplied = true;
+      appliedBtn = 0;
+    });
   }
 
   Widget TextLable(title, value) {

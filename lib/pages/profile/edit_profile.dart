@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:code_fields/code_fields.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:remark_app/apis/candidates/download_resume.dart';
 import 'package:remark_app/apis/location/location_api.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/components/appbar/appbar.dart';
@@ -29,8 +31,8 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-
   FilePickerResult _image;
+  FilePickerResult _resume;
   String userType = "";
   String userID;
   FetchUserDataModel user;
@@ -41,11 +43,16 @@ class _EditProfileState extends State<EditProfile> {
   List<LocationSearchModel> locationSearch = <LocationSearchModel>[];
   List<DropdownMenuItem> _selectOrganizationType = <DropdownMenuItem>[
     DropdownMenuItem(
-        child: Text("Company" , style: GoogleFonts.poppins(),),
-        value: "Company"
-    ),
+        child: Text(
+          "Company",
+          style: GoogleFonts.poppins(),
+        ),
+        value: "Company"),
     DropdownMenuItem(
-      child: Text("Consultancy" , style: GoogleFonts.poppins(),),
+      child: Text(
+        "Consultancy",
+        style: GoogleFonts.poppins(),
+      ),
       value: "Consultancy",
     )
   ];
@@ -66,6 +73,7 @@ class _EditProfileState extends State<EditProfile> {
   TextEditingController _userJobLocationController = TextEditingController();
   TextEditingController _userOrganizationController = TextEditingController();
   String _userOrganizationType;
+  String _userResume;
 
   @override
   void initState() {
@@ -90,7 +98,6 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   fetchUserData() async {
-
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     setState(() {
@@ -104,7 +111,6 @@ class _EditProfileState extends State<EditProfile> {
     Data u = user.data;
 
     setState(() {
-
       _userPhoto = u.userPhoto;
       _userMobile = u.userMobile;
       _userNameController.text = u.userName;
@@ -117,20 +123,55 @@ class _EditProfileState extends State<EditProfile> {
       _userLangController.text = u.userLanguages;
       _userOrganizationController.text = u.userOrganization;
       _userOrganizationType = u.userOrganizationType;
+      _userLocationController.text = u.userLocation;
+      _userResume = u.userResume;
 
       var jobLocation;
 
       if (u.userJobLocation.isNotEmpty) {
         jobLocation = jsonDecode(u.userJobLocation);
-        _userJobLocationController.text =
-        jobLocation['stringAddress'];
+        _userJobLocationController.text = jobLocation['stringAddress'];
       } else {
         _userJobLocationController.text = "";
       }
 
       _isLoadingData = false;
     });
+  }
 
+  _selectResume() async {
+    _resume = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['docx', 'doc', 'pdf'],
+        allowMultiple: false,
+        allowCompression: true,
+        withReadStream: true);
+
+    setState(() {});
+
+    if (_resume != null) {
+      if (_resume.files.length != 0) {
+        print("File Extension is : ${_resume.files.first.extension}");
+
+        if (_resume.files.first.extension == 'docx' ||
+            _resume.files.first.extension == 'doc' ||
+            _resume.files.first.extension == 'pdf') {
+          print("File Selected : ${_resume.files.first.name}");
+        } else {
+          _resume.files.clear();
+          _resume = null;
+
+          SnackBar snackBar =
+              SnackBar(content: Text("Please select only docx, doc or pdf"));
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      } else {
+        print("Resume not selected");
+      }
+    } else {
+      print("File Select aborted");
+    }
   }
 
   @override
@@ -138,438 +179,594 @@ class _EditProfileState extends State<EditProfile> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        actions:[ApplicationAppBar()],
-        iconTheme: IconThemeData(color: kDarkColor )
-      ) ,
+          backgroundColor: Colors.white,
+          actions: [ApplicationAppBar()],
+          iconTheme: IconThemeData(color: kDarkColor)),
       body: SafeArea(
-        child: !_isLoadingData ? Container(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          width: size.width,
-          height: size.height,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  height: 150,
+          child: !_isLoadingData
+              ? Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  width: size.width,
+                  height: size.height,
                   decoration: BoxDecoration(
-                      color: kLightColor.withOpacity(0.5),
-                      borderRadius:
-                      BorderRadius.all(Radius.circular(20))),
-                  child: Center(
-                    child: Stack(children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.white,
-                        child: CircleAvatar(
-                          radius: 38,
-                          backgroundColor: kLightColor,
-                          backgroundImage: _image == null ?
-                          AppSetting.showUserImage(_userPhoto) :
-                          FileImage(File(_image.files.single.path)),
-                          foregroundColor:
-                          Colors.black.withOpacity(0.5),
-                        ),
-                      ),
-                      if(_image != null)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _image = null;
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              shape: BoxShape.circle
-                            ),
-                            child: Icon(Icons.close , size: 10, color: Colors.white,),
+                      borderRadius: BorderRadius.all(Radius.circular(20))),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 150,
+                          decoration: BoxDecoration(
+                              color: kDarkColor,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                          child: Center(
+                            child: Stack(children: [
+                              CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.white,
+                                child: CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.white,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(5),
+                                    child: _image == null
+                                        ? _userPhoto.isNotEmpty
+                                            ? CircleAvatar(
+                                                radius: 50,
+                                                backgroundImage: NetworkImage(
+                                                    base_url + _userPhoto),
+                                              )
+                                            : Image.asset(
+                                                'assets/logo/logo.png')
+                                        : CircleAvatar(
+                                            radius: 50,
+                                            backgroundImage: FileImage(
+                                              File(_image.files.single.path),
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                              if (_image != null)
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _image = null;
+                                      });
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          color: Colors.redAccent,
+                                          shape: BoxShape.circle),
+                                      child: Icon(
+                                        Icons.close,
+                                        size: 10,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: InkWell(
+                                      onTap: () async {
+                                        print("ask for upload image");
+                                        FilePickerResult pick = await FilePicker
+                                            .platform
+                                            .pickFiles(type: FileType.image);
+
+                                        if (pick != null) {
+                                          setState(() {
+                                            _image = pick;
+                                          });
+                                        } else {
+                                          print("user cancelled the process");
+                                        }
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.4),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(20))),
+                                        child: Icon(
+                                          Icons.add_a_photo,
+                                          color: kDarkColor,
+                                          size: 16,
+                                        ),
+                                      )))
+                            ]),
                           ),
                         ),
-                      ),
-                      Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: InkWell(
-                              onTap: () async {
-                                print("ask for upload image");
-                                FilePickerResult pick = await FilePicker
-                                    .platform
-                                    .pickFiles(type: FileType.image);
-
-                                if (pick != null) {
-                                  setState(() {
-                                    _image = pick;
-                                  });
-                                } else {
-                                  print("user cancelled the process");
-                                }
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                    color:
-                                    Colors.white.withOpacity(0.4),
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(20))),
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  color: kDarkColor,
-                                  size: 16,
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          controller: _userNameController,
+                          decoration: InputDecoration(
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 10),
+                              labelText: "Name",
+                              labelStyle: GoogleFonts.poppins(),
+                              border: OutlineInputBorder()),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          controller: _userEmailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 10),
+                              labelText: "Email",
+                              labelStyle: GoogleFonts.poppins(),
+                              hintText: "example@domain.com",
+                              border: OutlineInputBorder()),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          controller: _userMobileController,
+                          maxLength: 10,
+                          onChanged: (value) {
+                            if (value.length == 10 && value != _userMobile) {
+                              _showVerifyOTP = true;
+                            } else {
+                              _showVerifyOTP = false;
+                            }
+                            setState(() {});
+                          },
+                          keyboardType: TextInputType.numberWithOptions(
+                              decimal: true, signed: false),
+                          decoration: InputDecoration(
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 10),
+                              labelText: "Mobile Number",
+                              labelStyle: GoogleFonts.poppins(),
+                              hintText: "+91",
+                              border: OutlineInputBorder(),
+                              suffix: _showVerifyOTP
+                                  ? verifyOTP()
+                                  : SizedBox(
+                                      width: 0,
+                                    )),
+                        ),
+                        if (userType != "2")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        if (userType != "2")
+                          TextFormField(
+                            controller: _userBioController,
+                            maxLines: 3,
+                            maxLength: 180,
+                            decoration: InputDecoration(
+                                labelText: "Self Intro",
+                                labelStyle: GoogleFonts.poppins(),
+                                hintText: "Hey, I am John Doe from India",
+                                border: OutlineInputBorder()),
+                          ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        if (userType == "1")
+                          TextFormField(
+                            controller: _userSkillsController,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                labelText: "Skills",
+                                labelStyle: GoogleFonts.poppins(),
+                                hintText: "HTML, CSS",
+                                border: OutlineInputBorder()),
+                          ),
+                        if (userType == "1")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        if (userType == "1")
+                          TextFormField(
+                            controller: _userExpController,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                labelText: "Experience",
+                                labelStyle: GoogleFonts.poppins(),
+                                hintText: "5 yrs",
+                                border: OutlineInputBorder()),
+                          ),
+                        if (userType == "1")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        if (userType == "1")
+                          TextFormField(
+                            controller: _userQualificationController,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                labelText: "Qualification",
+                                labelStyle: GoogleFonts.poppins(),
+                                hintText: "B.com, B.sc",
+                                border: OutlineInputBorder()),
+                          ),
+                        if (userType == "1")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        if (userType == "1")
+                          TextFormField(
+                            controller: _userLangController,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                labelText: "Languages",
+                                labelStyle: GoogleFonts.poppins(),
+                                hintText: "English, Hindi",
+                                border: OutlineInputBorder()),
+                          ),
+                        if (userType == "1")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        // - - @TODO - -
+                        if (userType == "1")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        if (userType == "1")
+                          TextFormField(
+                            controller: _userLocationController,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                labelText: "Location",
+                                labelStyle: GoogleFonts.poppins(),
+                                hintText: "Indore, Madhya Pradesh",
+                                border: OutlineInputBorder()),
+                          ),
+                        if (userType == "1")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        if (userType == "1")
+                          TextFormField(
+                            controller: _userJobLocationController,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                labelText: "Job Location",
+                                labelStyle: GoogleFonts.poppins(),
+                                hintText: "Indore, Bhopal, Ratlam",
+                                border: OutlineInputBorder()),
+                          ),
+                        if (userType == "2")
+                          SizedBox(
+                            height: 10,
+                          ),
+                        if (userType == "2")
+                          TextFormField(
+                            controller: _userOrganizationController,
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                labelText: "Organization Name",
+                                labelStyle: GoogleFonts.poppins(),
+                                border: OutlineInputBorder()),
+                          ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        if (userType == "2")
+                          DropdownButtonFormField(
+                            decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                border: OutlineInputBorder()),
+                            value: _userOrganizationType == "0"
+                                ? "Company"
+                                : "Consultancy",
+                            hint: Text(
+                              "Select Company Type",
+                              style: GoogleFonts.poppins(),
+                            ),
+                            items: [
+                              DropdownMenuItem(
+                                  child: Text(
+                                    "Company",
+                                    style: GoogleFonts.poppins(),
+                                  ),
+                                  value: "Company"),
+                              DropdownMenuItem(
+                                child: Text(
+                                  "Consultancy",
+                                  style: GoogleFonts.poppins(),
                                 ),
-                              )))
-                    ]),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                TextFormField(
-                  controller: _userNameController,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Name",
-                      labelStyle: GoogleFonts.poppins(),
-                      border: OutlineInputBorder()),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                TextFormField(
-                  controller: _userEmailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Email",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "example@domain.com",
-                      border: OutlineInputBorder()),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                TextFormField(
-                  controller: _userMobileController,
-                  maxLength: 10,
-                  onChanged: (value) {
+                                value: "Consultancy",
+                              )
+                            ],
+                            onChanged: (value) {
+                              print(value.toString());
+                              String _selected = "";
+                              if (value.toString() == "Company") {
+                                _selected = "0";
+                              } else {
+                                _selected = "1";
+                              }
 
-                    if(value.length == 10 && value != _userMobile){
+                              setState(() {
+                                _userOrganizationType = _selected;
+                              });
+                            },
+                          ),
+                        if (userType == "1") SizedBox(height: 10),
+                        if (userType == "1")
+                          _userResume.isEmpty && _resume == null
+                              ? InkWell(
+                                  onTap: () async {
+                                    _selectResume();
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.centerLeft,
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 40),
+                                    color: kDarkColor,
+                                    child: Center(
+                                      child: Text(
+                                        "Upload Resume",
+                                        style: GoogleFonts.poppins(
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Row(
+                                  children: [
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          _selectResume();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          color: kDarkColor,
+                                          child: Center(
+                                            child: Text(
+                                              "Change Resume",
+                                              style: GoogleFonts.poppins(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: _userResume.isNotEmpty &&
+                                              _resume == null
+                                          ? InkWell(
+                                              onTap: () async {
+                                                print("View Resume");
+                                                final res =
+                                                    await DownloadResume()
+                                                        .downloadCandidateResume(
+                                                            user.data
+                                                                .userResume,
+                                                            user.data.userName);
 
-                        _showVerifyOTP = true;
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                  content: Text(res['message']),
+                                                ));
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 15),
+                                                color: kLightColor,
+                                                child: Center(
+                                                  child: Text(
+                                                    "View Resume",
+                                                    style: GoogleFonts.poppins(
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  _resume.files.clear();
+                                                  _resume = null;
+                                                });
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 15),
+                                                color: Colors.redAccent,
+                                                child: Center(
+                                                  child: Text(
+                                                    "Remove Resume",
+                                                    style: GoogleFonts.poppins(
+                                                        color: Colors.white),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        !_isUpdatingProfile
+                            ? MaterialButton(
+                                color: kDarkColor,
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                textColor: Colors.white,
+                                onPressed: () async {
+                                  setState(() {
+                                    _isUpdatingProfile = true;
+                                  });
 
-                    }else{
-                      _showVerifyOTP = false;
-                    }
-                    setState(() {
+                                  var imagePath;
 
-                    });
-                  },
-                  keyboardType: TextInputType.numberWithOptions(
-                      decimal: true, signed: false),
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Mobile Number",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "+91",
-                      border: OutlineInputBorder(),
-                      suffix: _showVerifyOTP ? verifyOTP() : SizedBox(width: 0,)
-                  ),
-                ),
-                if(userType != "2")
-                SizedBox(
-                  height: 10,
-                ),
-                if(userType != "2")
-                TextFormField(
-                  controller: _userBioController,
-                  maxLines: 3,
-                  maxLength: 180,
-                  decoration: InputDecoration(
-                      labelText: "Self Intro",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "Hey, I am John Doe from India",
-                      border: OutlineInputBorder()),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                 if(userType == "1")
-                 TextFormField(
-                  controller: _userSkillsController,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Skills",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "HTML, CSS",
-                      border: OutlineInputBorder()),
-                ),
-                if(userType == "1")
-                SizedBox(
-                  height: 10,
-                ),
-                if(userType == "1")
-                TextFormField(
-                  controller: _userExpController,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Experience",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "5 yrs",
-                      border: OutlineInputBorder()),
-                ),
-                if(userType == "1")
-                SizedBox(
-                  height: 10,
-                ),
-                if(userType == "1")
-                TextFormField(
-                  controller: _userQualificationController,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Qualification",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "B.com, B.sc",
-                      border: OutlineInputBorder()),
-                ),
-                if(userType == "1")
-                SizedBox(
-                  height: 10,
-                ),
-                if(userType == "1")
-                TextFormField(
-                  controller: _userLangController,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Languages",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "English, Hindi",
-                      border: OutlineInputBorder()),
-                ),
-                if(userType == "1")
-                SizedBox(
-                  height: 10,
-                ),
-                // - - @TODO - -
-                if(userType == "1")
-                SizedBox(
-                  height: 10,
-                ),
-                 if(userType == "1")
-                TextFormField(
-                  controller: _userLocationController,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Location",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "Indore, Madhya Pradesh",
-                      border: OutlineInputBorder()),
-                ),
-                if(userType == "1")
-                SizedBox(
-                  height: 10,
-                ),
-                if(userType == "1")
-                TextFormField(
-                  controller: _userJobLocationController,
-                  decoration: InputDecoration(
-                      contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10),
-                      labelText: "Job Location",
-                      labelStyle: GoogleFonts.poppins(),
-                      hintText: "Indore, Bhopal, Ratlam",
-                      border: OutlineInputBorder()),
-                ),
-                if(userType == "2")
-                  SizedBox(
-                    height: 10,
-                  ),
-                if(userType == "2")
-                  TextFormField(
-                    controller: _userOrganizationController,
-                    decoration: InputDecoration(
-                        contentPadding:
-                        EdgeInsets.symmetric(horizontal: 10),
-                        labelText: "Organization Name",
-                        labelStyle: GoogleFonts.poppins(),
-                        border: OutlineInputBorder()
+                                  if (_image != null) {
+                                    imagePath = _image.files.single.path;
+
+                                    print("image changed");
+                                  } else {
+                                    print("same as before");
+                                    imagePath = "";
+                                  }
+
+                                  var resumePath;
+
+                                  if (_resume == null ||
+                                      _resume.files.length == 0) {
+                                    resumePath = "";
+                                  } else {
+                                    resumePath = _resume.files.first.path;
+                                  }
+
+                                  print(_userNameController.text);
+                                  print(_userEmailController.text);
+                                  print(_userMobileController.text);
+                                  print(_userOrganizationController.text);
+                                  print(_userOrganizationType);
+
+                                  Map<String, dynamic> data = {
+                                    "user_name": _userNameController.text ?? "",
+                                    "user_email":
+                                        _userEmailController.text ?? "",
+                                    "user_type": widget.userType,
+                                  };
+
+                                  if (userType == "2") {
+                                    data.addAll({
+                                      "user_organization":
+                                          _userOrganizationController.text ??
+                                              "",
+                                      "user_organization_type":
+                                          _userOrganizationType.toString() ?? ""
+                                    });
+                                  } else {
+                                    data.addAll({
+                                      "user_bio": _userBioController.text ?? "",
+                                      "user_skills":
+                                          _userSkillsController.text ?? "",
+                                      "user_experience":
+                                          _userExpController.text ?? "",
+                                      "user_qualifications":
+                                          _userQualificationController.text ??
+                                              "",
+                                      "user_languages":
+                                          _userLangController.text ?? "",
+                                      "user_location":
+                                          _userLocationController.text ?? "",
+                                      "user_job_location": jsonEncode({
+                                            "stringAddress":
+                                                _userJobLocationController.text,
+                                            "arrayAddress":
+                                                _userJobLocationController.text
+                                                    .split(",")
+                                          }) ??
+                                          ""
+                                    });
+                                  }
+
+                                  print(jsonEncode(data));
+
+                                  final updateReport = await UserApi()
+                                      .updateUserDetails(
+                                          userID,
+                                          jsonEncode(data),
+                                          imagePath,
+                                          resumePath);
+
+                                  if (updateReport.status) {
+                                    final user = await UserApi()
+                                        .fetchUserData(widget.userID);
+
+                                    if (user.status) {
+                                      UserSetting.setUserSessionData(user);
+
+                                      pushNewScreen(context,
+                                          withNavBar: false,
+                                          customPageRoute: MaterialPageRoute(
+                                            builder: (context) => HomePage(
+                                              userType: userType,
+                                            ),
+                                          ));
+                                    }
+
+                                    var snackBar = SnackBar(
+                                      content: Text(
+                                          "Profile Updated Successfully",
+                                          style: GoogleFonts.poppins()),
+                                    );
+                                    setState(() {
+                                      _isUpdatingProfile = false;
+                                    });
+
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                HomePage(userType: userType)));
+                                  } else {
+                                    print("${updateReport.data}");
+                                    _isUpdatingProfile = false;
+
+                                    var snackBar = SnackBar(
+                                      content: Text("Something went wrong",
+                                          style: GoogleFonts.poppins()),
+                                    );
+
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+                                  }
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("Update Profile",
+                                        style: GoogleFonts.poppins()),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Icon(Icons.arrow_right_alt_rounded)
+                                  ],
+                                ),
+                              )
+                            : CircularLoading(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ],
                     ),
                   ),
-                SizedBox(
-                  height: 10,
-                ),
-                if(userType == "2")
-                  DropdownButtonFormField(
-                      decoration: InputDecoration(
-                          contentPadding:
-                          EdgeInsets.symmetric(horizontal: 10),
-                        border: OutlineInputBorder()
-                      ),
-                     value: _userOrganizationType == "0" ? "Company" : "Consultancy",
-                     hint: Text("Select Company Type" , style: GoogleFonts.poppins(),),
-                     items: [
-                       DropdownMenuItem(
-                         child: Text("Company" , style: GoogleFonts.poppins(),),
-                         value: "Company"
-                       ),
-                       DropdownMenuItem(
-                         child: Text("Consultancy" , style: GoogleFonts.poppins(),),
-                         value: "Consultancy",
-                       )
-                     ],
-                    onChanged: (value) {
-                      print(value.toString());
-                      String _selected = "";
-                      if(value.toString() == "Company"){
-                        _selected = "0";
-                      }else{
-                        _selected = "1";
-                      }
-
-                      setState(() {
-                        _userOrganizationType = _selected;
-                      });
-                    },
-                  ),
-                SizedBox(height: 10,),
-                !_isUpdatingProfile ? MaterialButton(
-                  color: kDarkColor,
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  textColor: Colors.white,
-                  onPressed: () async {
-
-                    setState(() {
-                      _isUpdatingProfile = true;
-                    });
-
-                    var imagePath;
-
-                    if(_image != null){
-
-                      imagePath = _image.files.single.path;
-
-                      print("image changed");
-                    }else{
-                      print("same as before");
-                      imagePath = "";
-                    }
-
-                    print(_userNameController.text);
-                    print(_userEmailController.text);
-                    print(_userMobileController.text);
-                    print(_userOrganizationController.text);
-                    print(_userOrganizationType);
-
-                    Map<String, dynamic> data = {
-                      "user_name" : _userNameController.text ?? "",
-                      "user_email" : _userEmailController.text ?? "",
-                      "user_type" : widget.userType,
-                    };
-
-                    if(userType == "2"){
-                      data.addAll({
-                        "user_organization" : _userOrganizationController.text ?? "",
-                        "user_organization_type" : _userOrganizationType.toString() ?? ""
-                      });
-
-                    }else{
-
-                      data.addAll({
-                        "user_bio" : _userBioController.text ?? "",
-                        "user_skills" : _userSkillsController.text ?? "",
-                        "user_experience" : _userExpController.text ?? "",
-                        "user_qualification" : _userQualificationController.text ?? "",
-                        "user_languages" : _userLangController.text ?? "",
-                        "user_location" : _userLocationController.text ?? "",
-                        "user_job_location" : _userJobLocationController.text ?? ""
-                      });
-                    }
-
-                    print(jsonEncode(data));
-
-                    final updateReport = await UserApi().updateUserDetails(userID, jsonEncode(data) , imagePath);
-
-                    if(updateReport.status){
-                      
-                      final user = await UserApi().fetchUserData(widget.userID);
-
-                      if(user.status){
-
-                        UserSetting.setUserSessionData(user);
-
-                        pushNewScreen(
-                          context,
-                          withNavBar: false,
-                          customPageRoute: MaterialPageRoute(builder: (context) => HomePage(userType: userType,),)
-                          );
-
-                      }
-
-                      var snackBar = SnackBar(
-                        content: Text("Profile Updated Successfully" , style: GoogleFonts.poppins()),
-                      );
-                      setState(() {
-                        _isUpdatingProfile = false;
-                      });
- 
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(userType: userType)));
-
-                    }else{
-                      print("Something went wrong");
-                      _isUpdatingProfile = false;
-
-                      var snackBar = SnackBar(
-                        content: Text("Something went wrong" , style: GoogleFonts.poppins()),
-                      );
-
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                    }
-
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Update Profile" , style: GoogleFonts.poppins(
-                      )),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Icon(Icons.arrow_right_alt_rounded)
-                    ],
-                  ),
-                ) : CircularLoading() ,
-                SizedBox(
-                  height: 10,
-                ),
-
-              ],
-            ),
-          ),
-        ) : CircularLoading()
-      ),
+                )
+              : CircularLoading()),
     );
   }
 
   Widget verifyOTP() {
     return GestureDetector(
       onTap: () async {
-
         String _generatedOTP = "";
         var _otpText = AppSetting.randomOTPGenerator();
 
@@ -581,8 +778,7 @@ class _EditProfileState extends State<EditProfile> {
 
         bool smsSent = true;
 
-        if(smsSent){
-
+        if (smsSent) {
           var snackBar = SnackBar(
             content: Text("Your One Time OTP is $_otpText"),
           );
@@ -600,10 +796,13 @@ class _EditProfileState extends State<EditProfile> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("OTP Sent Successfully" , style: GoogleFonts.poppins(
-                          color: kDarkColor
-                      ),),
-                      SizedBox(height: 5,),
+                      Text(
+                        "OTP Sent Successfully",
+                        style: GoogleFonts.poppins(color: kDarkColor),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
                       Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: CodeFields(
@@ -620,7 +819,8 @@ class _EditProfileState extends State<EditProfile> {
                                   borderSide: BorderSide.none),
                             ),
                             closeOnFinish: true,
-                            textStyle: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
+                            textStyle: GoogleFonts.poppins(
+                                color: Colors.white, fontSize: 16),
                             onChanged: (code) {
                               print(code);
                             },
@@ -629,29 +829,32 @@ class _EditProfileState extends State<EditProfile> {
                                 _validateOTP = code;
                               });
                             },
-                          )
+                          )),
+                      SizedBox(
+                        height: 10,
                       ),
-                      SizedBox(height: 10,),
                       MaterialButton(
                         onPressed: () async {
                           print(_validateOTP);
-                          if(_validateOTP == _generatedOTP){
+                          if (_validateOTP == _generatedOTP) {
                             print("you can go ahead");
 
-                            GlobalStatusModel login = await UserApi().updateMobileNumber(widget.userID, _userMobileController.text, _generatedOTP);
+                            GlobalStatusModel login = await UserApi()
+                                .updateMobileNumber(widget.userID,
+                                    _userMobileController.text, _generatedOTP);
 
-                            if(login.status){
+                            if (login.status) {
+                              SharedPreferences pref =
+                                  await SharedPreferences.getInstance();
 
-                              SharedPreferences pref = await SharedPreferences.getInstance();
-
-                              pref.setString("userMobile", _userMobileController.text);
+                              pref.setString(
+                                  "userMobile", _userMobileController.text);
                               setState(() {
                                 _userMobile = _userMobileController.text;
                                 mobileNumberVerified = true;
                               });
                             }
-
-                          }else{
+                          } else {
                             print(_otpText);
                             setState(() {
                               mobileNumberVerified = false;
@@ -659,12 +862,13 @@ class _EditProfileState extends State<EditProfile> {
                             print("incorrect otp");
                           }
                         },
-                        child: Text("Verify" , style: GoogleFonts.poppins(),),
+                        child: Text(
+                          "Verify",
+                          style: GoogleFonts.poppins(),
+                        ),
                         textColor: Colors.white,
                         color: kDarkColor,
-                        padding: EdgeInsets.symmetric(
-                            vertical: 15
-                        ),
+                        padding: EdgeInsets.symmetric(vertical: 15),
                         elevation: 8,
                       )
                     ],
@@ -673,22 +877,17 @@ class _EditProfileState extends State<EditProfile> {
               );
             },
           );
-
-
-        }else{
+        } else {
           var snackBar = SnackBar(content: Text("Something went wrong"));
 
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
-
-
-
       },
-      child: Text("Verify" , style: GoogleFonts.poppins(
-        color: kDarkColor,
-        fontWeight: FontWeight.bold,
-        fontSize: 12
-      ),),
+      child: Text(
+        "Verify",
+        style: GoogleFonts.poppins(
+            color: kDarkColor, fontWeight: FontWeight.bold, fontSize: 12),
+      ),
     );
   }
 }

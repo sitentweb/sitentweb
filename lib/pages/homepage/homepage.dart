@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:quick_actions/quick_actions.dart';
-import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/drawer/application_drawer.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/config/userSetting.dart';
@@ -32,6 +31,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var userID;
+  var userMobile;
   PersistentTabController _tabController =
       PersistentTabController(initialIndex: 0);
 
@@ -45,27 +45,23 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  
   _getFirebaseNotification() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) { 
-        if(message.data['notification_type'] == 'logged_out'){
-          UserSetting.unsetUserSession();
-          showDialog(
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.data['notification_type'] == 'logged_out') {
+        UserSetting.unsetUserSession();
+        showDialog(
             context: context,
-             builder: (context) => AlertDialog(
-               title: Text("You are logged out from this device"),
-                actions: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    height:30,
-                    child: MaterialButton(
-                      onPressed: () => exit(0),
-                      child: Text("Ok")
-                    ),
-                  )
-                ],
-             )
-          );
+            builder: (context) => AlertDialog(
+                  title: Text("You are logged out from this device"),
+                  actions: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: 30,
+                      child: MaterialButton(
+                          onPressed: () => exit(0), child: Text("Ok")),
+                    )
+                  ],
+                ));
       }
     });
   }
@@ -75,32 +71,34 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       userID = pref.getString("userID");
+      userMobile = pref.getString("userMobile");
     });
 
     final QuickActions quickActions = QuickActions();
 
-    String searchLocalize = widget.userType  == "2" ? 'Search Candidate' :'Search Job';
+    String searchLocalize =
+        widget.userType == "2" ? 'Search Candidate' : 'Search Job';
 
-    try{
+    try {
       quickActions.initialize((shortcutType) {
         if (shortcutType == 'search') {
           print('Navigating to search job');
-          pushNewScreen(
-              context,
+          pushNewScreen(context,
               withNavBar: false,
               customPageRoute: MaterialPageRoute(
-                builder: (context) => widget.userType == "2" ? SearchCandidates() : SearchJobs(),
-              )
-          );
+                builder: (context) =>
+                    widget.userType == "2" ? SearchCandidates() : SearchJobs(),
+              ));
         }
         // More handling code...
       });
-    }catch(e){
+    } catch (e) {
       print(e);
     }
 
     quickActions.setShortcutItems(<ShortcutItem>[
-        ShortcutItem(type: 'search', localizedTitle: "$searchLocalize", icon: 'icon_main')
+      ShortcutItem(
+          type: 'search', localizedTitle: "$searchLocalize", icon: 'icon_main')
     ]);
 
     print(userID);
@@ -111,10 +109,15 @@ class _HomePageState extends State<HomePage> {
       widget.userType == "2"
           ? Dashboard()
           : Jobs(
-        isSearch: false,
-        searchData: [],
-      ),
-      widget.userType == "2" ? Candidates(isSearched: false, data: [],) : AppliedJobs(),
+              isSearch: false,
+              searchData: [],
+            ),
+      widget.userType == "2"
+          ? Candidates(
+              isSearched: false,
+              data: [],
+            )
+          : AppliedJobs(),
       JobNotification(
         userID: userID,
       ),
@@ -165,57 +168,71 @@ class _HomePageState extends State<HomePage> {
     ];
   }
 
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       endDrawerEnableOpenDragGesture: false,
-        appBar: AppBar(
-          iconTheme: IconThemeData.fallback(),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: Hero(tag:"splashscreenImage" ,child: Container(
-              child: Image.asset(application_logo , width: 40,))),
-          actions: [
-            InkWell(
-                onTap: () {
-                  if(widget.userType == "2"){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SearchCandidates(),));
-                  }else{
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SearchJobs(),));
-                  }
-                },
-                child: Container(
-                    padding: EdgeInsets.all(8),
-                    child: Icon(Icons.search , color: kDarkColor,)))
-          ],
-        ),
+      appBar: AppBar(
+        iconTheme: IconThemeData.fallback(),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: Hero(
+            tag: "splashscreenImage",
+            child: Container(
+                child: Image.asset(
+              application_logo,
+              width: 40,
+            ))),
+        actions: [
+          InkWell(
+              onTap: () {
+                if (widget.userType == "2") {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchCandidates(),
+                      ));
+                } else {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchJobs(),
+                      ));
+                }
+              },
+              child: Container(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.search,
+                    color: kDarkColor,
+                  )))
+        ],
+      ),
       drawer: Drawer(
         child: ApplicationDrawer(),
       ),
       body: PersistentTabView(
-          context,
-          onWillPop: _onWillPop,
-          controller: _tabController,
-          screens: _tabScreens(),
-          items: _tabItems(),
-          handleAndroidBackButtonPress: true,
-          resizeToAvoidBottomInset: true,
-          decoration: NavBarDecoration(
-              borderRadius: BorderRadius.circular(10),
-              colorBehindNavBar: Colors.white),
-          popActionScreens: PopActionScreensType.all,
-          itemAnimationProperties: ItemAnimationProperties(
-              duration: Duration(milliseconds: 200), curve: Curves.ease),
-              screenTransitionAnimation: ScreenTransitionAnimation(
-              animateTabTransition: true,
-              curve: Curves.ease,
-              duration: Duration(milliseconds: 200)),
-          navBarStyle: NavBarStyle.style1,
-
-        ),
+        context,
+        onWillPop: _onWillPop,
+        controller: _tabController,
+        screens: _tabScreens(),
+        items: _tabItems(),
+        handleAndroidBackButtonPress: true,
+        resizeToAvoidBottomInset: true,
+        decoration: NavBarDecoration(
+            borderRadius: BorderRadius.circular(10),
+            colorBehindNavBar: Colors.white),
+        popActionScreens: PopActionScreensType.all,
+        itemAnimationProperties: ItemAnimationProperties(
+            duration: Duration(milliseconds: 200), curve: Curves.ease),
+        screenTransitionAnimation: ScreenTransitionAnimation(
+            animateTabTransition: true,
+            curve: Curves.ease,
+            duration: Duration(milliseconds: 200)),
+        navBarStyle: NavBarStyle.style1,
+      ),
     );
   }
 

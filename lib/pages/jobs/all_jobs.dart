@@ -1,17 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:remark_app/apis/jobs/all_jobs.dart';
-import 'package:remark_app/components/appbar/appbar.dart';
-import 'package:remark_app/components/drawer/application_drawer.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/job_card/job_card.dart';
 import 'package:remark_app/components/job_card/job_card_shimmer.dart';
 import 'package:remark_app/components/user/register_buttons.dart';
-import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/jobs/all_jobs_model.dart';
-import 'package:remark_app/pages/jobs/search_job.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -65,11 +59,6 @@ class _JobsState extends State<Jobs> {
         if (location == "Select Location") {
           location = "";
         }
-
-        print(title);
-        print(skills);
-        print(range);
-        print(location);
 
         await AllJobs()
             .getSearchJobs(userID, title, skills, range, location)
@@ -132,8 +121,7 @@ class _JobsState extends State<Jobs> {
         child: Container(
           child: Column(
             children: [
-              if(userType == "0")
-                RegisterAs(),
+              if (userType == "0") RegisterAs(),
               Expanded(
                 child: isJobFetched
                     ? Container(
@@ -144,7 +132,7 @@ class _JobsState extends State<Jobs> {
                                 var job = item;
                                 return JobCard(
                                   jobID: job.jobId,
-                                  userID: userID,
+                                  userID: job.userId,
                                   jobTitle: job.jobTitle,
                                   companyImage: job.companyLogo,
                                   companyName: job.companyName,
@@ -161,7 +149,8 @@ class _JobsState extends State<Jobs> {
                                   applyBtn: int.parse(job.jobAppliedStatus),
                                 );
                               },
-                              firstPageProgressIndicatorBuilder: (_) => Container(
+                              firstPageProgressIndicatorBuilder: (_) =>
+                                  Container(
                                     child: Column(
                                       children: [
                                         JobCardShimmer(),
@@ -189,5 +178,4 @@ class _JobsState extends State<Jobs> {
       ),
     );
   }
-
 }

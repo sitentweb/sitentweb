@@ -41,7 +41,7 @@ class _ShowChartState extends State<ShowChart> {
     return Container(
       padding: EdgeInsets.only(top: 5),
       child: AspectRatio(
-        aspectRatio: 1.2,
+        aspectRatio: 1,
         child: PieChart(PieChartData(
             pieTouchData: PieTouchData(touchCallback: (pieTouched) {
               setState(() {
@@ -57,7 +57,7 @@ class _ShowChartState extends State<ShowChart> {
             }),
             borderData: FlBorderData(show: false),
             sectionsSpace: 1,
-            centerSpaceRadius: 60,
+            centerSpaceRadius: 40,
             sections: getData(widget.company, widget.job, widget.interview,
                 widget.questionnaire))),
       ),

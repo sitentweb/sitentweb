@@ -275,7 +275,7 @@ class _DashboardState extends State<Dashboard> {
                           waiting: dashData.questionnaireHoldCount),
 
                       SizedBox(
-                        height: 10,
+                        height: 20,
                       )
                     ],
                   );
@@ -370,7 +370,7 @@ class DashboardCountDataCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(
-                  height: 15,
+                  height: 0,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -391,7 +391,7 @@ class DashboardCountDataCard extends StatelessWidget {
                       type: Colors.grey,
                     )
                   ],
-                )
+                ),
               ],
             ),
           ),

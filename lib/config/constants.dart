@@ -7,15 +7,20 @@ var kLightColor = Color(0xff00796b);
 var application_logo = 'assets/logo/logo.png';
 var application_name = 'Remark';
 
+// DYNAMIC LINKS
+
+var dynamic_base = 'remarkhrapp.page.link';
+var dynamic_job = dynamic_base + '/job';
+
 // API Urls
 
-const String base_url = 'https://remarkablehr.in';
+const String base_url = 'https://apimanager.remarkhr.com';
 
 //SMS GATEWAY GLOBAL 91
 const String smsBaseUrl = 'http://www.global91sms.in/app/smsapi/index.php';
 const String smsApi = '560D6D3BEA4938';
 const String smsEntity = '1201162326487946387';
-const String smsOTPTempID = '1207162953792805217 ';
+const String smsOTPTempID = '1207162953792805217';
 const String smsSender = 'VISKOR';
 const String smsType = 'text';
 const String smsUnicode = 'no';
@@ -79,3 +84,7 @@ const String interviewResponseApiUrl = base_url + '/setInterviewAgree';
 const String createChatRoomApiUrl = base_url + '/createRoom';
 const String updateUserDetailsApiUrl = base_url + '/updateUser';
 const String employerCompanyApiUrl = base_url + '/companies';
+const String resumePath = base_url + '/assets/resumes/';
+const String rescheduleInterviewApiUrl = base_url + '/rescheduleInterview';
+const String deleteInterviewApiUrl = base_url + '/deleteInterview';
+const String fetchSavedCandidatesApiUrl = base_url + '/getSavedProfile';

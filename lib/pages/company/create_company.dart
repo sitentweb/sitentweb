@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +21,6 @@ class CreateCompany extends StatefulWidget {
 }
 
 class _CreateCompanyState extends State<CreateCompany> {
-
   FilePickerResult _image;
   bool _isCreating = false;
   String userID;
@@ -48,19 +48,17 @@ class _CreateCompanyState extends State<CreateCompany> {
   }
 
   getLocation() async {
-
     List<S2Choice<String>> _tempLocation = [];
 
     await Location().cityState().then((value) {
       value.data.forEach((element) {
-         _tempLocation.add(S2Choice(value: element.place, title: element.place));
+        _tempLocation.add(S2Choice(value: element.place, title: element.place));
       });
 
       setState(() {
         _locations = _tempLocation;
       });
     });
-
   }
 
   @override
@@ -76,24 +74,24 @@ class _CreateCompanyState extends State<CreateCompany> {
             child: ListView(
               children: [
                 GestureDetector(
-                   onTap: () async {
-                      try{
-
-                        await FilePicker.platform.pickFiles(type: FileType.image).then((file) {
-                          if(file != null){
-                            print(file.files.single.path);
-                            setState(() {
-                              _image = file;
-                            });
-                          }else{
-                            print("user cancelled the process");
-                          }
-                        });
-
-                      }catch(e){
-                        print(e);
-                      }
-                   },
+                  onTap: () async {
+                    try {
+                      await FilePicker.platform
+                          .pickFiles(type: FileType.image)
+                          .then((file) {
+                        if (file != null) {
+                          print(file.files.single.path);
+                          setState(() {
+                            _image = file;
+                          });
+                        } else {
+                          print("user cancelled the process");
+                        }
+                      });
+                    } catch (e) {
+                      print(e);
+                    }
+                  },
                   child: Container(
                     alignment: Alignment.center,
                     width: 100,
@@ -101,11 +99,13 @@ class _CreateCompanyState extends State<CreateCompany> {
                     child: Stack(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical : 30.0),
+                          padding: const EdgeInsets.symmetric(vertical: 30.0),
                           child: CircleAvatar(
                             radius: 30,
                             backgroundColor: Colors.white,
-                            backgroundImage: _image != null ? FileImage(File(_image.files.single.path)) : AssetImage(application_logo),
+                            backgroundImage: _image != null
+                                ? FileImage(File(_image.files.single.path))
+                                : AssetImage(application_logo),
                           ),
                         ),
                         Positioned(
@@ -115,10 +115,13 @@ class _CreateCompanyState extends State<CreateCompany> {
                               padding: EdgeInsets.all(5),
                               decoration: BoxDecoration(
                                   color: kDarkColor,
-                                  borderRadius: BorderRadius.all(Radius.circular(20))
-                              ),
-                              child: Icon(Icons.add_a_photo_outlined , size: 14 , color: Colors.white,)
-                          ),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
+                              child: Icon(
+                                Icons.add_a_photo_outlined,
+                                size: 14,
+                                color: Colors.white,
+                              )),
                         )
                       ],
                     ),
@@ -126,124 +129,122 @@ class _CreateCompanyState extends State<CreateCompany> {
                 ),
                 Divider(),
                 TextFormField(
-                    controller: _companyName,
-                    validator: (value) {
-                      if(value.isEmpty || value == null){
-                        return "Company Name is required";
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
+                  controller: _companyName,
+                  decoration: InputDecoration(
                       labelText: "Company Name",
-                      labelStyle: GoogleFonts.poppins(
-                        fontSize: 14
-                      ),
-                      prefixIcon: Icon(Icons.verified)
-                    ),
+                      labelStyle: GoogleFonts.poppins(fontSize: 14),
+                      prefixIcon: Icon(Icons.verified)),
                 ),
-                SizedBox(height: 12,),
+                SizedBox(
+                  height: 12,
+                ),
                 TextFormField(
                   controller: _companyWebsite,
                   keyboardType: TextInputType.url,
                   decoration: InputDecoration(
-                    labelText: "Company Website",
-                    labelStyle: GoogleFonts.poppins(
-                      fontSize: 14
-                    ),
-                    prefixIcon: Icon(Icons.web)
-                  ),
+                      labelText: "Company Website",
+                      labelStyle: GoogleFonts.poppins(fontSize: 14),
+                      hintText: "https://example.com",
+                      prefixIcon: Icon(Icons.web)),
                 ),
-                SizedBox(height: 12,),
+                SizedBox(
+                  height: 12,
+                ),
                 TextFormField(
                   controller: _companyEmail,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: "Business Email",
-                    labelStyle: GoogleFonts.poppins(
-                      fontSize: 14
-                    ),
-                    prefixIcon: Icon(Icons.email)
-                  ),
+                      labelText: "Business Email",
+                      labelStyle: GoogleFonts.poppins(fontSize: 14),
+                      hintText: "example@gmail.com",
+                      prefixIcon: Icon(Icons.email)),
                 ),
-                SizedBox(height: 12,),
+                SizedBox(
+                  height: 12,
+                ),
                 TextFormField(
                   controller: _companyLocation,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.place),
-                    labelText: "Company Address",
-                    labelStyle: GoogleFonts.poppins(fontSize: 14)
-                  ),
+                      prefixIcon: Icon(Icons.place),
+                      labelText: "Company Address",
+                      labelStyle: GoogleFonts.poppins(fontSize: 14)),
                 ),
-                SizedBox(height: 8,),
+                SizedBox(
+                  height: 8,
+                ),
                 TextFormField(
-                    controller: _companyDescription,
-                    maxLines: 3,
-                    decoration: InputDecoration(
+                  controller: _companyDescription,
+                  maxLines: 3,
+                  decoration: InputDecoration(
                       labelText: "Description",
-                      labelStyle: GoogleFonts.poppins(
-                        fontSize: 14
-                      ),
-                      prefixIcon: Icon(Icons.add)
-                    ),
+                      labelStyle: GoogleFonts.poppins(fontSize: 14),
+                      prefixIcon: Icon(Icons.add)),
                 ),
-                SizedBox(height: 15,),
-                !_isCreating ? MaterialButton(
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    elevation: 10,
-                    onPressed: () async {
+                SizedBox(
+                  height: 15,
+                ),
+                !_isCreating
+                    ? MaterialButton(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        elevation: 10,
+                        onPressed: () async {
+                          setState(() {
+                            _isCreating = true;
+                          });
 
-                        setState(() {
-                          _isCreating = true;
-                        });
+                          var companyData = jsonEncode({
+                            "company_name": _companyName.text ?? "",
+                            "company_website": _companyWebsite.text ?? "",
+                            "company_email": _companyEmail.text ?? "",
+                            "company_location": _companyLocation.text ?? "",
+                            "company_des": _companyDescription.text ?? ""
+                          });
 
-                        var companyData = jsonEncode({
-                            "company_name" : _companyName.text ?? "",
-                            "company_website" : _companyWebsite.text ?? "",
-                            "company_email" : _companyEmail.text ?? "",
-                            "company_location" : _companyLocation.text ?? "",
-                            "company_des" : _companyDescription.text ?? ""
-                        });
+                          var imagePath = "";
 
-                        var imagePath = _image.files.single.path;
+                          if (_image != null) {
+                            imagePath = _image.files.single.path;
+                          }
 
-                        print(companyData);
+                          print(companyData);
 
-                        await CompanyApi().createCompany(imagePath , companyData.toString(), userID).then((response) async {
-                            if(response.status){
-                              await CompanyApi().fetchCompanyByID(response.data.toString()).then((value) {
-
+                          await CompanyApi()
+                              .createCompany(
+                                  imagePath, companyData.toString(), userID)
+                              .then((response) async {
+                            if (response.status) {
+                              await CompanyApi()
+                                  .fetchCompanyByID(response.data.toString())
+                                  .then((value) {
                                 print(value.data.companyId);
-                                Provider.of<SelectCompanyNotifier>(context , listen: false).select(
-                                    value.data.companyId.toString(), true, true, value.data
-                                );
+                                Provider.of<SelectCompanyNotifier>(context,
+                                        listen: false)
+                                    .select(value.data.companyId.toString(),
+                                        true, true, value.data);
 
                                 Navigator.pop(context);
-
                               });
-
-
-
-                            }else{
-
+                            } else {
                               setState(() {
                                 _isCreating = false;
                               });
 
-                              var snackBar = SnackBar(content: Text("Something went wrong, Please try again later"));
+                              var snackBar = SnackBar(
+                                  content: Text(
+                                      "Something went wrong, Please try again later"));
 
-                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                             }
-                        });
-
-                    },
-                    child: Text("Create Company"),
-                    color: kDarkColor,
-                    textColor: Colors.white,
-                ) : CircularLoading()
+                          });
+                        },
+                        child: Text("Create Company"),
+                        color: kDarkColor,
+                        textColor: Colors.white,
+                      )
+                    : CircularLoading()
               ],
-            )
-        ),
+            )),
       ),
     );
   }

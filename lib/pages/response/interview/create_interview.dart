@@ -14,7 +14,6 @@ class CreateInterview extends StatefulWidget {
 }
 
 class _CreateInterviewState extends State<CreateInterview> {
-
   List<S2Choice> _employees = [];
   List _selectedEmployeesID = [];
   TextEditingController _interviewTitle = TextEditingController();
@@ -72,23 +71,35 @@ class _CreateInterviewState extends State<CreateInterview> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 10 , horizontal: 20),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   height: 100,
-                  child:  ListView(
+                  child: ListView(
                     physics: NeverScrollableScrollPhysics(),
                     children: [
-                      Text("Select Employees" , style: GoogleFonts.poppins(),),
-                      _employees == null || _employees.length == 0 ? Text("Fetching Employees" , style: GoogleFonts.poppins(),) : SmartSelect.multiple(
-                        title: _employees == null || _employees.length == 0 ? "Fetching Employees" : "Select Employees",
-                          choiceItems: _employees,
-                          modalConfirm: true,
-                          modalFilter: true,
-                          onChange: (value) {
-                            print(value.value);
-                            setState(() {
-                              _selectedEmployeesID = value.value;
-                            });
-                          },)
+                      Text(
+                        "Select Employees",
+                        style: GoogleFonts.poppins(),
+                      ),
+                      _employees == null || _employees.length == 0
+                          ? Text(
+                              "Fetching Employees",
+                              style: GoogleFonts.poppins(),
+                            )
+                          : SmartSelect.multiple(
+                              title:
+                                  _employees == null || _employees.length == 0
+                                      ? "Fetching Employees"
+                                      : "Select Employees",
+                              choiceItems: _employees,
+                              modalConfirm: true,
+                              modalFilter: true,
+                              onChange: (value) {
+                                print(value.value);
+                                setState(() {
+                                  _selectedEmployeesID = value.value;
+                                });
+                              },
+                            )
                     ],
                   ),
                 ),
@@ -98,55 +109,67 @@ class _CreateInterviewState extends State<CreateInterview> {
                   child: ListView(
                     physics: NeverScrollableScrollPhysics(),
                     children: [
-                      Text("Interview Title" , style: GoogleFonts.poppins(),),
+                      Text(
+                        "Interview Title",
+                        style: GoogleFonts.poppins(),
+                      ),
                       TextField(
                         controller: _interviewTitle,
                         decoration: InputDecoration(
-                          labelText: "Interview Title",
-                          labelStyle: GoogleFonts.poppins(fontSize: 14),
-                          border: InputBorder.none
-                        ),
+                            labelText: "Interview Title",
+                            labelStyle: GoogleFonts.poppins(fontSize: 14),
+                            border: InputBorder.none),
                       )
                     ],
                   ),
                 ),
                 Container(
                   height: 100,
-                  padding: EdgeInsets.symmetric(vertical: 10 , horizontal: 20),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: ListView(
                     children: [
-                      Text("Interview Date & Time" , style: GoogleFonts.poppins(),),
+                      Text(
+                        "Interview Date & Time",
+                        style: GoogleFonts.poppins(),
+                      ),
                       TextField(
                         controller: _interviewDate,
                         decoration: InputDecoration(
                           labelText: "Select Date",
                         ),
                         onTap: () async {
-                            var _newDate;
-                            var _newTime;
-                            showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime.now(),
-                                lastDate: DateTime.now().add(Duration(days: 30)),
-                            ).then((date) {
-                              print(date);
+                          var _newDate;
+                          var _newTime;
+                          showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(Duration(days: 30)),
+                          ).then((date) {
+                            print(date);
+                            setState(() {
+                              _newDate = date.year.toString().padLeft(2, '0') +
+                                  '-' +
+                                  date.month.toString().padLeft(2, '0') +
+                                  '-' +
+                                  date.day.toString().padLeft(2, '0');
+                            });
+                            showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            ).then((time) {
+                              print(time);
+                              _newTime = time.hour.toString().padLeft(2, '0') +
+                                  ':' +
+                                  time.minute.toString().padLeft(2, '0') +
+                                  ':00';
+                              print(_newDate);
+                              print(_newTime);
                               setState(() {
-                                _newDate = date.year.toString().padLeft(2 , '0')+'-'+date.month.toString().padLeft(2 , '0')+'-'+date.day.toString().padLeft(2 , '0');
-                              });
-                              showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now(),
-                              ).then((time) {
-                                print(time);
-                                _newTime = time.hour.toString().padLeft(2 , '0')+':'+time.minute.toString().padLeft(2 , '0')+':00';
-                                print(_newDate);
-                                print(_newTime);
-                                setState(() {
-                                  _interviewDate.text = _newDate +' '+ _newTime;
-                                });
+                                _interviewDate.text = _newDate + ' ' + _newTime;
                               });
                             });
+                          });
                         },
                       )
                     ],
@@ -154,10 +177,13 @@ class _CreateInterviewState extends State<CreateInterview> {
                 ),
                 Container(
                   height: 100,
-                  padding: EdgeInsets.symmetric(vertical: 10 , horizontal: 20),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: ListView(
                     children: [
-                      Text("Interview Date & Time" , style: GoogleFonts.poppins(),),
+                      Text(
+                        "Interview Type",
+                        style: GoogleFonts.poppins(),
+                      ),
                       DropdownButtonFormField(
                         onChanged: (value) {
                           print(value);
@@ -167,11 +193,11 @@ class _CreateInterviewState extends State<CreateInterview> {
                         hint: Text("Select Interview Type"),
                         items: [
                           DropdownMenuItem(
-                              child: Text("Voice Call"),
+                            child: Text("Voice Call"),
                             value: "0",
                           ),
                           DropdownMenuItem(
-                              child: Text("Video Call"),
+                            child: Text("Video Call"),
                             value: "1",
                           )
                         ],
@@ -183,22 +209,33 @@ class _CreateInterviewState extends State<CreateInterview> {
                   alignment: Alignment.center,
                   child: MaterialButton(
                     onPressed: () {
-
-                      if(_interviewTitle.text.isEmpty || _interviewDate.text.isEmpty){
+                      if (_interviewTitle.text.isEmpty ||
+                          _interviewDate.text.isEmpty) {
                         return false;
                       }
 
                       _selectedEmployeesID.forEach((element) async {
                         print(element);
 
-                        await GetAllInterviewsApi().createInterview(element, userID, _interviewTitle.text, _interviewDate.text, _interviewType).then((value) {
-                          if(value.status){
-                            var snackBar = SnackBar(content: Text("Interview Created Successfully" , style: GoogleFonts.poppins(),));
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        await GetAllInterviewsApi()
+                            .createInterview(
+                                element,
+                                userID,
+                                _interviewTitle.text,
+                                _interviewDate.text,
+                                _interviewType)
+                            .then((value) {
+                          if (value.status) {
+                            var snackBar = SnackBar(
+                                content: Text(
+                              "Interview Created Successfully",
+                              style: GoogleFonts.poppins(),
+                            ));
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
                             Navigator.pop(context);
                           }
                         });
-
                       });
                     },
                     child: Text("Create Interview"),

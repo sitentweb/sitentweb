@@ -14,7 +14,7 @@ import 'package:remark_app/pages/homepage/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:remark_app/model/auth/userDataModel.dart';
-import 'package:sms_otp_auto_verify/sms_otp_auto_verify.dart';
+// import 'package:sms_otp_auto_verify/sms_otp_auto_verify.dart';
 
 class OtpValidate extends StatefulWidget {
   const OtpValidate({Key key}) : super(key: key);
@@ -32,33 +32,16 @@ class _OtpValidateState extends State<OtpValidate> {
   String _validateOTP = "";
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   String signature = "";
-
+  bool verifying = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     startTimer();
-    fetchOTP();
   }
 
-  fetchOTP() async {
 
-    await SmsRetrieved.startListeningSms().then((value) => print(value));
-
-    String sign = await SmsRetrieved.getAppSignature();
-    print(sign);
-    setState(() {
-      signature = sign;
-    });
-
-    SharedPreferences pref = await SharedPreferences.getInstance();
-
-    if(pref.getString("otpSignature") == sign){
-      _otp.setCode(pref.getInt('otp'));
-    }
-
-  }
 
   startTimer() {
     const oneSec = Duration(seconds: 1);
@@ -130,12 +113,17 @@ class _OtpValidateState extends State<OtpValidate> {
                                     HomePage(userType: user.data.userType)));
                       } else {
                         print('incorrect otp');
+                        
+                          setState(() {
+                            verifying = false;
+                          });
+                        
                         final snackBarMessage = SnackBar(
                           content: Text("Invalid OTP"),
                         );
 
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(snackBarMessage);
+                        // ScaffoldMessenger.of(context)
+                        //     .showSnackBar(snackBarMessage);
                       }
   }
 
@@ -227,7 +215,6 @@ class _OtpValidateState extends State<OtpValidate> {
                   padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
                   child: CodeFields(
                     controller: _otp,
-
                     length: 4,
                     autofocus: true,
                     inputDecoration: InputDecoration(
@@ -287,12 +274,14 @@ class _OtpValidateState extends State<OtpValidate> {
                 Container(
                   child: GestureDetector(
                     onTap: () async {
-                      
+                      setState(() {
+                        verifying = true;
+                      });
                       validateOTP();
 
                       // Navigator.pushReplacementNamed(context, '/homepage')
                     },
-                    child: Container(
+                    child: !verifying ? Container(
                         width: size.width * 0.8,
                         height: 50,
                         decoration: BoxDecoration(
@@ -305,7 +294,7 @@ class _OtpValidateState extends State<OtpValidate> {
                             ]),
                         child:Center(child: Text("Verify" , style: TextStyle(
                           color: Colors.white
-                        ), ))),
+                        ), ))) : CircularProgressIndicator(),
                   ),
                 ), 
                 SizedBox(height: 100,),

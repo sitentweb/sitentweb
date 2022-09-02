@@ -7,7 +7,6 @@ import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/candidates/save_candidate_model.dart';
 import 'package:remark_app/pages/candidates/view_candidate.dart';
 import 'package:share/share.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class CandidateCard extends StatefulWidget {
   final userID;
@@ -34,7 +33,8 @@ class CandidateCard extends StatefulWidget {
       this.employeeUserName,
       this.employeeCreatedAt,
       this.userID,
-      this.employeeSaved, this.jobID})
+      this.employeeSaved,
+      this.jobID})
       : super(key: key);
 
   @override
@@ -64,7 +64,10 @@ class _CandidateCardState extends State<CandidateCard> {
   }
 
   Future<bool> userSharedThis(bool isLiked) async {
-    Share.share("Check this candidate", subject: "Remark - Candidate");
+    String cLink = base_url + "/employee-" + widget.employeeUserName;
+    Share.share(
+        "Name: ${widget.employeeName} \nLocation: ${widget.employeeLocation} \nEducation: ${widget.employeeQualification} \nSkills: ${widget.employeeSkills} \n\nCheck out this candidate \n$cLink \n\nDownload Remark App for more candidates \nhttps://remarkhr.com/downloads ",
+        subject: "Remark - Candidate");
     return !isLiked;
   }
 

@@ -5,24 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import 'package:remark_app/apis/user/UserApi.dart';
-import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/config/userSetting.dart';
-import 'package:remark_app/pages/auth/login.dart';
 import 'package:remark_app/pages/candidates/hired_candidates.dart';
+import 'package:remark_app/pages/candidates/saved_candidates.dart';
 import 'package:remark_app/pages/company/employer_company.dart';
 import 'package:remark_app/pages/conversation/employer_conversation.dart';
 import 'package:remark_app/pages/homepage/homepage.dart';
-import 'package:remark_app/pages/jobs/all_jobs.dart';
-import 'package:remark_app/pages/jobs/applied_jobs.dart';
 import 'package:remark_app/pages/jobs/employer_all_jobs.dart';
 import 'package:remark_app/pages/jobs/posted_jobs.dart';
 import 'package:remark_app/pages/jobs/save_job.dart';
 import 'package:remark_app/pages/profile/edit_profile.dart';
-import 'package:remark_app/pages/profile/view_profile.dart';
-import 'package:remark_app/pages/response/interview/interview_employee.dart';
-import 'package:remark_app/pages/response/interview/video_call_screen.dart';
 import 'package:remark_app/pages/response/responses.dart';
 import 'package:remark_app/pages/support/support.dart';
 import 'package:share/share.dart';
@@ -78,7 +71,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
       child: Container(
         child: Column(
           children: [
-            viewUserPhoto(size , context),
+            viewUserPhoto(size, context),
             Expanded(
               child: Container(
                   padding: EdgeInsets.all(8),
@@ -109,8 +102,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EmployerAllJobs()
-                                ));
+                                    builder: (context) => EmployerAllJobs()));
                           },
                         ),
                       if (userType == "2")
@@ -126,6 +118,19 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                                     builder: (context) => SaveJobs(
                                           userID: userID,
                                         )));
+                          },
+                        ),
+                      if (userType == "2")
+                        MenuList(
+                          title: "Saved Candidates",
+                          icon: Icon(FontAwesomeIcons.user),
+                          action: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SavedCandidates(),
+                                ));
                           },
                         ),
                       if (userType == "2")
@@ -154,32 +159,33 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                                     builder: (context) => EmployerCompanies(),
                                   ));
                             }),
-                      if(userType == "2")
+                      if (userType == "2")
                         MenuList(
                           title: "Hired Candidates",
                           icon: Icon(Icons.verified),
-                          action: (){
+                          action: () {
                             Navigator.pop(context);
-                            Navigator.push(context ,MaterialPageRoute(builder: (context) => HiredCandidates()));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HiredCandidates()));
                           },
                         ),
                       if (userType == "1")
                         MenuList(
-                          title: "Save Jobs",
-                          icon: Icon(Icons.favorite),
-                          action: ()
-                          {
-                          Navigator.pop(context);
+                            title: "Save Jobs",
+                            icon: Icon(Icons.favorite),
+                            action: () {
+                              Navigator.pop(context);
 
-                          Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SaveJobs(
-                                    userID: userID,
-                                  ),
-                                ));
-                          }
-                        ),
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SaveJobs(
+                                      userID: userID,
+                                    ),
+                                  ));
+                            }),
                       // if (userType == "1")
                       //   MenuList(
                       //     title: "Applied Jobs",
@@ -194,6 +200,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                       //                   builder: (context) => AppliedJobs(),
                       //                 ));
                       //           }),
+
                       if (userType == "1" || userType == "2")
                         MenuList(
                           title: "Conversation",
@@ -220,7 +227,9 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Responses(initialIndex: 0,),
+                                  builder: (context) => Responses(
+                                    initialIndex: 0,
+                                  ),
                                 ));
                           },
                         ),
@@ -229,9 +238,10 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                         icon: Icon(Icons.support_agent),
                         action: () {
                           Navigator.pop(context);
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => Support()
-                            ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Support()));
                         },
                       ),
                       MenuList(
@@ -240,7 +250,8 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                         action: () {
                           Navigator.pop(context);
 
-                          Share.share("Download Remark Application");
+                          Share.share(
+                              "Lots of great companies here, find a perfect according to your skills \n \n $base_url/dowloads/ ");
                         },
                       ),
                       MenuList(
@@ -265,7 +276,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
     );
   }
 
-  Widget viewUserPhoto(Size size , BuildContext context) {
+  Widget viewUserPhoto(Size size, BuildContext context) {
     return Container(
       width: size.width,
       height: size.height * 0.3,
@@ -276,8 +287,8 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
           children: [
             userPhoto != null
                 ? Stack(
-                  children: [
-                    AvatarGlow(
+                    children: [
+                      AvatarGlow(
                         glowColor: Colors.white,
                         duration: Duration(milliseconds: 2000),
                         repeat: true,
@@ -291,44 +302,52 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                           elevation: 5,
                           shape: CircleBorder(),
                           child: CircleAvatar(
-                            backgroundColor: kDarkColor,
-                            radius: 40,
-                            backgroundImage: AppSetting.showUserImage(userPhoto),
+                            backgroundColor: Colors.white,
+                            radius: 55,
+                            child: CircleAvatar(
+                                radius: 50,
+                                backgroundImage:
+                                    NetworkImage(base_url + userPhoto)),
                           ),
                         ),
                       ),
                       Positioned(
-                        bottom: 5,
-                        right: 5,
-                        child: InkWell(
-                          onTap: () => pushNewScreen(
-                            context,
-                            screen: EditProfile(userID : userID , userType: userType),
-                            withNavBar: true),
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle
-                            ),
-                            child: Icon(Icons.edit , size: 15, color: kDarkColor, )),
-                        ))
-                  ],
-                )
+                          bottom: 5,
+                          right: 5,
+                          child: InkWell(
+                            onTap: () => pushNewScreen(context,
+                                screen: EditProfile(
+                                    userID: userID, userType: userType),
+                                withNavBar: true),
+                            child: Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle),
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 15,
+                                  color: kDarkColor,
+                                )),
+                          ))
+                    ],
+                  )
                 : CircularProgressIndicator(),
             SizedBox(
               height: 5,
             ),
             Text(
               "$userName",
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, color: Colors.white),
             ),
             SizedBox(
               height: 5,
             ),
             Text(
               "$userDetail",
-              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold, color: Colors.white),
             )
           ],
         ),
@@ -349,7 +368,10 @@ class MenuList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       focusColor: kLightColor,
-      title: Text(title , style: GoogleFonts.poppins(),),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(),
+      ),
       leading: icon,
       onTap: action,
       hoverColor: kLightColor,

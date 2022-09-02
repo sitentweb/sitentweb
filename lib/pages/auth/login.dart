@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -35,42 +37,37 @@ class _LoginState extends State<Login> {
   Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
     // await GoogleSignIn().disconnect();
-    print("preparing the google signing");
-    try{
-      print("getting the googleUser");
-      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+    var logg = "";
 
-      if(googleUser != null){
-        print("Google user is not null");
-        // Obtain the auth details from the request
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
 
+    logg = googleUser.displayName;
 
-        // Create a new credential
-        final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-
-        UserSetting.setGoogleSignInSession(credential);
-
-        // Once signed in, return the UserCredential
-        // return await FirebaseAuth.instance.signInWithCredential(credential);
-
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MobileValidate(),));
-      }else{
-        print("google user is null");
-      }
+    if(googleUser != null){
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
 
-    }catch(e){
-      print("Exception Error!");
-      print(e);
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      UserSetting.setGoogleSignInSession(credential);
+
+      // Once signed in, return the UserCredential
+      // return await FirebaseAuth.instance.signInWithCredential(credential);
+
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MobileValidate(),));
+    }else{
+      print("google user is null");
     }
 
 
 
-    
+
+
   }
 
   checkLoginStatus() async {
