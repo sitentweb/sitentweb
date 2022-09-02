@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "615545720563-j4rkkkaj7ajqmdo62l9r53q74eu52dip.apps.googleusercontent.com",
+          "client_id": "615545720563-8ee0t3p9h8j7dea9atmu2k10re6c34gk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.remark_app",
-            "certificate_hash": "99ee6ef46c926666792c09206a7f60e9c4291655"
+            "certificate_hash": "1f07f6ba2c2f462aac75976db37e795b2096cdb8"
           }
         },
         {

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>615545720563-7o3i1ccig28a6f2drolffcsq1mv47eh3.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.615545720563-7o3i1ccig28a6f2drolffcsq1mv47eh3</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>615545720563-8ee0t3p9h8j7dea9atmu2k10re6c34gk.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBFAZBiC4FjRB8Dxj3oYlFyrEDu78qHF8M</string>
+	<key>GCM_SENDER_ID</key>
+	<string>615545720563</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.remark.visko</string>
+	<key>PROJECT_ID</key>
+	<string>remarkablehr-91b2e</string>
+	<key>STORAGE_BUCKET</key>
+	<string>remarkablehr-91b2e.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:615545720563:ios:6dc195afd32bd459d63186</string>
+</dict>
+</plist>

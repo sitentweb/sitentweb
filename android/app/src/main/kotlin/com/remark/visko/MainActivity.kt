@@ -1,4 +1,4 @@
-package com.example.remark_app
+package com.remark.visko
 
 import io.flutter.embedding.android.FlutterActivity
 
