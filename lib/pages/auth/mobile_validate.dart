@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobile_number_picker/mobile_number_picker.dart';
 import 'package:remark_app/apis/auth/login.dart';
 import 'package:remark_app/apis/sms_gateway/send_sms.dart';
 import 'package:remark_app/components/snackbar_alerts/icon_text.dart';
@@ -22,10 +21,9 @@ class MobileValidate extends StatefulWidget {
 
 class _MobileValidateState extends State<MobileValidate> {
   bool isLoading = false;
-  MobileNumberPicker mobileNumber = MobileNumberPicker();
-  MobileNumber mobileNumberObject = MobileNumber();
   String userMobile = "";
   TextEditingController _mobileNumber = TextEditingController();
+  FocusScopeNode _mobile = FocusScopeNode();
 
   validateMobileNumber(String mobileNumber) {
     if (mobileNumber.length != 10) {
@@ -45,6 +43,7 @@ class _MobileValidateState extends State<MobileValidate> {
   void initState() {
     // TODO: implement initState
     getUserCredential();
+
     super.initState();
   }
 
@@ -55,43 +54,12 @@ class _MobileValidateState extends State<MobileValidate> {
       if (pref.getString("userMobile") != "") {
         _mobileNumber.text = pref.getString("userMobile");
       }
-    } else {
-      if (Platform.isAndroid) {
-        askAboutMobileNumber();
-      }
     }
-  }
-
-  askAboutMobileNumber() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await mobileNumber.mobileNumber();
-      print(timeStamp);
-    });
-
-    mobileNumber.getMobileNumberStream.listen((event) {
-      if (event?.states == PhoneNumberStates.PhoneNumberSelected) {
-        setState(() {
-          mobileNumberObject = event;
-          _mobileNumber.text = mobileNumberObject.phoneNumber;
-          print(mobileNumberObject.phoneNumber);
-        });
-      } else {
-        final snackBar = SnackBar(
-            content: IconSnackBar(
-          iconData: Icons.warning_amber_outlined,
-          textData: "Mobile Number not detected",
-          textColor: Colors.white,
-        ));
-
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
-    });
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    mobileNumber.dispose();
     super.dispose();
   }
 
@@ -180,6 +148,7 @@ class _MobileValidateState extends State<MobileValidate> {
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: 15),
                               child: TextFormField(
+                                focusNode: _mobile,
                                 controller: _mobileNumber,
                                 keyboardType: TextInputType.number,
                                 style: GoogleFonts.poppins(fontSize: 20),

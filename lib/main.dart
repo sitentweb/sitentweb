@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,14 @@ class _MyAppState extends State<MyApp> {
     // TODO: implement initState
     showForegroundNotification();
     getDynamicLinks();
+    subs = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.none) {
+        SnackBar snackBar = SnackBar(content: Text("You are offline"));
+        
+      }
+    });
     super.initState();
   }
 

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:math';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -205,5 +205,18 @@ class AppSetting {
     print(socket.id);
 
     return socket;
+  }
+
+  Future checkConnectivity() async {
+    String internetConnect = "";
+    var connectivityResult = await (Connectivity().checkConnectivity());
+
+    if (connectivityResult == ConnectivityResult.none) {
+      internetConnect = "No Internet";
+    } else {
+      internetConnect = "Back Online";
+    }
+
+    return internetConnect;
   }
 }

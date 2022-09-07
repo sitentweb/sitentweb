@@ -20,18 +20,15 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-
   UserCredential user;
   bool userIsLogged = false;
   String userType = '0';
-
 
   @override
   void initState() {
     // TODO: implement initState
     checkLoginStatus();
     super.initState();
-
   }
 
   Future<UserCredential> signInWithGoogle() async {
@@ -43,10 +40,10 @@ class _LoginState extends State<Login> {
 
     logg = googleUser.displayName;
 
-    if(googleUser != null){
+    if (googleUser != null) {
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       // Create a new credential
       final credential = GoogleAuthProvider.credential(
@@ -59,95 +56,90 @@ class _LoginState extends State<Login> {
       // Once signed in, return the UserCredential
       // return await FirebaseAuth.instance.signInWithCredential(credential);
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MobileValidate(),));
-    }else{
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MobileValidate(),
+          ));
+    } else {
       print("google user is null");
     }
-
-
-
-
-
   }
 
   checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    if(prefs.get('userIsLogged') != null){
-      if(prefs.getBool('userIsLogged')){
-
-        if(prefs.getString("userLogStep") == "full"){
+    if (prefs.get('userIsLogged') != null) {
+      if (prefs.getBool('userIsLogged')) {
+        if (prefs.getString("userLogStep") == "full") {
           userType = prefs.getString('userType');
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(userType: userType,),));
-        }else{
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MobileValidate(),));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(
+                  userType: userType,
+                ),
+              ));
+        } else {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MobileValidate(),
+              ));
         }
-
-
       }
     }
-
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
     Size _size = MediaQuery.of(context).size;
     return Scaffold(
         body: SafeArea(
-          child: Column(
-            children: [
-              Flexible(
-                flex: 2,
-                child: Container(
-                  width: _size.width,
-                  child: Center(
-                    child: Image.asset(application_logo , width: 150,),
-                  ),
+      child: Column(
+        children: [
+          Flexible(
+            flex: 2,
+            child: Container(
+              width: _size.width,
+              child: Center(
+                child: Image.asset(
+                  application_logo,
+                  width: 150,
                 ),
               ),
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.only(top: 30),
-                  alignment: Alignment.topCenter,
-                  width: _size.width,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        LoginButton(
-                          icon: Icons.login,
-                          title: 'Employee or Employer',
-                          color: kDarkColor,
-                          actionOnClick: () => showMaterialModalBottomSheet(
-                              expand: false,
-                              context: context,
-                              builder: (context) => MobileValidate()
-                          ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        LoginButton(
-                          icon: FontAwesomeIcons.google,
-                          title: 'Login with Google',
-                          color: Colors.redAccent,
-                          actionOnClick: () {
-                              signInWithGoogle();
-                          },
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ],
+            ),
           ),
-        )
-    );
+          Flexible(
+            child: Container(
+              padding: EdgeInsets.only(top: 30),
+              alignment: Alignment.topCenter,
+              width: _size.width,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 120,
+                    ),
+                    LoginButton(
+                      icon: Icons.login,
+                      title: 'Employee or Employer',
+                      color: kDarkColor,
+                      actionOnClick: () => showMaterialModalBottomSheet(
+                          expand: false,
+                          context: context,
+                          builder: (context) => MobileValidate()),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    ));
   }
 }
