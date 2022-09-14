@@ -96,7 +96,12 @@ class AppSetting {
 
     AndroidNotification android = message.notification?.android;
     if (notification != null && android != null) {
+
+      
+
+
       await flutterLocalNotificationsPlugin.show(
+        
           notification.hashCode,
           notification.title,
           notification.body,
@@ -108,8 +113,13 @@ class AppSetting {
               fullScreenIntent: true,
               importance: Importance.max,
               icon: android?.smallIcon,
+              
             ),
-          ));
+
+          ),
+          payload: message.data['newMessage']
+          );
+
     }
   }
 
@@ -197,8 +207,14 @@ class AppSetting {
   static initSocket() {
     Socket socket = io('https://remarkhr.com:8443', <String, dynamic>{
       'transports': ['websocket'],
-      'autoConnect': FractionalOffset.center
+      'secure': true,
+      'rejectUnauthorized': false,
+      'autoConnect': true
     });
+
+    socket.onError((data) => print(data));
+
+    socket.onAny((event, data) => {print(data)});
 
     socket.connect();
 

@@ -98,6 +98,8 @@ class _ChatScreenState extends State<ChatScreen> {
     print(userMobile);
     socket.emit('registerMe', {"id": userMobile});
 
+    socket.emit('add user', {"id": 1, "username": "Abhishek"});
+
     socket.on('user added', (data) {
       print(data);
     });

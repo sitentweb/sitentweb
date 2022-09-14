@@ -69,11 +69,17 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
     Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Container(
+        color: kLightColor,
         child: Column(
           children: [
             viewUserPhoto(size, context),
             Expanded(
               child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(20),
+                          topLeft: Radius.circular(20))),
                   padding: EdgeInsets.all(8),
                   child: ListView(
                     children: [
@@ -234,6 +240,19 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                           },
                         ),
                       MenuList(
+                        title: "Profile",
+                        icon: Icon(Icons.person),
+                        action: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfile(
+                                    userID: userID, userType: userType),
+                              ));
+                        },
+                      ),
+                      MenuList(
                         title: "Support",
                         icon: Icon(Icons.support_agent),
                         action: () {
@@ -261,7 +280,10 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                       ),
                       MenuList(
                         title: "Logout",
-                        icon: Icon(Icons.logout),
+                        icon: Icon(
+                          Icons.logout,
+                          color: Colors.red,
+                        ),
                         action: () async {
                           UserSetting.unsetUserSession();
                           Navigator.pushReplacementNamed(context, '/login');
@@ -286,39 +308,38 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             userPhoto != null
-                ? Stack(
-                    children: [
-                      AvatarGlow(
-                        glowColor: Colors.white,
-                        duration: Duration(milliseconds: 2000),
-                        repeat: true,
-                        repeatPauseDuration: Duration(milliseconds: 100),
-                        animate: true,
-                        endRadius: 50,
-                        shape: BoxShape.circle,
-                        curve: Curves.fastOutSlowIn,
-                        showTwoGlows: true,
-                        child: Material(
-                          elevation: 5,
-                          shape: CircleBorder(),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            radius: 55,
+                ? InkWell(
+                    onTap: () => pushNewScreen(context,
+                        screen: EditProfile(userID: userID, userType: userType),
+                        withNavBar: true),
+                    child: Stack(
+                      children: [
+                        AvatarGlow(
+                          glowColor: Colors.white,
+                          duration: Duration(milliseconds: 2000),
+                          repeat: true,
+                          repeatPauseDuration: Duration(milliseconds: 100),
+                          animate: true,
+                          endRadius: 50,
+                          shape: BoxShape.circle,
+                          curve: Curves.fastOutSlowIn,
+                          showTwoGlows: true,
+                          child: Material(
+                            elevation: 5,
+                            shape: CircleBorder(),
                             child: CircleAvatar(
-                                radius: 50,
-                                backgroundImage:
-                                    NetworkImage(base_url + userPhoto)),
+                              backgroundColor: Colors.white,
+                              radius: 55,
+                              child: CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage:
+                                      NetworkImage(base_url + userPhoto)),
+                            ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                          bottom: 5,
-                          right: 5,
-                          child: InkWell(
-                            onTap: () => pushNewScreen(context,
-                                screen: EditProfile(
-                                    userID: userID, userType: userType),
-                                withNavBar: true),
+                        Positioned(
+                            bottom: 5,
+                            right: 5,
                             child: Container(
                                 padding: EdgeInsets.all(5),
                                 decoration: BoxDecoration(
@@ -328,9 +349,9 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                                   Icons.edit,
                                   size: 15,
                                   color: kDarkColor,
-                                )),
-                          ))
-                    ],
+                                )))
+                      ],
+                    ),
                   )
                 : CircularProgressIndicator(),
             SizedBox(

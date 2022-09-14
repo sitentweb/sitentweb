@@ -81,6 +81,10 @@ class _SearchJobsState extends State<SearchJobs> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: kDarkColor,
+        title: Text("Search Job"),
+      ),
       body: SafeArea(
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -106,9 +110,7 @@ class _SearchJobsState extends State<SearchJobs> {
                     decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: "Enter Job Title Here"),
-                        style: GoogleFonts.poppins(
-                          fontSize: 14
-                        ),
+                    style: GoogleFonts.poppins(fontSize: 14),
                   ),
                 ),
                 Divider(),
@@ -133,7 +135,9 @@ class _SearchJobsState extends State<SearchJobs> {
                     _skillsController.text = "";
                   },
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), labelText: "Skills" , labelStyle: GoogleFonts.poppins()),
+                      border: OutlineInputBorder(),
+                      labelText: "Skills",
+                      labelStyle: GoogleFonts.poppins()),
                 ),
                 SizedBox(
                   height: 15,
@@ -225,7 +229,8 @@ class _SearchJobsState extends State<SearchJobs> {
                                     contentPadding: EdgeInsets.symmetric(
                                       vertical: 0,
                                     ),
-                                    hintText: "Salary" , hintStyle: GoogleFonts.poppins()),
+                                    hintText: "Salary",
+                                    hintStyle: GoogleFonts.poppins()),
                               ),
                             ),
                             Text(_maxSalary.round().toString(),
@@ -243,7 +248,8 @@ class _SearchJobsState extends State<SearchJobs> {
                           children: [
                             Text(
                               "Preferred Location",
-                              style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold),
                             ),
                             SmartSelect<String>.multiple(
                               title: defaultPlace,
@@ -286,7 +292,10 @@ class _SearchJobsState extends State<SearchJobs> {
                             color: kDarkColor,
                             textColor: Colors.white,
                             elevation: 8,
-                            child: Text("Search Jobs" ,style: GoogleFonts.poppins(),),
+                            child: Text(
+                              "Search Jobs",
+                              style: GoogleFonts.poppins(),
+                            ),
                           ),
                         ),
                       )

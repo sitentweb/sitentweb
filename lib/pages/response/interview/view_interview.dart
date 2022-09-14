@@ -13,6 +13,7 @@ import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/response/interview/get_all_interviews_model.dart';
 import 'package:remark_app/notifier/interview_calling_notifier.dart';
+import 'package:remark_app/pages/jobs/search_job.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -511,17 +512,47 @@ class _ViewInterviewState extends State<ViewInterview> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Scaffold(body: Consumer<InterviewCallingNotifier>(
-      builder: (context, value, child) {
-        return value.screenResponse == 1 && userType == "1"
-            ? incomingCallScreen()
-            : value.screenResponse == 1 && userType == "2"
-                ? outGoingCallScreen()
-                : value.screenResponse == 2
-                    ? mainCallScreen()
-                    : interviewPage();
-      },
-    )
+    return Scaffold(
+        appBar: AppBar(
+          iconTheme: IconThemeData.fallback(),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          title: Hero(
+              tag: "splashscreenImage",
+              child: Container(
+                  child: Image.asset(
+                application_logo,
+                width: 40,
+              ))),
+          actions: [
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SearchJobs(),
+                      ));
+                },
+                child: Container(
+                    padding: EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.search,
+                      color: kDarkColor,
+                    )))
+          ],
+        ),
+        body: Consumer<InterviewCallingNotifier>(
+          builder: (context, value, child) {
+            return value.screenResponse == 1 && userType == "1"
+                ? incomingCallScreen()
+                : value.screenResponse == 1 && userType == "2"
+                    ? outGoingCallScreen()
+                    : value.screenResponse == 2
+                        ? mainCallScreen()
+                        : interviewPage();
+          },
+        )
         // screenResponse == 1 && userType == "1" ? incomingCallScreen() : screenResponse == 1 && userType == "2" ? outGoingCallScreen() : screenResponse == 2 ? mainCallScreen() : interviewPage()   ,
         );
   }

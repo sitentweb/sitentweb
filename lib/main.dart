@@ -72,7 +72,6 @@ class _MyAppState extends State<MyApp> {
         .listen((ConnectivityResult result) {
       if (result == ConnectivityResult.none) {
         SnackBar snackBar = SnackBar(content: Text("You are offline"));
-        
       }
     });
     super.initState();
@@ -96,6 +95,7 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
+// dfd
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

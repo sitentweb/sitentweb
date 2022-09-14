@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:remark_app/apis/jobs/all_jobs.dart';
+import 'package:remark_app/components/appbar/empty_appbar.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/job_card/job_card.dart';
 import 'package:remark_app/components/job_card/job_card_shimmer.dart';
 import 'package:remark_app/components/user/register_buttons.dart';
+import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/jobs/all_jobs_model.dart';
+import 'package:remark_app/pages/jobs/search_job.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -117,6 +120,37 @@ class _JobsState extends State<Jobs> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: widget.isSearch
+          ? AppBar(
+              iconTheme: IconThemeData.fallback(),
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: true,
+              title: Hero(
+                  tag: "splashscreenImage",
+                  child: Container(
+                      child: Image.asset(
+                    application_logo,
+                    width: 40,
+                  ))),
+              actions: [
+                InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchJobs(),
+                          ));
+                    },
+                    child: Container(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(
+                          Icons.search,
+                          color: kDarkColor,
+                        )))
+              ],
+            )
+          : EmptyAppBar(),
       body: SafeArea(
         child: Container(
           child: Column(

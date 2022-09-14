@@ -32,6 +32,7 @@ class JobCard extends StatefulWidget {
   final bool isUserApplied;
   final bool isUserSavedThis;
   final int applyBtn;
+  final String companyVerified;
 
   const JobCard(
       {Key key,
@@ -49,7 +50,8 @@ class JobCard extends StatefulWidget {
       this.isUserApplied,
       this.isUserSavedThis = false,
       this.jobID,
-      this.userID})
+      this.userID,
+      this.companyVerified})
       : super(key: key);
 
   @override
@@ -190,12 +192,26 @@ class _JobCardState extends State<JobCard> {
                               width: 5,
                             ),
                             Expanded(
-                              child: Text(
-                                widget.companyName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
+                              child: Container(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      widget.companyName,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Icon(
+                                      Icons.verified,
+                                      size: 15,
+                                      color: Colors.blue,
+                                    )
+                                  ],
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
                             )
                           ],

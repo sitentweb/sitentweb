@@ -22,7 +22,6 @@ class Responses extends StatefulWidget {
 }
 
 class _ResponsesState extends State<Responses> {
-
   GlobalKey _addNewResponseButton = GlobalKey();
   List<TargetFocus> _targets = <TargetFocus>[];
   var userID;
@@ -38,31 +37,29 @@ class _ResponsesState extends State<Responses> {
   void initTargets() {
     _targets.add(TargetFocus(
         identify: "Menus",
-        targetPosition: TargetPosition(
-            Size(25 , 25),
-            Offset(70, 320)
-        ),
+        targetPosition: TargetPosition(Size(25, 25), Offset(70, 320)),
         contents: [
           TargetContent(
             align: ContentAlign.bottom,
             builder: (context, controller) {
               return CustomTutorialContent(
                 title: "More Options",
-                content: "Here you will get more options to Call or Email this candidate, Schedule an Interview & Take a Quick Test of this Candidate",
+                content:
+                    "Here you will get more options to Call or Email this candidate, Schedule an Interview & Take a Quick Test of this Candidate",
               );
             },
           )
-        ]
-    ));
+        ]));
   }
 
   void showTutorial() async {
-
     SharedPreferences pref = await SharedPreferences.getInstance();
-    bool tut = pref.get("viewCandidateTutorial") != null ? pref.getBool("viewCandidateTutorial") ?? false : false;
+    bool tut = pref.get("viewCandidateTutorial") != null
+        ? pref.getBool("viewCandidateTutorial") ?? false
+        : false;
     print(tut);
     tut = false;
-    if(!tut){
+    if (!tut) {
       initTargets();
       TutorialCoachMark(
         context,
@@ -71,16 +68,12 @@ class _ResponsesState extends State<Responses> {
         textSkip: "Skip",
         alignSkip: Alignment.bottomLeft,
         skipWidget: Container(
-          padding: EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 30
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+          decoration: BoxDecoration(color: Colors.white),
+          child: Text(
+            "Skip",
+            style: GoogleFonts.poppins(color: kDarkColor),
           ),
-          decoration: BoxDecoration(
-              color: Colors.white
-          ),
-          child: Text("Skip" , style: GoogleFonts.poppins(
-              color: kDarkColor
-          ),),
         ),
         onFinish: () {
           saveTutorial();
@@ -117,34 +110,55 @@ class _ResponsesState extends State<Responses> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: Hero(tag:"splashscreenImage" ,child: Container(
-            child: Image.asset(application_logo , width: 40,))),
+        title: Hero(
+            tag: "splashscreenImage",
+            child: Container(
+                child: Image.asset(
+              application_logo,
+              width: 40,
+            ))),
         actions: [
           InkWell(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SearchJobs(),));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SearchJobs(),
+                    ));
               },
               child: Container(
                   padding: EdgeInsets.all(8),
-                  child: Icon(Icons.search , color: kDarkColor,)))
+                  child: Icon(
+                    Icons.search,
+                    color: kDarkColor,
+                  )))
         ],
       ),
-      drawer: Drawer(
-        child: ApplicationDrawer(),
-      ),
-      floatingActionButton: userType == "2" ? FloatingActionButton(
-        key: _addNewResponseButton,
-        backgroundColor: kDarkColor,
-        onPressed: () {
-          print(_currTabIndex);
-          if(_currTabIndex == 0){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CreateInterview()));
-          }else{
-            Navigator.push(context, MaterialPageRoute(builder: (context) => CreateQuestionnaire(),));
-          }
-        },
-         child: Icon(Icons.add , color: Colors.white,),
-      ) : Container(),
+      floatingActionButton: userType == "2"
+          ? FloatingActionButton(
+              key: _addNewResponseButton,
+              backgroundColor: kDarkColor,
+              onPressed: () {
+                print(_currTabIndex);
+                if (_currTabIndex == 0) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateInterview()));
+                } else {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateQuestionnaire(),
+                      ));
+                }
+              },
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+            )
+          : Container(),
       body: SafeArea(
         child: ContainedTabBarView(
           initialIndex: widget.initialIndex ?? 0,
@@ -156,24 +170,23 @@ class _ResponsesState extends State<Responses> {
           },
           key: _key,
           tabs: [
-            Text("Interviews" , style: GoogleFonts.poppins(),),
-            Text("Questionnaires" , style: GoogleFonts.poppins(),)
+            Text(
+              "Interviews",
+              style: GoogleFonts.poppins(),
+            ),
+            Text(
+              "Questionnaires",
+              style: GoogleFonts.poppins(),
+            )
           ],
           tabBarProperties: TabBarProperties(
-            indicatorPadding: EdgeInsets.symmetric(horizontal: 30),
-            indicatorColor: kLightColor,
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15
-            ),
-            labelColor: kDarkColor,
-            unselectedLabelColor: kLightColor.withOpacity(0.6)
-          ),
-
-          tabBarViewProperties: TabBarViewProperties(
-
-            physics: AlwaysScrollableScrollPhysics()
-          ),
+              indicatorPadding: EdgeInsets.symmetric(horizontal: 30),
+              indicatorColor: kLightColor,
+              labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              labelColor: kDarkColor,
+              unselectedLabelColor: kLightColor.withOpacity(0.6)),
+          tabBarViewProperties:
+              TabBarViewProperties(physics: AlwaysScrollableScrollPhysics()),
           views: [
             InterviewScreen(),
             userType == "2" ? QuestionnaireRooms() : Questionnaire()
@@ -189,7 +202,9 @@ class TabViewHeader extends StatelessWidget {
   final Color iconColor;
   final String title;
   final Color titleColor;
-  const TabViewHeader({Key key, this.icon, this.iconColor, this.title, this.titleColor}) : super(key: key);
+  const TabViewHeader(
+      {Key key, this.icon, this.iconColor, this.title, this.titleColor})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -198,18 +213,23 @@ class TabViewHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            child: Icon(icon , color: iconColor, size: 15,),
+            child: Icon(
+              icon,
+              color: iconColor,
+              size: 15,
+            ),
           ),
-          SizedBox(width: 5,),
+          SizedBox(
+            width: 5,
+          ),
           Container(
-            child: Text(title, style: TextStyle(
-              color: titleColor,
-              fontWeight: FontWeight.bold
-            ),),
+            child: Text(
+              title,
+              style: TextStyle(color: titleColor, fontWeight: FontWeight.bold),
+            ),
           )
         ],
       ),
     );
   }
 }
-

@@ -61,7 +61,7 @@ dependencies:
   flutter_swiper: ^1.1.6
   flutter_webrtc: ^0.6.4
   sdp_transform: ^0.3.0
-  image_picker: ^0.8.0+4
+  image_picker: 0.8.0+4
   smart_select: ^4.3.2
   flutter_tags: ^0.4.9+1
   google_place: ^0.4.0
@@ -72,7 +72,7 @@ dependencies:
   rive_splash_screen: ^0.1.0
   tutorial_coach_mark: ^1.0.3
   rive: ^0.7.22
-  socket_io_client: ^1.0.1
+  socket_io_client: ^2.0.0
   connectivity_plus: 2.3.6+1
   flutter_svg: ^0.22.0
   open_file: ^3.2.1

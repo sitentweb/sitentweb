@@ -88,3 +88,4 @@ const String resumePath = base_url + '/assets/resumes/';
 const String rescheduleInterviewApiUrl = base_url + '/rescheduleInterview';
 const String deleteInterviewApiUrl = base_url + '/deleteInterview';
 const String fetchSavedCandidatesApiUrl = base_url + '/getSavedProfile';
+const String sendInquiryApiUrl = base_url + "/sendInquiry";
