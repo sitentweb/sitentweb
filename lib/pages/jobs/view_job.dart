@@ -12,6 +12,7 @@ import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/components/buttons/apply_button.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/job_card/job_card.dart';
+import 'package:remark_app/components/job_card/job_detail_card.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
@@ -120,10 +121,20 @@ class _ViewJobState extends State<ViewJob> {
                     decoration: BoxDecoration(color: kDarkColor),
                     child: Row(
                       children: [
+                        InkWell(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: Icon(
+                            Icons.chevron_left_outlined,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
                         Container(
                           child: Expanded(
                             child: Text(
-                              job.jobTitle,
+                              "Job Details",
                               style: GoogleFonts.poppins(
                                   color: Colors.white, fontSize: 18),
                             ),
@@ -182,72 +193,18 @@ class _ViewJobState extends State<ViewJob> {
                           child: SingleChildScrollView(
                             child: Column(children: [
                               SizedBox(
-                                height: 10,
+                                height: 5,
                               ),
                               InkWell(
                                 onTap: () => print("Company Details"),
                                 child: Container(
-                                  width: size.width,
-                                  padding: EdgeInsets.all(15),
-                                  child: Row(
-                                    children: [
-                                      AvatarGlow(
-                                          shape: BoxShape.circle,
-                                          curve: Curves.fastOutSlowIn,
-                                          animate: true,
-                                          repeat: true,
-                                          duration:
-                                              Duration(milliseconds: 1000),
-                                          glowColor: kDarkColor,
-                                          showTwoGlows: true,
-                                          child: Material(
-                                            elevation: 2,
-                                            shape: CircleBorder(),
-                                            child: CircleAvatar(
-                                              radius: 20,
-                                              backgroundColor: Colors.white,
-                                              backgroundImage:
-                                                  AppSetting.showUserImage(
-                                                      job.companyLogo),
-                                            ),
-                                          ),
-                                          endRadius: 30),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          height: 50,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  job.companyName,
-                                                  style: GoogleFonts.poppins(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 18),
-                                                  softWrap: true,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                  child: Text(
-                                                job.companyAddress,
-                                                style: GoogleFonts.poppins(
-                                                    color: Colors.grey),
-                                                overflow: TextOverflow.ellipsis,
-                                              ))
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ],
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 0, horizontal: 5),
+                                  child: JobDetailsCard(
+                                    logo: job.companyLogo,
+                                    jobName: job.jobTitle,
+                                    companyName: job.companyName,
+                                    jobLocation: job.companyAddress,
                                   ),
                                 ),
                               ),

@@ -22,16 +22,13 @@ class SendSMS {
       // });
 
       final response = await client.post(Uri.parse(smsBaseUrl), body: {
-        'key': smsApi,
-        'entity': smsEntity,
-        'tempid': smsOTPTempID,
-        'routeid': routeid,
-        'senderid': smsSender,
-        'type': smsType,
-        'unicode': smsUnicode,
-        'msg':
-            "Dear user, $otp is the OTP for your Remark Account. Please enter this OTP to verify your mobile number. Regards, Remark Team Visko E-Service PVT LTD",
-        'contacts': mobileNumber
+        'apikey': smsApi,
+        'sendername': smsSender,
+        'username': smsUsername,
+        'smstype': smsType,
+        'message':
+            "$sign Dear user, $otp is the OTP for your Remark Account. Please enter this OTP to verify your mobile number. Do not share this otp with anyone Regards, Remark Team Visko E-Service PVT LTD NuIRK+TRxtq",
+        'numbers': mobileNumber
       });
 
       if (response.statusCode == 200) {

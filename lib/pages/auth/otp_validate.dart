@@ -241,12 +241,16 @@ class _OtpValidateState extends State<OtpValidate> {
                       // ),
                       Container(
                         child: Pinput(
+                          androidSmsAutofillMethod:
+                              AndroidSmsAutofillMethod.smsRetrieverApi,
                           autofocus: true,
                           controller: _otpInput,
                           onCompleted: (code) {
                             setState(() {
                               _validateOTP = code;
+                              verifying = true;
                             });
+                            validateOTP();
                           },
                         ),
                       ),

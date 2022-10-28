@@ -1,0 +1,64 @@
+Container(
+                                  width: size.width,
+                                  padding: EdgeInsets.all(15),
+                                  child: Row(
+                                    children: [
+                                      AvatarGlow(
+                                          shape: BoxShape.circle,
+                                          curve: Curves.fastOutSlowIn,
+                                          animate: true,
+                                          repeat: true,
+                                          duration:
+                                              Duration(milliseconds: 1000),
+                                          glowColor: kDarkColor,
+                                          showTwoGlows: true,
+                                          child: Material(
+                                            elevation: 2,
+                                            shape: CircleBorder(),
+                                            child: CircleAvatar(
+                                              radius: 20,
+                                              backgroundColor: Colors.white,
+                                              backgroundImage:
+                                                  AppSetting.showUserImage(
+                                                      job.companyLogo),
+                                            ),
+                                          ),
+                                          endRadius: 30),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                          height: 50,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  job.companyName,
+                                                  style: GoogleFonts.poppins(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18),
+                                                  softWrap: true,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              Expanded(
+                                                  child: Text(
+                                                job.companyAddress,
+                                                style: GoogleFonts.poppins(
+                                                    color: Colors.grey),
+                                                overflow: TextOverflow.ellipsis,
+                                              ))
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),

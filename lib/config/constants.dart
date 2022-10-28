@@ -17,14 +17,24 @@ var dynamic_job = dynamic_base + '/job';
 const String base_url = 'https://apimanager.remarkhr.com';
 
 //SMS GATEWAY GLOBAL 91
-const String smsBaseUrl = 'http://www.global91sms.in/app/smsapi/index.php';
-const String smsApi = '560D6D3BEA4938';
-const String smsEntity = '1201162326487946387';
-const String smsOTPTempID = '1207162953792805217';
+// const String smsBaseUrl = 'http://www.global91sms.in/app/smsapi/index.php';
+// const String smsApi = '560D6D3BEA4938';
+// const String smsEntity = '1201162326487946387';
+// const String smsOTPTempID = '1207162953792805217';
+// const String smsSender = 'VISKOR';
+// const String smsType = 'text';
+// const String smsUnicode = 'no';
+// const String routeid = '459';
+// // const String smsSenderID = 'VISKOR';
+
+const String smsBaseUrl = 'http://sms.admarksolution.com/sendSMS';
+const String smsApi = 'f6819c09-04e8-4af8-81a3-bc82e4884e84';
+const String smsUsername = 'viskohrpvtltd@gmail.com';
+// const String smsOTPTempID = '1207162953792805217';
 const String smsSender = 'VISKOR';
-const String smsType = 'text';
-const String smsUnicode = 'no';
-const String routeid = '459';
+const String smsType = 'TRANS';
+// const String smsUnicode = 'no';
+// const String routeid = '459';
 // const String smsSenderID = 'VISKOR';
 
 // Authentication URLs
