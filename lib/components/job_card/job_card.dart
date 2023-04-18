@@ -344,13 +344,13 @@ class _JobCardState extends State<JobCard> {
             ),
             content: Text("$jobTitle"),
             actions: <Widget>[
-              TextButton(
+              MaterialButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     "No",
                     style: GoogleFonts.poppins(),
                   )),
-              TextButton(
+              MaterialButton(
                   onPressed: () async {
                     if (userResume != "") {
                       await JobApplyStatusApi()

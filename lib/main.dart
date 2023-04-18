@@ -12,9 +12,9 @@ import 'package:remark_app/pages/auth/otp_validate.dart';
 import 'package:remark_app/pages/homepage/homepage.dart';
 import 'package:remark_app/pages/profile/complete_your_profile.dart';
 import 'package:remark_app/pages/splashscreen/splashscreen.dart';
-
 import 'config/appSetting.dart';
 import 'notifier/interview_calling_notifier.dart';
+import 'package:get/get.dart';
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
   'high_importance_channel', // id
@@ -98,7 +98,7 @@ class _MyAppState extends State<MyApp> {
 // dfd
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Remark',
       theme: ThemeData(primaryColor: kDarkColor),

@@ -243,11 +243,11 @@ class _HomePageState extends State<HomePage> {
             title: new Text('Are you sure?'),
             content: new Text('Do you want to exit an App'),
             actions: <Widget>[
-              TextButton(
+              MaterialButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 child: new Text('No'),
               ),
-              TextButton(
+              MaterialButton(
                 onPressed: () => exit(0),
                 child: new Text('Yes'),
               ),

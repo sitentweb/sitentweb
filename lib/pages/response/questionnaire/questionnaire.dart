@@ -22,12 +22,9 @@ class Questionnaire extends StatefulWidget {
 }
 
 class _QuestionnaireState extends State<Questionnaire> {
-
   String userID;
   String userType;
   Future<FetchQuizRoomModel> _quizList;
-
-
 
   @override
   void initState() {
@@ -46,7 +43,6 @@ class _QuestionnaireState extends State<Questionnaire> {
     print(userID);
 
     _fetchQuizRoom();
-
   }
 
   Future<FetchQuizRoomModel> _fetchQuizRoom() async {
@@ -54,26 +50,25 @@ class _QuestionnaireState extends State<Questionnaire> {
     final tempQuiz = FetchQuizRoomApi().fetchQuizRoom(userID);
     tempQuiz.then((value) {
       print("Quiz Fetching ${value.status}");
-      if(value.status){
+      if (value.status) {
         value.data.forEach((element) {
-          if(userType == "1"){
+          if (userType == "1") {
             var quizExpiry = DateFormat('y-M-d').parse(element.quizExpireTime);
-            if(DateTime.now().isBefore(quizExpiry)){
-              if(element.quizStartTime.isEmpty){
+            if (DateTime.now().isBefore(quizExpiry)) {
+              if (element.quizStartTime.isEmpty) {
                 quizData.add(element);
               }
             }
-          }else{
+          } else {
             quizData.add(element);
           }
         });
       }
     });
 
-
     setState(() {
       tempQuiz.then((value) {
-        if(value.status){
+        if (value.status) {
           value.data.length = 0;
           value.data = quizData;
         }
@@ -81,8 +76,7 @@ class _QuestionnaireState extends State<Questionnaire> {
 
       _quizList = tempQuiz;
     });
-
-}
+  }
 
   @override
   void dispose() {
@@ -91,7 +85,11 @@ class _QuestionnaireState extends State<Questionnaire> {
   }
 
   Future<bool> _onWillPop() async {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(userType: userType),));
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(userType: userType),
+        ));
     return false;
   }
 
@@ -106,8 +104,8 @@ class _QuestionnaireState extends State<Questionnaire> {
         child: FutureBuilder<FetchQuizRoomModel>(
           future: _quizList,
           builder: (context, AsyncSnapshot<FetchQuizRoomModel> snapshot) {
-            if(snapshot.hasData){
-              if(snapshot.data.status){
+            if (snapshot.hasData) {
+              if (snapshot.data.status) {
                 return ListView.builder(
                   itemCount: snapshot.data.data.length,
                   itemBuilder: (context, index) {
@@ -118,104 +116,130 @@ class _QuestionnaireState extends State<Questionnaire> {
 
                     double statusSize = 24;
 
-                    if(quiz.quizStatus == "1"){
-
-                      if(quiz.quizStopTime.isNotEmpty){
+                    if (quiz.quizStatus == "1") {
+                      if (quiz.quizStopTime.isNotEmpty) {
                         statusFullTitle = "Questionnaire has submitted";
                         statusIcon = Icons.check;
                         statusColor = Colors.green;
-                      }else{
+                      } else {
                         statusFullTitle = "Questionnaire has started";
                         statusIcon = Icons.play_arrow;
                         statusColor = Colors.deepOrange;
                       }
-
-                    }else{
+                    } else {
                       statusFullTitle = "Questionnaire has not started yet";
                       statusIcon = Icons.circle;
                       statusColor = Colors.grey;
                       statusSize = 20;
                     }
 
-                    return userType == "1" ? QuizRoomCard(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: new Text('Start the Questionnaire?' , style: GoogleFonts.poppins(fontWeight: FontWeight.bold),),
-                            content: new Text('Do you want to start this Questionnaire, Once the questionnaire starts you can\'t exit the application unless you submit the answers or if you exit the application you will not able to submit or access this questionnaire ' , style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold
-                            ),),
+                    return userType == "1"
+                        ? QuizRoomCard(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: new Text(
+                                    'Start the Questionnaire?',
+                                    style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  content: new Text(
+                                    'Do you want to start this Questionnaire, Once the questionnaire starts you can\'t exit the application unless you submit the answers or if you exit the application you will not able to submit or access this questionnaire ',
+                                    style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  actions: <Widget>[
+                                    MaterialButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                      child: new Text('No'),
+                                    ),
+                                    MaterialButton(
+                                      onPressed: () async {
+                                        await FetchQuizRoomApi()
+                                            .startQuiz(quiz.quizRoomId)
+                                            .then((value) {
+                                          var snackBar;
+                                          if (value.status) {
+                                            snackBar = SnackBar(
+                                              content: Text("Timer Started"),
+                                            );
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AllQuestions(
+                                                    quizID: quiz.quizId,
+                                                    quizRoomID: quiz.quizRoomId,
+                                                    fullQuiz: quiz.quiz,
+                                                  ),
+                                                ));
+                                          } else {
+                                            snackBar = SnackBar(
+                                              content: Text(
+                                                  "Something went wrong, Please try again"),
+                                            );
+                                          }
 
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
-                                child: new Text('No'),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  await FetchQuizRoomApi().startQuiz(quiz.quizRoomId).then((value) {
-                                    var snackBar;
-                                    if(value.status){
-                                      snackBar = SnackBar(
-                                        content: Text("Timer Started"),
-                                      );
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AllQuestions(quizID: quiz.quizId, quizRoomID: quiz.quizRoomId, fullQuiz: quiz.quiz,),));
-
-                                    }else{
-                                      snackBar = SnackBar(
-                                        content: Text("Something went wrong, Please try again"),
-                                      );
-                                    }
-
-                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                  });
-                                },
-                                child: new Text('Yes'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      title: quiz.title,
-                      expireDate: quiz.quizExpireTime,
-                    ) : QuizEmployerRoomCard(
-                       title: "${quiz.title}",
-                       expireDate: "${quiz.quizExpireTime}",
-                        employeePhoto: "${quiz.userPhoto}",
-                      employeeName: "${quiz.userName}",
-                      employeeUsername: "${quiz.userUsername}",
-                      statusIcon: statusIcon,
-                      quizRoomID : "${quiz.quizRoomId}",
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EmployeeQuestionnaireReport(quizRoomID: quiz.quizRoomId, employeeName: quiz.userName, employeePhoto: quiz.userPhoto,),)),
-                      onLongPress: () => showModalBottomSheet(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20)
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(snackBar);
+                                        });
+                                      },
+                                      child: new Text('Yes'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            title: quiz.title,
+                            expireDate: quiz.quizExpireTime,
                           )
-                        ),
-                        context: context,
-                        builder: (context) => QuizActionModal(
-                          quizStatusTitle: statusFullTitle,
-                          quizRoomID: "${quiz.quizRoomId}",
-                        )
-                      ),
-                    ) ;
+                        : QuizEmployerRoomCard(
+                            title: "${quiz.title}",
+                            expireDate: "${quiz.quizExpireTime}",
+                            employeePhoto: "${quiz.userPhoto}",
+                            employeeName: "${quiz.userName}",
+                            employeeUsername: "${quiz.userUsername}",
+                            statusIcon: statusIcon,
+                            quizRoomID: "${quiz.quizRoomId}",
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      EmployeeQuestionnaireReport(
+                                    quizRoomID: quiz.quizRoomId,
+                                    employeeName: quiz.userName,
+                                    employeePhoto: quiz.userPhoto,
+                                  ),
+                                )),
+                            onLongPress: () => showModalBottomSheet(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20),
+                                        topRight: Radius.circular(20))),
+                                context: context,
+                                builder: (context) => QuizActionModal(
+                                      quizStatusTitle: statusFullTitle,
+                                      quizRoomID: "${quiz.quizRoomId}",
+                                    )),
+                          );
                   },
                 );
-              }else{
+              } else {
                 return Container(
                   child: Center(
-                    child: EmptyData(message: "No Questionnaire here",),
+                    child: EmptyData(
+                      message: "No Questionnaire here",
+                    ),
                   ),
                 );
               }
-            }else if(snapshot.hasError){
+            } else if (snapshot.hasError) {
               print("Snapshot Error Found!");
               print(snapshot.error);
               return CircularLoading();
-            }else{
+            } else {
               return CircularLoading();
             }
           },
@@ -230,12 +254,14 @@ class QuizRoomCard extends StatelessWidget {
   final String expireDate;
   final String label;
   final void Function() onTap;
-  const QuizRoomCard({Key key, this.title, this.expireDate, this.label, this.onTap}) : super(key: key);
+  const QuizRoomCard(
+      {Key key, this.title, this.expireDate, this.label, this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-    onTap: onTap,
+      onTap: onTap,
       child: Card(
         elevation: 6,
         shadowColor: Colors.black.withOpacity(0.2),
@@ -249,15 +275,18 @@ class QuizRoomCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                        Text(title , style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold
-                      ),),
-                      SizedBox(height: 3,),
-                      Text("Expire on : $expireDate", style: TextStyle(
-                          fontSize: 15,
-                        color: Colors.grey
-                      ),)
+                      Text(
+                        title,
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                      Text(
+                        "Expire on : $expireDate",
+                        style: TextStyle(fontSize: 15, color: Colors.grey),
+                      )
                     ],
                   ),
                 ),
@@ -268,7 +297,11 @@ class QuizRoomCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                        Icon(Icons.play_arrow, color: kDarkColor, size: 24,)
+                      Icon(
+                        Icons.play_arrow,
+                        color: kDarkColor,
+                        size: 24,
+                      )
                     ],
                   ),
                 ),
@@ -280,7 +313,6 @@ class QuizRoomCard extends StatelessWidget {
     );
   }
 }
-
 
 class QuizEmployerRoomCard extends StatelessWidget {
   final String title;
@@ -295,13 +327,24 @@ class QuizEmployerRoomCard extends StatelessWidget {
   final String label;
   final void Function() onTap;
   final void Function() onLongPress;
-  const QuizEmployerRoomCard({Key key, this.title, this.expireDate, this.label, this.onTap, this.employeePhoto, this.employeeName, this.employeeUsername, this.quizRoomID, this.onLongPress, this.statusIcon, this.statusColor, this.statusSize}) : super(key: key);
-
+  const QuizEmployerRoomCard(
+      {Key key,
+      this.title,
+      this.expireDate,
+      this.label,
+      this.onTap,
+      this.employeePhoto,
+      this.employeeName,
+      this.employeeUsername,
+      this.quizRoomID,
+      this.onLongPress,
+      this.statusIcon,
+      this.statusColor,
+      this.statusSize})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
-
     return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -318,31 +361,41 @@ class QuizEmployerRoomCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title , style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold
-                      ),),
-                      SizedBox(height: 3,),
+                      Text(
+                        title,
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
                       GestureDetector(
                         onTap: () {
-                          showMaterialModalBottomSheet(context: context, builder: (context) => ViewCandidate(userUserName: employeeUsername,));
+                          showMaterialModalBottomSheet(
+                              context: context,
+                              builder: (context) => ViewCandidate(
+                                    userUserName: employeeUsername,
+                                  ));
                         },
                         child: Row(
                           children: [
                             CircleAvatar(
                               radius: 15,
                               backgroundColor: Colors.white,
-                              backgroundImage: AppSetting.showUserImage(employeePhoto),
+                              backgroundImage:
+                                  AppSetting.showUserImage(employeePhoto),
                             ),
-                            SizedBox(width: 3,),
+                            SizedBox(
+                              width: 3,
+                            ),
                             Text(employeeName)
                           ],
                         ),
                       ),
-                      Text("Expire on : $expireDate", style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey
-                      ),)
+                      Text(
+                        "Expire on : $expireDate",
+                        style: TextStyle(fontSize: 15, color: Colors.grey),
+                      )
                     ],
                   ),
                 ),
@@ -353,7 +406,11 @@ class QuizEmployerRoomCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Icon( statusIcon, color: statusColor, size: statusSize,)
+                      Icon(
+                        statusIcon,
+                        color: statusColor,
+                        size: statusSize,
+                      )
                     ],
                   ),
                 ),
@@ -371,39 +428,42 @@ class QuizActionModal extends StatefulWidget {
   final employeeName;
   final quizStatusTitle;
   final quizRoomID;
-  const QuizActionModal({Key key, this.employeePhoto, this.employeeName, this.quizStatusTitle,  this.quizRoomID}) : super(key: key);
+  const QuizActionModal(
+      {Key key,
+      this.employeePhoto,
+      this.employeeName,
+      this.quizStatusTitle,
+      this.quizRoomID})
+      : super(key: key);
 
   @override
   _QuizActionModalState createState() => _QuizActionModalState();
 }
 
 class _QuizActionModalState extends State<QuizActionModal> {
-
-
   List options = [];
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 10
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Container(
         width: size.width,
         height: size.height * 0.2,
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(8),
-              alignment: Alignment.centerLeft,
-              child: Text('"${widget.quizStatusTitle}"' , style: TextStyle(
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-                color: Colors.grey
-              ),)
-            ),
+                padding: EdgeInsets.all(8),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '"${widget.quizStatusTitle}"',
+                  style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.grey),
+                )),
             Expanded(
               child: Container(
                 child: ListView(
@@ -429,4 +489,3 @@ class _QuizActionModalState extends State<QuizActionModal> {
     );
   }
 }
-

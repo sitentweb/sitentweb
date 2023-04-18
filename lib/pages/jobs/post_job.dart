@@ -426,7 +426,7 @@ class _PostJobState extends State<PostJob> {
                                             style: GoogleFonts.poppins(),
                                             decoration: InputDecoration(
                                                 labelText: "Year",
-                                                hintText: "2021"),
+                                                hintText: "00"),
                                           ),
                                         ),
                                         SizedBox(
@@ -534,9 +534,12 @@ class _PostJobState extends State<PostJob> {
                         var exp = jsonDecode(_experiences[index]);
                         return Row(
                           children: [
-                            Text(
-                              exp['ExperienceTitle'],
-                              style: GoogleFonts.poppins(color: Colors.white),
+                            Container(
+                              width: 150,
+                              child: Text(
+                                exp['ExperienceTitle'],
+                                style: GoogleFonts.poppins(color: Colors.white),
+                              ),
                             ),
                             Spacer(),
                             Text(

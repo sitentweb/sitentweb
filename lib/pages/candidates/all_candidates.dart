@@ -13,14 +13,13 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 class Candidates extends StatefulWidget {
   final bool isSearched;
   final List data;
-  const Candidates({Key key, this.data , this.isSearched}) : super(key: key);
+  const Candidates({Key key, this.data, this.isSearched}) : super(key: key);
 
   @override
   _CandidatesState createState() => _CandidatesState();
 }
 
 class _CandidatesState extends State<Candidates> {
-
   GlobalKey _candidateCard = GlobalKey();
   GlobalKey _saveCandidate = GlobalKey();
 
@@ -39,16 +38,12 @@ class _CandidatesState extends State<Candidates> {
   saveTutorial() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setBool("dashboardTutorial", true);
-
   }
 
   void initTargets() {
     _targets.add(TargetFocus(
         identify: "Target 0",
-        targetPosition: TargetPosition(
-            Size(200 , 100),
-            Offset(85 , 100)
-        ),
+        targetPosition: TargetPosition(Size(200, 100), Offset(85, 100)),
         enableTargetTab: true,
         contents: [
           TargetContent(
@@ -56,12 +51,12 @@ class _CandidatesState extends State<Candidates> {
               return CustomTutorialContent(
                 verticalPadding: 50,
                 title: "Chart Analysis",
-                content: "This chart will analyze your Jobs, Company, Questionnaire & Interviews",
+                content:
+                    "This chart will analyze your Jobs, Company, Questionnaire & Interviews",
               );
             },
           )
-        ]
-    ));
+        ]));
     _targets.add(TargetFocus(
         identify: "Candidate",
         keyTarget: _candidateCard,
@@ -71,47 +66,46 @@ class _CandidatesState extends State<Candidates> {
             builder: (context, controller) {
               return CustomTutorialContent(
                 title: "Candidate",
-                content: "Here is a candidate with Name, Location, Skills, Experience, On Tapping this card you will get full details about this candidate",
+                content:
+                    "Here is a candidate with Name, Location, Skills, Experience, On Tapping this card you will get full details about this candidate",
               );
             },
           )
-        ]
-    ));
+        ]));
     _targets.add(TargetFocus(
         identify: "Save Candidate",
         keyTarget: _saveCandidate,
         contents: [
           TargetContent(
               align: ContentAlign.top,
-              builder: (context, controller) => CustomTutorialContent(title: "Save Candidate", content: "Here you can save this candidate which you can see anytime from menu list",)
-          )
-        ]
-    ));
+              builder: (context, controller) => CustomTutorialContent(
+                    title: "Save Candidate",
+                    content:
+                        "Here you can save this candidate which you can see anytime from menu list",
+                  ))
+        ]));
   }
 
   void showTutorial() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    bool tut = pref.get("dashboardTutorial") != null ? pref.getBool("dashboardTutorial") ?? false : false;
+    bool tut = pref.get("dashboardTutorial") != null
+        ? pref.getBool("dashboardTutorial") ?? false
+        : false;
     print(tut);
-    if(!tut){
+    if (!tut) {
       initTargets();
       TutorialCoachMark(
-        context,
         targets: _targets,
         colorShadow: kDarkColor,
         textSkip: "Skip",
         alignSkip: Alignment.topRight,
         skipWidget: Container(
-          padding: EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 30
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+          decoration: BoxDecoration(color: Colors.white),
+          child: Text(
+            "Skip",
+            style: GoogleFonts.poppins(color: kDarkColor),
           ),
-          decoration: BoxDecoration(
-              color: Colors.white
-          ),
-          child: Text("Skip" , style: GoogleFonts.poppins(
-              color: kDarkColor
-          ),),
         ),
         onFinish: () {
           saveTutorial();
@@ -134,12 +128,12 @@ class _CandidatesState extends State<Candidates> {
 
     print(widget.data);
 
-    if(widget.isSearched){
-      _candidatesList = AllCandidates().searchCandidates(widget.data[0], widget.data[1], widget.data[2], widget.data[3], userID);
-    }else{
+    if (widget.isSearched) {
+      _candidatesList = AllCandidates().searchCandidates(widget.data[0],
+          widget.data[1], widget.data[2], widget.data[3], userID);
+    } else {
       _candidatesList = AllCandidates().fetchCandidates(userID, "0");
     }
-
   }
 
   @override
@@ -151,7 +145,6 @@ class _CandidatesState extends State<Candidates> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Padding(
         padding: const EdgeInsets.only(bottom: 20),
         child: Column(

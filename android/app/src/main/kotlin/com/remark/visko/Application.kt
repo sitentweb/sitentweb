@@ -9,10 +9,10 @@ class Application : FlutterApplication(), PluginRegistrantCallback {
 
     override fun onCreate() {
         super.onCreate()
-        FlutterFirebaseMessagingBackgroundService.setPluginRegistrant(this)
+        // FlutterFirebaseMessagingBackgroundService.setPluginRegistrant(this)
         FlutterMain.startInitialization(this)
     }
 
-    override fun registerWith(registry: PluginRegistry?) {
+    override fun registerWith(registry: PluginRegistry) {
     }
 }

@@ -62,7 +62,6 @@ class _ResponsesState extends State<Responses> {
     if (!tut) {
       initTargets();
       TutorialCoachMark(
-        context,
         targets: _targets,
         colorShadow: kLightColor,
         textSkip: "Skip",

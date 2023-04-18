@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:remark_app/apis/jobs/all_jobs.dart';
@@ -87,13 +89,14 @@ class _JobsState extends State<Jobs> {
         });
       }
 
-      final isLastPage = jobs.length < _pageSize;
-
+      final isLastPage = jobs.length <= _pageSize;
+      log(isLastPage.toString(), name: 'IS LAST PAGE');
       if (isLastPage) {
         _pagingController.appendLastPage(jobs);
       } else {
         final nextOffset = offset + jobs.length;
         _pagingController.appendPage(jobs, nextOffset);
+        log(nextOffset.toString(), name: 'NEXT OFFSET');
       }
     } catch (e) {
       print(e);

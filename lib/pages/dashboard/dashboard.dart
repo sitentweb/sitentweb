@@ -24,20 +24,16 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-
   // GLOBAL KEYS FOR TUTORIALS
   GlobalKey _chartDataKey = GlobalKey();
   GlobalKey _totalCountKey = GlobalKey();
   GlobalKey _addNewPostKey = GlobalKey();
-
 
   List<TargetFocus> _targets = <TargetFocus>[];
   Future<DashboardDataModel> _dashboardData;
   int touchedIndex = -1;
   String userType;
   String userID;
-
-
 
   @override
   void initState() {
@@ -54,24 +50,21 @@ class _DashboardState extends State<Dashboard> {
 
   void initTargets() {
     _targets.add(TargetFocus(
-      identify: "Target 0",
-      targetPosition: TargetPosition(
-        Size(200 , 100),
-        Offset(85 , 100)
-      ),
-      enableTargetTab: true,
-      contents: [
-        TargetContent(
-          builder: (context, controller) {
-            return CustomTutorialContent(
-              verticalPadding: 50,
-              title: "Chart Analysis",
-              content: "This chart will analyze your Jobs, Company, Questionnaire & Interviews",
-            );
-          },
-        )
-      ]
-    ));
+        identify: "Target 0",
+        targetPosition: TargetPosition(Size(200, 100), Offset(85, 100)),
+        enableTargetTab: true,
+        contents: [
+          TargetContent(
+            builder: (context, controller) {
+              return CustomTutorialContent(
+                verticalPadding: 50,
+                title: "Chart Analysis",
+                content:
+                    "This chart will analyze your Jobs, Company, Questionnaire & Interviews",
+              );
+            },
+          )
+        ]));
     _targets.add(TargetFocus(
         identify: "Total Counts",
         keyTarget: _totalCountKey,
@@ -81,47 +74,46 @@ class _DashboardState extends State<Dashboard> {
             builder: (context, controller) {
               return CustomTutorialContent(
                 title: "Total Counts",
-                content: "Here you will got the total counts of Jobs & Companies",
+                content:
+                    "Here you will got the total counts of Jobs & Companies",
               );
             },
           )
-        ]
-    ));
+        ]));
     _targets.add(TargetFocus(
         identify: "Add New Button",
         keyTarget: _addNewPostKey,
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder: (context, controller) => CustomTutorialContent(title: "Add New Job", content: "Here you can post a new job and also can create company",)
-        )
-      ]
-    ));
+        contents: [
+          TargetContent(
+              align: ContentAlign.top,
+              builder: (context, controller) => CustomTutorialContent(
+                    title: "Add New Job",
+                    content:
+                        "Here you can post a new job and also can create company",
+                  ))
+        ]));
   }
 
   void showTutorial() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    bool tut = pref.get("dashboardTutorial") != null ? pref.getBool("dashboardTutorial") ?? false : false;
+    bool tut = pref.get("dashboardTutorial") != null
+        ? pref.getBool("dashboardTutorial") ?? false
+        : false;
     print(tut);
-    if(!tut){
+    if (!tut) {
       initTargets();
       TutorialCoachMark(
-        context,
         targets: _targets,
         colorShadow: kDarkColor,
         textSkip: "Skip",
         alignSkip: Alignment.topRight,
         skipWidget: Container(
-          padding: EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 30
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+          decoration: BoxDecoration(color: Colors.white),
+          child: Text(
+            "Skip",
+            style: GoogleFonts.poppins(color: kDarkColor),
           ),
-          decoration: BoxDecoration(
-              color: Colors.white
-          ),
-          child: Text("Skip" , style: GoogleFonts.poppins(
-              color: kDarkColor
-          ),),
         ),
         onFinish: () {
           saveTutorial();
@@ -149,7 +141,6 @@ class _DashboardState extends State<Dashboard> {
       userID = pref.getString('userID');
       _dashboardData = AnalyticsData().fetchChartData(userID);
     });
-
   }
 
   @override
@@ -159,17 +150,19 @@ class _DashboardState extends State<Dashboard> {
       floatingActionButton: FloatingActionButton(
         key: _addNewPostKey,
         onPressed: () {
-          pushNewScreen(
-            context,
-            withNavBar: false,
-            customPageRoute: MaterialPageRoute(builder: (context) => PostJob()
-              ,),
-            pageTransitionAnimation: PageTransitionAnimation.fade
-          );
+          pushNewScreen(context,
+              withNavBar: false,
+              customPageRoute: MaterialPageRoute(
+                builder: (context) => PostJob(),
+              ),
+              pageTransitionAnimation: PageTransitionAnimation.fade);
         },
         backgroundColor: kDarkColor,
         mini: true,
-        child: Icon(Icons.add , color: Colors.white,),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
       body: Container(
         alignment: Alignment.center,
@@ -187,14 +180,21 @@ class _DashboardState extends State<Dashboard> {
                       Container(
                         width: size.width,
                         key: _chartDataKey,
-                        child: dashData.jobCount != "0" ? ShowChart(
-                          company: dashData.companyCount,
-                          job: dashData.jobCount,
-                          interview: dashData.interViewCount,
-                          questionnaire: dashData.questionnaireCount,
-                        ) : EmptyData(message: "Chart is not ready \n Please post new job by click + icon",),
+                        child: dashData.jobCount != "0"
+                            ? ShowChart(
+                                company: dashData.companyCount,
+                                job: dashData.jobCount,
+                                interview: dashData.interViewCount,
+                                questionnaire: dashData.questionnaireCount,
+                              )
+                            : EmptyData(
+                                message:
+                                    "Chart is not ready \n Please post new job by click + icon",
+                              ),
                       ),
-                      SizedBox(height: 30,),
+                      SizedBox(
+                        height: 30,
+                      ),
                       Container(
                           child: Column(
                         children: [
@@ -221,8 +221,8 @@ class _DashboardState extends State<Dashboard> {
                         child: Divider(thickness: 1, color: Colors.grey),
                       ),
                       Padding(
-
-                        padding: const EdgeInsets.symmetric(vertical: 5.0 , horizontal: 15),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 5.0, horizontal: 15),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -249,31 +249,32 @@ class _DashboardState extends State<Dashboard> {
                         ),
                       ),
                       DashboardCountDataCard(
-                        onTap: () => pushNewScreen(
-                          context,
-                          customPageRoute: MaterialPageRoute(
-                              builder: (context) => Responses(initialIndex: 0,),
-                          ),
-                          withNavBar: false
-                        ),
+                        onTap: () => pushNewScreen(context,
+                            customPageRoute: MaterialPageRoute(
+                              builder: (context) => Responses(
+                                initialIndex: 0,
+                              ),
+                            ),
+                            withNavBar: false),
                         title: "Interview",
                         total: dashData.interViewCount,
                         pending: dashData.interViewHoldCount,
                         waiting: dashData.interViewAgreeCount,
                       ),
                       DashboardCountDataCard(
-                          onTap: () => pushNewScreen(
-                            context,
-                            withNavBar: false,
-                            customPageRoute: MaterialPageRoute(builder: (context) => Responses(initialIndex: 1,),)
-                          ),
+                          onTap: () => pushNewScreen(context,
+                              withNavBar: false,
+                              customPageRoute: MaterialPageRoute(
+                                builder: (context) => Responses(
+                                  initialIndex: 1,
+                                ),
+                              )),
                           title: "Questionnaire",
                           total: dashData.questionnaireRoomCount,
                           pending: dashData.questionnaireStartCount,
                           pendingTitle: "Started",
                           waitingTitle: "Submitted",
                           waiting: dashData.questionnaireHoldCount),
-
                       SizedBox(
                         height: 20,
                       )
@@ -312,7 +313,10 @@ class _DashboardState extends State<Dashboard> {
           SizedBox(
             width: 10,
           ),
-          Text(title , style: GoogleFonts.poppins(),)
+          Text(
+            title,
+            style: GoogleFonts.poppins(),
+          )
         ],
       ),
     );
@@ -334,7 +338,11 @@ class DashboardCountDataCard extends StatelessWidget {
     this.title,
     this.total,
     this.pending,
-    this.waiting, this.totalTitle, this.pendingTitle, this.waitingTitle, this.onTap,
+    this.waiting,
+    this.totalTitle,
+    this.pendingTitle,
+    this.waitingTitle,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -360,7 +368,8 @@ class DashboardCountDataCard extends StatelessWidget {
                     ),
                     Text(
                       title,
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     Spacer(),
                     Icon(
@@ -407,7 +416,8 @@ class DashboardCountData extends StatelessWidget {
   final type;
   final Widget link;
 
-  const DashboardCountData({Key key, this.count, this.title, this.type , this.link})
+  const DashboardCountData(
+      {Key key, this.count, this.title, this.type, this.link})
       : super(key: key);
 
   @override
@@ -422,11 +432,7 @@ class DashboardCountData extends StatelessWidget {
     return Container(
       child: InkWell(
         onTap: () {
-          pushNewScreen(
-            context, 
-            withNavBar: false,
-            screen: link
-            );
+          pushNewScreen(context, withNavBar: false, screen: link);
         },
         child: Column(
           children: [
