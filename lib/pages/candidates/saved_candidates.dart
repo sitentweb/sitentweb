@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:remark_app/apis/candidates/fetch_candidate_api.dart';
 import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/candidate_card.dart';
@@ -52,48 +53,72 @@ class _SavedCandidatesState extends State<SavedCandidates> {
         iconTheme: IconThemeData(color: kDarkColor),
       ),
       body: SafeArea(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          child: FutureBuilder<SavedCandidatesModel>(
-            future: _savedCandidateModel,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data.status) {
-                  return ListView.builder(
-                    itemCount: snapshot.data.data.length,
-                    itemBuilder: (context, index) {
-                      final candidate = snapshot.data.data[index];
-                      return CandidateCard(
-                        jobID: "0",
-                        userID: userID,
-                        employeeUserName: candidate.userUsername,
-                        employeeName: candidate.userName ?? "",
-                        employeeCreatedAt:
-                            timeAgo.format(candidate.userCreatedAt),
-                        employeeExp: candidate.userExperience ?? "",
-                        employeeID: candidate.userId,
-                        employeeImage: candidate.userPhoto ?? "",
-                        employeeLocation: candidate.userLocation ?? "",
-                        employeeQualification:
-                            candidate.userQualifications ?? "",
-                        employeeSaved: true,
-                        employeeSkills: candidate.userSkills ?? "",
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Container(
+                width: Get.width,
+                child: Card(
+                  elevation: 10,
+                  shadowColor: Colors.black.withOpacity(0.3),
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    child: Text(
+                      "Saved Candidates",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                height: Get.height * 0.7,
+                width: MediaQuery.of(context).size.width,
+                child: FutureBuilder<SavedCandidatesModel>(
+                  future: _savedCandidateModel,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      if (snapshot.data.status) {
+                        return ListView.builder(
+                          itemCount: snapshot.data.data.length,
+                          itemBuilder: (context, index) {
+                            final candidate = snapshot.data.data[index];
+                            return CandidateCard(
+                              jobID: "0",
+                              userID: userID,
+                              employeeUserName: candidate.userUsername,
+                              employeeName: candidate.userName ?? "",
+                              employeeCreatedAt:
+                                  timeAgo.format(candidate.userCreatedAt),
+                              employeeExp: candidate.userExperience ?? "",
+                              employeeID: candidate.userId,
+                              employeeImage: candidate.userPhoto ?? "",
+                              employeeLocation: candidate.userLocation ?? "",
+                              employeeQualification:
+                                  candidate.userQualifications ?? "",
+                              employeeSaved: true,
+                              employeeSkills: candidate.userSkills ?? "",
+                            );
+                          },
+                        );
+                      } else {
+                        return EmptyData(
+                          message: "No Candidate Found",
+                        );
+                      }
+                    } else if (snapshot.hasError) {
+                      return EmptyData(
+                        message: "Something went wrong",
                       );
-                    },
-                  );
-                } else {
-                  return EmptyData(
-                    message: "No Candidate Found",
-                  );
-                }
-              } else if (snapshot.hasError) {
-                return EmptyData(
-                  message: "Something went wrong",
-                );
-              } else {
-                return Center(child: CircularLoading());
-              }
-            },
+                    } else {
+                      return Center(child: CircularLoading());
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

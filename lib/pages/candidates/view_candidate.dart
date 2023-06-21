@@ -25,8 +25,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ViewCandidate extends StatefulWidget {
   final userUserName;
+  final employeeID;
   final jobID;
-  const ViewCandidate({Key key, this.userUserName, this.jobID})
+  const ViewCandidate({Key key, this.userUserName, this.jobID, this.employeeID})
       : super(key: key);
 
   @override
@@ -42,6 +43,7 @@ class _ViewCandidateState extends State<ViewCandidate> {
   bool applyStatus = false;
   var userToken;
   var userID;
+  bool showAdvance = false;
   Future<FetchCandidateModel> _fetchCandidateModel;
 
   _callCandidate(mobileNumber) async {
@@ -68,7 +70,7 @@ class _ViewCandidateState extends State<ViewCandidate> {
   fetchCandidateDetails() {
     setState(() {
       _fetchCandidateModel =
-          FetchCandidate().fetchCandidate(widget.jobID, widget.userUserName);
+          FetchCandidate().fetchCandidate(widget.jobID, widget.employeeID);
     });
   }
 
@@ -268,23 +270,24 @@ class _ViewCandidateState extends State<ViewCandidate> {
                                                         employee.userResume,
                                                         employee.userName),
                                                   ),
-                                                ListTile(
-                                                  title: Text(
-                                                    "Share Candidate",
-                                                    style:
-                                                        GoogleFonts.poppins(),
-                                                  ),
-                                                  leading: Icon(Icons.share),
-                                                  onTap: () async {
-                                                    String cLink = base_url +
-                                                        "/employee-" +
-                                                        employee.userUsername;
-                                                    Share.share(
-                                                        "Name: ${employee.userName} \nLocation: ${employee.userLocation} \nEducation: ${employee.userQualifications} \nSkills: ${employee.userSkills} \n\nCheck out this candidate \n$cLink \n\nDownload Remark App for more candidates \nhttps://remarkhr.com/downloads ",
-                                                        subject:
-                                                            "Remark - Candidate");
-                                                  },
-                                                )
+                                                if (showAdvance)
+                                                  ListTile(
+                                                    title: Text(
+                                                      "Share Candidate",
+                                                      style:
+                                                          GoogleFonts.poppins(),
+                                                    ),
+                                                    leading: Icon(Icons.share),
+                                                    onTap: () async {
+                                                      String cLink = base_url +
+                                                          "/employee-" +
+                                                          employee.userUsername;
+                                                      Share.share(
+                                                          "Name: ${employee.userName} \nLocation: ${employee.userLocation} \nEducation: ${employee.userQualifications} \nSkills: ${employee.userSkills} \n\nCheck out this candidate \n$cLink \n\nDownload Remark App for more candidates \nhttps://remarkhr.com/downloads ",
+                                                          subject:
+                                                              "Remark - Candidate");
+                                                    },
+                                                  )
                                               ],
                                             ),
                                           );

@@ -9,10 +9,13 @@ import 'package:remark_app/components/job_card/job_card.dart';
 import 'package:remark_app/components/job_card/job_card_shimmer.dart';
 import 'package:remark_app/components/user/register_buttons.dart';
 import 'package:remark_app/config/constants.dart';
+import 'package:remark_app/controllers/job_controller.dart';
 import 'package:remark_app/model/jobs/all_jobs_model.dart';
+import 'package:remark_app/model/jobs/job_list_model.dart';
 import 'package:remark_app/pages/jobs/search_job.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:get/get.dart';
 
 class Jobs extends StatefulWidget {
   final bool isSearch;
@@ -24,25 +27,20 @@ class Jobs extends StatefulWidget {
 }
 
 class _JobsState extends State<Jobs> {
+  JobController jobController = Get.put(JobController());
   bool isSearching = false;
   bool isJobFetched = true;
   var userID;
   var userType;
   SharedPreferences pref;
-  int _pageSize = 10;
+  // int _pageSize = 10;
 
-  final PagingController<int, JobList> _pagingController =
+  final PagingController<int, Job> _pagingController =
       PagingController(firstPageKey: 0);
 
   @override
   void initState() {
-    // TODO: implement initState
-    getUserData();
-    isSearching = widget.isSearch;
-    _pagingController.addPageRequestListener((offset) {
-      print("fetching pages");
-      _fetchPage(offset);
-    });
+    jobController.init();
     super.initState();
   }
 
@@ -51,7 +49,7 @@ class _JobsState extends State<Jobs> {
     var userID = pref.getString("userID");
 
     try {
-      List<JobList> jobs;
+      List<Job> jobs;
 
       if (isSearching) {
         print("Searching Data");
@@ -66,11 +64,11 @@ class _JobsState extends State<Jobs> {
         }
 
         await AllJobs()
-            .getSearchJobs(userID, title, skills, range, location)
+            .getSearchJobs(userID, title, skills, location)
             .then((value) {
-          print(value.data.toJson());
+          print(value.jobs.toList());
           if (value.status) {
-            jobs = value.data.jobList;
+            jobs = value.jobs;
           } else {
             setState(() {
               isJobFetched = false;
@@ -78,24 +76,16 @@ class _JobsState extends State<Jobs> {
           }
         });
       } else {
-        await AllJobs().fetchAllJobs(userID, offset.toString()).then((value) {
-          if (value.data.status) {
-            jobs = value.data.jobList;
-          } else {
-            setState(() {
-              isJobFetched = false;
-            });
-          }
-        });
+        await jobController.fetchLimitJobs();
       }
 
-      final isLastPage = jobs.length <= _pageSize;
+      final isLastPage = jobController.jobList.length <= jobController.pageSize;
       log(isLastPage.toString(), name: 'IS LAST PAGE');
       if (isLastPage) {
-        _pagingController.appendLastPage(jobs);
+        _pagingController.appendLastPage(jobController.jobList);
       } else {
-        final nextOffset = offset + jobs.length;
-        _pagingController.appendPage(jobs, nextOffset);
+        final nextOffset = offset + jobController.jobList.length;
+        _pagingController.appendPage(jobController.jobList, nextOffset);
         log(nextOffset.toString(), name: 'NEXT OFFSET');
       }
     } catch (e) {
@@ -114,7 +104,8 @@ class _JobsState extends State<Jobs> {
   }
 
   @override
-  dispose() {
+  void dispose() {
+    // TODO: implement dispose
     _pagingController.dispose();
     super.dispose();
   }
@@ -123,7 +114,7 @@ class _JobsState extends State<Jobs> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: widget.isSearch
+      appBar: jobController.isSearchEnabled.isTrue
           ? AppBar(
               iconTheme: IconThemeData.fallback(),
               backgroundColor: Colors.white,
@@ -155,63 +146,76 @@ class _JobsState extends State<Jobs> {
             )
           : EmptyAppBar(),
       body: SafeArea(
-        child: Container(
-          child: Column(
-            children: [
-              if (userType == "0") RegisterAs(),
-              Expanded(
-                child: isJobFetched
-                    ? Container(
-                        child: PagedListView(
-                          pagingController: _pagingController,
-                          builderDelegate: PagedChildBuilderDelegate<JobList>(
-                              itemBuilder: (context, item, index) {
-                                var job = item;
+        child: Obx(() {
+          print(jobController.jobList.length);
+          return Container(
+            child: Column(
+              children: [
+                if (jobController.showRegisterAs.isTrue) RegisterAs(),
+                Expanded(
+                  child: jobController.isFetchingJob.isFalse
+                      ? jobController.jobList.length != 0
+                          ? ListView.builder(
+                              controller: jobController.scrollController,
+                              itemCount: jobController.isSearchEnabled.isFalse
+                                  ? jobController.jobList.length
+                                  : jobController.searchedJobList.length,
+                              addAutomaticKeepAlives: true,
+                              itemBuilder: (context, index) {
+                                var job = jobController.isSearchEnabled.isFalse
+                                    ? jobController.jobList[index]
+                                    : jobController.searchedJobList[index];
+
                                 return JobCard(
                                   jobID: job.jobId,
-                                  userID: job.userId,
+                                  userID: job.company.userId,
                                   jobTitle: job.jobTitle,
-                                  companyImage: job.companyLogo,
-                                  companyName: job.companyName,
+                                  companyImage: job.company.companyLogo,
+                                  companyName: job.company.companyName,
                                   minimumSalary: job.jobMinimumSalary,
                                   maximumSalary: job.jobMaximumSalary,
                                   experience: job.jobExtExperience,
                                   jobSkills: job.jobKeySkills,
-                                  companyLocation: job.companyAddress,
+                                  companyLocation: job.company.companyAddress,
                                   timeAgo: timeago.format(job.jobCreatedAt),
                                   jobLink: job.jobSlug,
-                                  isUserApplied: true,
-                                  isUserSavedThis:
-                                      job.jobSaved == "0" ? false : true,
-                                  applyBtn: int.parse(job.jobAppliedStatus),
+                                  isUserApplied:
+                                      job.isUserApplied == "4" ? false : true,
+                                  isUserSavedThis: false,
+                                  // job.jobSaved == "0" ? false : true,
+                                  applyBtn: job.appliedStatus == null
+                                      ? 4
+                                      : int.parse(job.appliedStatus),
                                 );
                               },
-                              firstPageProgressIndicatorBuilder: (_) =>
-                                  Container(
-                                    child: Column(
-                                      children: [
-                                        JobCardShimmer(),
-                                        JobCardShimmer(),
-                                        JobCardShimmer(),
-                                        JobCardShimmer(),
-                                        JobCardShimmer(),
-                                        JobCardShimmer(),
-                                        JobCardShimmer(),
-                                        JobCardShimmer()
-                                      ],
-                                    ),
-                                  )),
+                            )
+                          : Center(
+                              child: EmptyData(
+                                message: "No Jobs Found",
+                              ),
+                            )
+                      : Container(
+                          height: Get.height,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                JobCardShimmer(),
+                                JobCardShimmer(),
+                                JobCardShimmer(),
+                                JobCardShimmer(),
+                                JobCardShimmer(),
+                                JobCardShimmer(),
+                                JobCardShimmer(),
+                                JobCardShimmer()
+                              ],
+                            ),
+                          ),
                         ),
-                      )
-                    : Center(
-                        child: EmptyData(
-                          message: "No Jobs Found",
-                        ),
-                      ),
-              )
-            ],
-          ),
-        ),
+                )
+              ],
+            ),
+          );
+        }),
       ),
     );
   }

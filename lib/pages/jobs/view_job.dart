@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:like_button/like_button.dart';
 import 'package:remark_app/apis/jobs/job_apply_status.dart';
+import 'package:remark_app/apis/jobs/save_jobs_api.dart';
 import 'package:remark_app/apis/jobs/similar_jobs_api.dart';
 import 'package:remark_app/apis/jobs/view_job.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
@@ -16,6 +17,7 @@ import 'package:remark_app/components/job_card/job_detail_card.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
+import 'package:remark_app/model/jobs/save_jobs_model.dart';
 import 'package:remark_app/model/jobs/similar_jobs_model.dart';
 import 'package:remark_app/model/jobs/view_job_model.dart';
 import 'package:remark_app/model/user/fetch_user_data.dart';
@@ -40,6 +42,11 @@ class _ViewJobState extends State<ViewJob> {
   int appliedBtn;
 
   Future<bool> userSavedThis(bool isLiked) async {
+    SaveJobsModel saveJob =
+        await SaveJobsApi().saveJobs(widget.userID, widget.jobID);
+
+    saveJob.status ? print(saveJob.data) : print("error");
+
     setState(() {
       userSaved = !userSaved;
     });

@@ -76,7 +76,7 @@ class _SupportState extends State<Support> {
                   children: [
                     SupportDetails(
                       label: "Email",
-                      text: "info@remarkable.com",
+                      text: "info@remarkhr.com",
                       icon: Icons.email,
                       onTap: () async {
                         var email = "mailto:info@remarkhr.com";
@@ -90,10 +90,10 @@ class _SupportState extends State<Support> {
                     ),
                     SupportDetails(
                       label: "Mobile Number",
-                      text: "+91 9568569856",
+                      text: "+91 78289 11470",
                       icon: Icons.phone,
                       onTap: () async {
-                        var url = "tel:9568569856";
+                        var url = "tel:+91 78289 11470";
                         await canLaunch(url)
                             ? launch(url)
                             : print("Can't launch url");

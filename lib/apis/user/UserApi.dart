@@ -1,15 +1,19 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/auth/userDataModel.dart';
+import 'package:remark_app/model/global/global_model.dart';
 import 'package:remark_app/model/global/global_status_model.dart';
 import 'package:remark_app/model/user/fetch_user_data.dart';
 import 'package:remark_app/model/user/update_user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserApi {
+  final storage = GetStorage();
+
   Future<UserDataModel> getUserByMobileNumber(
       String mobileNumber, String userToken) async {
     var client = http.Client();
@@ -85,39 +89,71 @@ class UserApi {
     return thisResponse;
   }
 
-  Future<GlobalStatusModel> updateMobileNumber(
-      String userID, String userMobile, String userOTP) async {
-    GlobalStatusModel thisResponse = GlobalStatusModel();
+  Future<GlobalModel> startVerifyMobileNumber(String userMobile) async {
+    GlobalModel thisResponse = GlobalModel(status: false, message: '');
 
     try {
-      final response = await http.post(Uri.parse(updateMobileNumberApiUrl),
-          body: {
-            "user_id": userID,
-            "user_mobile": userMobile,
-            "user_otp": userOTP
-          });
+      final response = await http
+          .post(Uri.parse(apiUrl['start-verify-mobile-number']), body: {
+        "mobile_number": userMobile,
+      }, headers: {
+        "Authorization": storage.read('jwtToken')
+      });
 
       if (response.statusCode == 200) {
-        if (jsonDecode(response.body)['status']) {
-          thisResponse = globalStatusModelFromJson(response.body);
+        final data = jsonDecode(response.body);
+        if (data['status']) {
+          thisResponse = globalModelFromJson(response.body);
         } else {
-          thisResponse = GlobalStatusModel(status: false, data: false);
+          thisResponse =
+              GlobalModel(status: false, message: data['message'], data: null);
         }
-
-        return thisResponse;
       } else {
-        print("Wrong Status Code : ${response.statusCode}");
+        thisResponse.message = 'Invalid Response : ${response.statusCode}';
       }
+
+      return thisResponse;
     } catch (e) {
       print(e);
+      thisResponse.message = 'Something went wrong';
+      return thisResponse;
     }
+  }
 
-    return thisResponse;
+  Future<GlobalModel> updateVerifiedMobileNumber(String userMobile) async {
+    GlobalModel thisResponse = GlobalModel(status: false, message: '');
+
+    try {
+      final response = await http
+          .post(Uri.parse(apiUrl['update-verified-mobile-number']), body: {
+        "mobile_number": userMobile,
+      }, headers: {
+        "Authorization": storage.read('jwtToken')
+      });
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status']) {
+          thisResponse = globalModelFromJson(response.body);
+        } else {
+          thisResponse =
+              GlobalModel(status: false, message: data['message'], data: null);
+        }
+      } else {
+        thisResponse.message = 'Invalid Response : ${response.statusCode}';
+      }
+
+      return thisResponse;
+    } catch (e) {
+      print(e);
+      thisResponse.message = 'Something went wrong';
+      return thisResponse;
+    }
   }
 
   Future<GlobalStatusModel> updateUserDetails(String userID, String userData,
       String userPhoto, String resumePath) async {
-    GlobalStatusModel thisResponse = GlobalStatusModel();
+    GlobalStatusModel thisResponse = GlobalStatusModel(status: false);
 
     try {
       final responses =
@@ -138,22 +174,27 @@ class UserApi {
       await responses.send().then((streamResponse) async {
         if (streamResponse.statusCode == 200) {
           await http.Response.fromStream(streamResponse).then((response) {
-            if (jsonDecode(response.body)['status']) {
+            var result = jsonDecode(response.body);
+            if (result['status']) {
               thisResponse = globalStatusModelFromJson(response.body);
             } else {
-              thisResponse = GlobalStatusModel(status: false, data: false);
+              thisResponse =
+                  GlobalStatusModel(status: false, data: result['data']);
             }
 
             log(response.body);
+            return thisResponse;
           });
         } else {
           print("Wrong Status Code : ${streamResponse.statusCode} ");
+          thisResponse.data = "Something went wrong";
         }
       });
 
       return thisResponse;
     } catch (e) {
       print(e);
+      thisResponse.data = "Something went wrong";
     }
 
     return thisResponse;
@@ -166,6 +207,26 @@ class UserApi {
       return pref.get(userKey);
     } else {
       return null;
+    }
+  }
+
+  Future<GlobalStatusModel> deleteUser(String userID) async {
+    GlobalStatusModel thisResponse = GlobalStatusModel(status: false);
+
+    try {
+      final response = await http
+          .post(Uri.parse(deleteUserApiUrl), body: {"user_id": userID});
+
+      if (response.statusCode == 200) {
+        thisResponse = globalStatusModelFromJson(response.body);
+      } else {
+        thisResponse.data = "Invalid Response";
+      }
+
+      return thisResponse;
+    } catch (e) {
+      thisResponse.data = "Something went wrong";
+      return thisResponse;
     }
   }
 }

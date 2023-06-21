@@ -20,6 +20,7 @@ import 'package:remark_app/pages/response/responses.dart';
 import 'package:remark_app/pages/support/support.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:remark_app/pages/company/company_list.dart';
 
 class ApplicationDrawer extends StatefulWidget {
   const ApplicationDrawer({Key key}) : super(key: key);
@@ -34,6 +35,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
   var userType;
   var userDetail;
   var userID;
+  bool showAdvance = false;
   BuildContext context;
 
   @override
@@ -109,6 +111,19 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => EmployerAllJobs()));
+                          },
+                        ),
+                      if (userType == "1" && showAdvance == true)
+                        MenuList(
+                          title: "Companies",
+                          icon: Icon(FontAwesomeIcons.briefcase),
+                          action: () {
+                            Navigator.pop(context);
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CompanyList()));
                           },
                         ),
                       if (userType == "2")
@@ -270,7 +285,7 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                           Navigator.pop(context);
 
                           Share.share(
-                              "Lots of great companies here, find a perfect according to your skills \n \n $base_url/dowloads/ ");
+                              "Lots of great companies here, find a perfect according to your skills \n \n https://play.google.com/store/apps/details?id=com.remark.viskohr");
                         },
                       ),
                       MenuList(
@@ -315,8 +330,8 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                     child: Stack(
                       children: [
                         AvatarGlow(
-                          glowColor: Colors.white,
-                          duration: Duration(milliseconds: 2000),
+                          glowColor: Color.fromARGB(255, 251, 252, 252),
+                          duration: Duration(milliseconds: 1000),
                           repeat: true,
                           repeatPauseDuration: Duration(milliseconds: 100),
                           animate: true,
@@ -329,16 +344,18 @@ class _ApplicationDrawerState extends State<ApplicationDrawer> {
                             shape: CircleBorder(),
                             child: CircleAvatar(
                               backgroundColor: Colors.white,
-                              radius: 55,
+                              radius: 35,
                               child: CircleAvatar(
-                                  radius: 50,
+                                  radius: 40,
+                                  backgroundColor:
+                                      Colors.white.withOpacity(0.3),
                                   backgroundImage:
                                       NetworkImage(base_url + userPhoto)),
                             ),
                           ),
                         ),
                         Positioned(
-                            bottom: 5,
+                            bottom: 10,
                             right: 5,
                             child: Container(
                                 padding: EdgeInsets.all(5),

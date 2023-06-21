@@ -7,7 +7,7 @@ import 'package:remark_app/components/appbar/appbar.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/pages/candidates/all_candidates.dart';
-import 'package:smart_select/smart_select.dart';
+import 'package:awesome_select/awesome_select.dart';
 
 class SearchCandidates extends StatefulWidget {
   const SearchCandidates({Key key}) : super(key: key);
@@ -17,7 +17,6 @@ class SearchCandidates extends StatefulWidget {
 }
 
 class _SearchCandidatesState extends State<SearchCandidates> {
-
   List _skillsTag = [];
   List<S2Choice> _getPlaces = <S2Choice>[];
   String education = "";
@@ -30,9 +29,9 @@ class _SearchCandidatesState extends State<SearchCandidates> {
   void initState() {
     // TODO: implement initState
     _createListPlaces().then((places) {
-        _getPlaces = places;
-        setState(() {});
-        print("got places");
+      _getPlaces = places;
+      setState(() {});
+      print("got places");
     });
     _createListEducation().then((educations) {
       _getEducations = educations;
@@ -46,7 +45,8 @@ class _SearchCandidatesState extends State<SearchCandidates> {
     List<S2Choice> _getTempPlaces = <S2Choice>[];
     await Location().cityState().then((places) {
       places.data.forEach((place) {
-        _getTempPlaces.add(S2Choice(value: "${place.place}", title: "${place.place}"));
+        _getTempPlaces
+            .add(S2Choice(value: "${place.place}", title: "${place.place}"));
       });
     });
     return _getTempPlaces;
@@ -56,7 +56,8 @@ class _SearchCandidatesState extends State<SearchCandidates> {
     List<S2Choice> _getTempEducation = <S2Choice>[];
     await EducationApi().fetchEducation().then((educations) {
       educations.data.forEach((education) {
-        _getTempEducation.add(S2Choice(value: education.educationName, title: education.educationName));
+        _getTempEducation.add(S2Choice(
+            value: education.educationName, title: education.educationName));
       });
     });
 
@@ -75,152 +76,226 @@ class _SearchCandidatesState extends State<SearchCandidates> {
       ),
       body: SafeArea(
           child: Container(
-            padding: EdgeInsets.all(8),
-
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    child: TextField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: "Candidate Name",
-                        hintText: "John",
-                        border: OutlineInputBorder()
+        padding: EdgeInsets.all(8),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: size.width,
+                  child: Card(
+                    elevation: 10,
+                    shadowColor: Colors.black.withOpacity(0.3),
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: Text(
+                        "Search Candidate",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                     ),
                   ),
-                  SizedBox(height: 20,),
-                  Container(
-                    child: TextField(
-                      controller: _skillsController,
-                      decoration: InputDecoration(
-                        labelText: "Candidate Skills",
-                        hintText: "developer",
-                        border: OutlineInputBorder()
-                      ),
-                      onSubmitted: (value) {
-                          print('$value');
-                        _skillsTag.add('"${value.toString()}"');
-                        _skillsController.text = "";
-                        print(_skillsTag);
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Container(
-                    child: Tags(
-                      itemCount: _skillsTag.length,
-                      itemBuilder: (index) {
-                        String item = _skillsTag[index];
-                        var title = item.replaceAll('"', '');
-                        return ItemTags(
-                          removeButton: ItemTagsRemoveButton(
-                            onRemoved: () {
-                              _skillsTag.removeAt(index);
-                              setState(() {
-                                
-                              });
-                              return true;
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Card(
+                  elevation: 10,
+                  shadowColor: Colors.black.withOpacity(0.3),
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Candidate Name",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                          child: TextField(
+                            controller: _nameController,
+                            decoration: InputDecoration(
+                                labelText: "Candidate Name",
+                                hintText: "John",
+                                border: OutlineInputBorder()),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Candidate Skills",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                          child: TextField(
+                            controller: _skillsController,
+                            decoration: InputDecoration(
+                                labelText: "Candidate Skills",
+                                hintText: "developer",
+                                helperText: "Press Enter to Submit Skills",
+                                border: OutlineInputBorder()),
+                            onSubmitted: (value) {
+                              print('$value');
+                              _skillsTag.add('"${value.toString()}"');
+                              _skillsController.text = "";
+                              print(_skillsTag);
                             },
                           ),
-                            index: index,
-                            title: title,
-                            color: kDarkColor,
-                            textColor: Colors.white,
-                          activeColor: kDarkColor,
-                          onPressed: (i) {
-                            _skillsTag.removeAt(index);
-                            setState(() {
-
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 20,),
-                  Container(
-                    child: SmartSelect.single(
-                        title: "Select Education",
-                        choiceItems: _getEducations,
-                        onChange: (value) {
-                          setState(() {
-                            education = value.value;
-                          });
-                        },)
-                  ),
-
-                  SizedBox(height: 20,),
-                  Container(
-                    child: SmartSelect.multiple(
-                        title: "Select Locaiton",
-                        choiceItems: _getPlaces,
-                        placeholder: "Locations",
-                        choiceEmptyBuilder: (context, value) => EmptyData(message: "Nothing Found",),
-                        modalFilter: true,
-                        modalConfirm: true,
-                        modalConfig: S2ModalConfig(
-                          filterAuto: true
                         ),
-                        onChange: (value) {
-                          List places = [];
-                          value.value.forEach((place) {
-                              places.add('"$place"');
-                          });
-                          setState(() {
-                            locations = places;
-                          });
-                        },
-                    )
-                  ),
-                  SizedBox(height: 20,),
-                  Container(
-                    child: Row(
-                      children: [
-                        // MaterialButton(
-                        //   child: Text(""),
-                        //   onPressed: () => print("Saved"),
-                        // ),
-                        Spacer(),
-                        MaterialButton(
-                          onPressed: () {
-                            print(_nameController.text);
-                            print(_skillsTag);
-                            print(education);
-                            print(locations);
-
-                            List data = [
-                              _nameController.text,
-                              _skillsTag.toString(),
-                              education,
-                              locations
-                            ];
-
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Candidates(
-                              isSearched: true,
-                              data: data,
-                            ) ,));
-
-                          },
-                          padding: EdgeInsets.all(14),
-                          color: kDarkColor,
-                          elevation: 8,
-                          child: Text("Search" , style: TextStyle(
-                              color: Colors.white
-                          ),),
+                        SizedBox(
+                          height: 5,
                         ),
-                        Spacer(),
+                        Container(
+                          child: Tags(
+                            itemCount: _skillsTag.length,
+                            itemBuilder: (index) {
+                              String item = _skillsTag[index];
+                              var title = item.replaceAll('"', '');
+                              return ItemTags(
+                                removeButton: ItemTagsRemoveButton(
+                                  onRemoved: () {
+                                    _skillsTag.removeAt(index);
+                                    setState(() {});
+                                    return true;
+                                  },
+                                ),
+                                index: index,
+                                title: title,
+                                color: kDarkColor,
+                                textColor: Colors.white,
+                                activeColor: kDarkColor,
+                                onPressed: (i) {
+                                  _skillsTag.removeAt(index);
+                                  setState(() {});
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          "Select Education",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 0.8, color: Colors.grey)),
+                            child: SmartSelect.single(
+                              title: "Select Education",
+                              choiceItems: _getEducations,
+                              onChange: (value) {
+                                setState(() {
+                                  education = value.value;
+                                });
+                              },
+                            )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          child: Text(
+                            "Select Location",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 0.8, color: Colors.grey)),
+                            child: SmartSelect.multiple(
+                              title: "Select Location",
+                              choiceItems: _getPlaces,
+                              placeholder: "Locations",
+                              choiceEmptyBuilder: (context, value) => EmptyData(
+                                message: "Nothing Found",
+                              ),
+                              modalFilter: true,
+                              modalConfirm: true,
+                              modalConfig: S2ModalConfig(filterAuto: true),
+                              onChange: (value) {
+                                List places = [];
+                                value.value.forEach((place) {
+                                  places.add('"$place"');
+                                });
+                                setState(() {
+                                  locations = places;
+                                });
+                              },
+                            )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          child: Row(
+                            children: [
+                              // MaterialButton(
+                              //   child: Text(""),
+                              //   onPressed: () => print("Saved"),
+                              // ),
+                              Spacer(),
+                              MaterialButton(
+                                onPressed: () {
+                                  print(_nameController.text);
+                                  print(_skillsTag);
+                                  print(education);
+                                  print(locations);
+
+                                  List data = [
+                                    _nameController.text,
+                                    _skillsTag.toString(),
+                                    education,
+                                    locations
+                                  ];
+
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Candidates(
+                                          isSearched: true,
+                                          data: data,
+                                        ),
+                                      ));
+                                },
+                                padding: EdgeInsets.all(14),
+                                color: kDarkColor,
+                                elevation: 8,
+                                child: Text(
+                                  "Search",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              Spacer(),
+                            ],
+                          ),
+                        )
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                )
+              ],
             ),
-          )
-      ),
+          ),
+        ),
+      )),
     );
   }
 }

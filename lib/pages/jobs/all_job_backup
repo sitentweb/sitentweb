@@ -1,0 +1,44 @@
+Container(
+                          child: PagedListView<int, Job>(
+                            pagingController: _pagingController,
+                            builderDelegate: PagedChildBuilderDelegate<Job>(
+                                itemBuilder: (context, item, index) {
+                                  print(item);
+                                  var job = item;
+                                  print(job.company.companyLogo);
+                                  return JobCard(
+                                    jobID: job.jobId,
+                                    // userID: job.userId,
+                                    jobTitle: job.jobTitle,
+                                    companyImage: job.company.companyLogo,
+                                    companyName: job.company.companyName,
+                                    minimumSalary: job.jobMinimumSalary,
+                                    maximumSalary: job.jobMaximumSalary,
+                                    experience: job.jobExtExperience,
+                                    jobSkills: job.jobKeySkills,
+                                    companyLocation: job.company.companyAddress,
+                                    timeAgo: timeago.format(job.jobCreatedAt),
+                                    jobLink: job.jobSlug,
+                                    isUserApplied: true,
+                                    isUserSavedThis: false,
+                                    // job.jobSaved == "0" ? false : true,
+                                    applyBtn: int.parse(job.isUserApplied),
+                                  );
+                                },
+                                firstPageProgressIndicatorBuilder: (_) =>
+                                    Container(
+                                      child: Column(
+                                        children: [
+                                          JobCardShimmer(),
+                                          JobCardShimmer(),
+                                          JobCardShimmer(),
+                                          JobCardShimmer(),
+                                          JobCardShimmer(),
+                                          JobCardShimmer(),
+                                          JobCardShimmer(),
+                                          JobCardShimmer()
+                                        ],
+                                      ),
+                                    )),
+                          ),
+                        )

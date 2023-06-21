@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:like_button/like_button.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -12,6 +13,7 @@ import 'package:remark_app/components/text/IconText.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/jobs/save_jobs_model.dart';
+import 'package:remark_app/pages/jobs/edit_posted_job.dart';
 import 'package:remark_app/pages/jobs/view_job.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +35,7 @@ class JobCard extends StatefulWidget {
   final bool isUserSavedThis;
   final int applyBtn;
   final String companyVerified;
+  final bool isEditable;
 
   const JobCard(
       {Key key,
@@ -51,7 +54,8 @@ class JobCard extends StatefulWidget {
       this.isUserSavedThis = false,
       this.jobID,
       this.userID,
-      this.companyVerified})
+      this.companyVerified,
+      this.isEditable = false})
       : super(key: key);
 
   @override
@@ -77,6 +81,7 @@ class _JobCardState extends State<JobCard> {
     appliedBtn = widget.applyBtn ?? 0;
     userSaved = widget.isUserSavedThis ?? false;
     getUserData();
+    print(widget.applyBtn);
   }
 
   Future getUserData() async {
@@ -121,11 +126,11 @@ class _JobCardState extends State<JobCard> {
     // String jobLink = "https://remarkhr.com/job-listing-${widget.jobLink}";
     String jobLink = "https://remarkhr.page.link/job/${widget.jobLink}";
 
-    final jLink = await AppSetting()
-        .createDynamicLink("job-listing-${widget.jobLink}", "job");
+    final jLink =
+        await AppSetting().createDynamicLink("job/${widget.jobLink}", "job");
 
     Share.share(
-        "${widget.jobTitle} \nPlace : ${widget.companyLocation} \nSalary : ${widget.maximumSalary} \n\nCheck out this job $jLink \n \nDownload Remark App for more jobs \nhttps://remarkhr.com/downloads",
+        "${widget.jobTitle} \nPlace : ${widget.companyLocation} \nSalary : ${widget.maximumSalary} \n\nCheck out this job $jLink \n \nDownload Remark App for more jobs \nhttps://remarkhr.com/",
         subject: "${widget.jobTitle}");
     return !isLiked;
   }
@@ -320,7 +325,20 @@ class _JobCardState extends State<JobCard> {
                           padding: EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
                         )
-                      : Container()
+                      : Container(),
+                  widget.isEditable
+                      ? IconButton(
+                          onPressed: () {
+                            Get.to(() => EditPostedJob(
+                                  jobId: widget.jobID,
+                                ));
+                          },
+                          icon: Icon(
+                            Icons.edit,
+                            color: Colors.grey,
+                            size: 18,
+                          ))
+                      : SizedBox()
                 ],
               )
             ],
@@ -356,6 +374,7 @@ class _JobCardState extends State<JobCard> {
                       await JobApplyStatusApi()
                           .jobApplyStatus(jobID, userID, widget.userID)
                           .then((response) {
+                        print(response.toJson());
                         if (response.status) {
                           print(widget.userID);
                           print("Applied for this job");

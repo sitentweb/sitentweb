@@ -37,6 +37,13 @@
             {
               "client_id": "615545720563-1fot7kqrivr5u9n8apecuelcpdp76rt6.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "615545720563-7o3i1ccig28a6f2drolffcsq1mv47eh3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.remark.visko"
+              }
             }
           ]
         }
@@ -74,6 +81,49 @@
             {
               "client_id": "615545720563-1fot7kqrivr5u9n8apecuelcpdp76rt6.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "615545720563-7o3i1ccig28a6f2drolffcsq1mv47eh3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.remark.visko"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615545720563:android:61704dd9320bf7b6d63186",
+        "android_client_info": {
+          "package_name": "com.remark.viskohr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615545720563-1fot7kqrivr5u9n8apecuelcpdp76rt6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYyCifb8eOwnlrSI02NSh_ifMCtWBN6N0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "615545720563-1fot7kqrivr5u9n8apecuelcpdp76rt6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "615545720563-7o3i1ccig28a6f2drolffcsq1mv47eh3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.remark.visko"
+              }
             }
           ]
         }

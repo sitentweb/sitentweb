@@ -68,6 +68,7 @@ class _HomePageState extends State<HomePage> {
 
   getUserData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
+    // pref.setString("userType", widget.userType);
 
     setState(() {
       userID = pref.getString("userID");
@@ -118,10 +119,11 @@ class _HomePageState extends State<HomePage> {
               data: [],
             )
           : AppliedJobs(),
-      JobNotification(
-        userID: userID,
-      ),
-      ViewProfile(),
+      if (widget.userType != "0")
+        JobNotification(
+          userID: userID,
+        ),
+      if (widget.userType != "0") ViewProfile(),
     ];
   }
 
@@ -139,6 +141,7 @@ class _HomePageState extends State<HomePage> {
           textStyle: GoogleFonts.poppins(),
           activeColorPrimary: kDarkColor,
           inactiveColorPrimary: inactiveColor),
+      // if (widget.userType != "0")
       PersistentBottomNavBarItem(
           icon: Icon(
             widget.userType == "2"
@@ -149,22 +152,24 @@ class _HomePageState extends State<HomePage> {
           title: widget.userType == "2" ? ("Candidates") : ("Applied Jobs"),
           activeColorPrimary: kDarkColor,
           inactiveColorPrimary: inactiveColor),
-      PersistentBottomNavBarItem(
-          icon: Icon(
-            FontAwesomeIcons.solidBell,
-            size: iconSize,
-          ),
-          title: ("Notification"),
-          activeColorPrimary: kDarkColor,
-          inactiveColorPrimary: inactiveColor),
-      PersistentBottomNavBarItem(
-          icon: Icon(
-            FontAwesomeIcons.userTie,
-            size: iconSize,
-          ),
-          title: ("Profile"),
-          activeColorPrimary: kDarkColor,
-          inactiveColorPrimary: inactiveColor),
+      if (widget.userType != "0")
+        PersistentBottomNavBarItem(
+            icon: Icon(
+              FontAwesomeIcons.solidBell,
+              size: iconSize,
+            ),
+            title: ("Notification"),
+            activeColorPrimary: kDarkColor,
+            inactiveColorPrimary: inactiveColor),
+      if (widget.userType != "0")
+        PersistentBottomNavBarItem(
+            icon: Icon(
+              FontAwesomeIcons.userTie,
+              size: iconSize,
+            ),
+            title: ("Profile"),
+            activeColorPrimary: kDarkColor,
+            inactiveColorPrimary: inactiveColor),
     ];
   }
 

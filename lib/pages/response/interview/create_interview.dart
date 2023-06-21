@@ -4,7 +4,7 @@ import 'package:remark_app/apis/candidates/all_candidates_api.dart';
 import 'package:remark_app/apis/responses/interview/all_interviews_api.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_select/smart_select.dart';
+import 'package:awesome_select/awesome_select.dart';
 
 class CreateInterview extends StatefulWidget {
   const CreateInterview({Key key}) : super(key: key);

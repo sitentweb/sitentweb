@@ -45,64 +45,74 @@ class _AppliedJobsState extends State<AppliedJobs> {
             children: [
               if (userType == "0") RegisterAs(),
               Expanded(
-                  child: Container(
-                child: FutureBuilder<AppliedJobsModel>(
-                  future: AppliedJobsApi().fetchAppliedJobs(userID),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      if (snapshot.data.status) {
-                        return ListView.builder(
-                          itemCount: snapshot.data.data.length,
-                          itemBuilder: (context, index) {
-                            var job = snapshot.data.data[index];
-                            return GestureDetector(
-                              onTap: () {
-                                showMaterialModalBottomSheet(
-                                  context: context,
-                                  useRootNavigator: true,
-                                  builder: (context) => ViewJob(
-                                    userID: userID,
-                                    jobID: job.jobId,
-                                  ),
-                                );
-                              },
-                              child: JobCard(
-                                jobID: job.jobId,
-                                userID: job.userId,
-                                jobTitle: job.jobTitle,
-                                companyImage: job.companyLogo,
-                                companyName: job.companyName,
-                                minimumSalary: job.jobMinimumSalary,
-                                maximumSalary: job.jobMaximumSalary,
-                                experience: job.jobExtExperience.isNotEmpty
-                                    ? "Experienced"
-                                    : "Fresher",
-                                jobSkills: job.jobKeySkills,
-                                companyLocation: job.companyAddress,
-                                timeAgo: timeAgo.format(job.jobCreatedAt),
-                                jobLink: job.jobSlug,
-                                isUserApplied: true,
-                                isUserSavedThis: false,
-                                applyBtn: int.parse(job.jobAppliedStatus),
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        return Center(
-                          child: EmptyData(
-                            message: "Not applied for any job",
+                  child: userType != "0"
+                      ? Container(
+                          child: FutureBuilder<AppliedJobsModel>(
+                            future: AppliedJobsApi().fetchAppliedJobs(userID),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                if (snapshot.data.status) {
+                                  return ListView.builder(
+                                    itemCount: snapshot.data.data.length,
+                                    itemBuilder: (context, index) {
+                                      var job = snapshot.data.data[index];
+                                      return GestureDetector(
+                                        onTap: () {
+                                          showMaterialModalBottomSheet(
+                                            context: context,
+                                            useRootNavigator: true,
+                                            builder: (context) => ViewJob(
+                                              userID: userID,
+                                              jobID: job.jobId,
+                                            ),
+                                          );
+                                        },
+                                        child: JobCard(
+                                          jobID: job.jobId,
+                                          userID: job.userId,
+                                          jobTitle: job.jobTitle,
+                                          companyImage: job.companyLogo,
+                                          companyName: job.companyName,
+                                          minimumSalary: job.jobMinimumSalary,
+                                          maximumSalary: job.jobMaximumSalary,
+                                          experience:
+                                              job.jobExtExperience.isNotEmpty
+                                                  ? "Experienced"
+                                                  : "Fresher",
+                                          jobSkills: job.jobKeySkills,
+                                          companyLocation: job.companyAddress,
+                                          timeAgo:
+                                              timeAgo.format(job.jobCreatedAt),
+                                          jobLink: job.jobSlug,
+                                          isUserApplied: true,
+                                          isUserSavedThis: false,
+                                          applyBtn:
+                                              int.parse(job.jobAppliedStatus),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  return Center(
+                                    child: EmptyData(
+                                      message: "Not applied for any job",
+                                    ),
+                                  );
+                                }
+                              } else {
+                                return ListView.builder(
+                                    itemCount: 20,
+                                    itemBuilder: (context, index) =>
+                                        JobCardShimmer());
+                              }
+                            },
                           ),
-                        );
-                      }
-                    } else {
-                      return ListView.builder(
-                          itemCount: 20,
-                          itemBuilder: (context, index) => JobCardShimmer());
-                    }
-                  },
-                ),
-              ))
+                        )
+                      : Center(
+                          child: EmptyData(
+                            message: "Please Login to apply jobs",
+                          ),
+                        ))
             ],
           ),
         ),

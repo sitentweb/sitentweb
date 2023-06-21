@@ -53,43 +53,42 @@ class _SplashScrState extends State<SplashScr> {
       body: Container(
           width: size.width,
           height: size.height,
+          padding: EdgeInsets.only(left: 0),
           decoration: BoxDecoration(color: Colors.white),
           child: Column(
             children: [
+              Spacer(),
               Expanded(
-                flex: 6,
-                child: SplashScreen.callback(
-                  name: 'assets/splash/splash_rive.riv',
-                  startAnimation: 'Animation 1',
-                  onSuccess: (data) {
-                    setState(() {
-                      _isLoading = !_isLoading;
-                    });
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => userIsLogged
-                                ? userLogStep == "full"
-                                    ? HomePage(userType: userType)
-                                    : MobileValidate()
-                                : onBoard
-                                    ? Login()
-                                    : OnBoardingScr()));
-                  },
-                  until: () => Future.delayed(Duration(milliseconds: 500)),
-                  onError: (error, stacktrace) {
-                    print(error);
-                    print(stacktrace);
-                  },
+                child: Center(
+                  child: SplashScreen.callback(
+                    name: 'assets/splash/splash_rive.riv',
+                    startAnimation: 'Animation 1',
+                    alignment: Alignment.center,
+                    fit: BoxFit.contain,
+                    onSuccess: (data) {
+                      setState(() {
+                        _isLoading = !_isLoading;
+                      });
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => userIsLogged
+                                  ? userLogStep == "full"
+                                      ? HomePage(userType: userType)
+                                      : MobileValidate()
+                                  : onBoard
+                                      ? Login()
+                                      : OnBoardingScr()));
+                    },
+                    until: () => Future.delayed(Duration(milliseconds: 500)),
+                    onError: (error, stacktrace) {
+                      print(error);
+                      print(stacktrace);
+                    },
+                  ),
                 ),
               ),
-              Expanded(
-                child: Container(
-                  child: !_isLoading
-                      ? Text("Loading...", style: GoogleFonts.poppins())
-                      : Text(""),
-                ),
-              )
+              Spacer(),
             ],
           )),
     );

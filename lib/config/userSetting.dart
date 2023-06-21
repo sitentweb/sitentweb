@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
 import 'package:remark_app/config/constants.dart';
@@ -185,6 +186,21 @@ class UserSetting {
     }
   }
 
+  static setAppleSignInSession(credential) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    var user = await FirebaseAuth.instance.signInWithCredential(credential);
+
+    pref.setBool("userIsLogged", true);
+    pref.setString("userLogStep", "half");
+    pref.setString("userEmail", user.user.email);
+    pref.setString("userName", user.user.displayName);
+    pref.setString("loginType", "Apple");
+    pref.setString("userMobile", user.user.phoneNumber);
+    pref.setString(
+        "userPhoto", user.user.photoURL ?? "$base_url/$application_logo");
+  }
+
   static setGoogleSignInSession(credential) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
@@ -241,5 +257,11 @@ class UserSetting {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     return pref.getString(key);
+  }
+
+  static updateJwtToken(token) async {
+    final storage = GetStorage();
+
+    storage.write('jwtToken', token.toString());
   }
 }

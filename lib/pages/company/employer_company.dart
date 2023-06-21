@@ -20,6 +20,7 @@ class EmployerCompanies extends StatefulWidget {
 class _EmployerCompaniesState extends State<EmployerCompanies> {
   String userID;
   Future<EmployerCompanyModel> _employerCompanyModel;
+  bool isShowAdvance = false;
 
   @override
   void initState() {
@@ -59,7 +60,7 @@ class _EmployerCompaniesState extends State<EmployerCompanies> {
                   var company = snapshot.data.data[index];
 
                   return Container(
-                    height: 200,
+                    height: 220,
                     padding: EdgeInsets.all(8),
                     child: Card(
                       elevation: 2,
@@ -83,11 +84,106 @@ class _EmployerCompaniesState extends State<EmployerCompanies> {
                                   width: 10,
                                 ),
                                 Expanded(
-                                  child: Text(
-                                    "${company.companyName}",
-                                    style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.bold),
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        child: Expanded(
+                                          child: Text(
+                                            "${company.companyName}",
+                                            style: GoogleFonts.poppins(
+                                                fontWeight: FontWeight.bold),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                      if (isShowAdvance)
+                                        Container(
+                                          child: Row(
+                                            children: [
+                                              Tooltip(
+                                                message: "Edit",
+                                                waitDuration:
+                                                    Duration(seconds: 1),
+                                                child: InkWell(
+                                                  onTap: () {},
+                                                  child: Container(
+                                                    child: Icon(
+                                                      Icons.edit,
+                                                      size: 16,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                              Tooltip(
+                                                message: "Delete",
+                                                waitDuration:
+                                                    Duration(seconds: 1),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    return showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return AlertDialog(
+                                                          title: Text(
+                                                            company.companyName,
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          content: Container(
+                                                            height: 40,
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Text(
+                                                                    "Do you want to delete this company?"),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          actions: [
+                                                            MaterialButton(
+                                                              onPressed: () {},
+                                                              child: Text(
+                                                                "Yes",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .red),
+                                                              ),
+                                                            ),
+                                                            MaterialButton(
+                                                              onPressed: () {},
+                                                              child: Text("No"),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                    child: Icon(
+                                                      Icons.delete,
+                                                      size: 16,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                    ],
                                   ),
                                 )
                               ],

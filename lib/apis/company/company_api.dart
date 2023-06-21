@@ -5,6 +5,7 @@ import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/company/fetch_company_model.dart';
 import 'package:remark_app/model/company/fetch_user_company_model.dart';
 import 'package:remark_app/model/global/global_status_model.dart';
+import 'package:remark_app/model/company/company_list_model.dart';
 
 class CompanyApi {
   final client = http.Client();
@@ -93,5 +94,45 @@ class CompanyApi {
     }
 
     return thisResponse;
+  }
+
+  Future<GlobalStatusModel> deleteCompany(userId, companyId) async {
+    GlobalStatusModel thisResponse = GlobalStatusModel(status: false);
+
+    try {
+      final response = await client.post(Uri.parse(deleteCompanyApiUrl));
+
+      if (response.statusCode == 200) {
+        thisResponse = globalStatusModelFromJson(response.body);
+      } else {
+        thisResponse.data = "Invalid Response";
+      }
+
+      return thisResponse;
+    } catch (e) {
+      thisResponse.data = e.toString();
+
+      return thisResponse;
+    }
+  }
+
+  Future<CompanyListsModel> fetchCompaniesList() async {
+    CompanyListsModel thisResponse = CompanyListsModel(status: false);
+
+    try {
+      final response = await client.get(Uri.parse("${fetchCompanyListApiUrl}"));
+
+      if (response.statusCode == 200) {
+        thisResponse = companyListsModelFromJson(response.body);
+      } else {
+        thisResponse.message = "Response Error";
+      }
+
+      return thisResponse;
+    } catch (e) {
+      print(e.toString());
+      thisResponse.message = 'Something went wrong';
+      return thisResponse;
+    }
   }
 }

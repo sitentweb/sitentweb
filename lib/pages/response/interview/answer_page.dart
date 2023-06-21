@@ -20,15 +20,12 @@ class AnswerPage extends StatefulWidget {
 }
 
 class _AnswerPageState extends State<AnswerPage> {
-
   RTCPeerConnection _peerConnection;
   RTCVideoRenderer _localRenderer;
   RTCVideoRenderer _remoteRenderer;
 
   _getFirebaseNotifications() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-
-    });
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {});
   }
 
   @override
@@ -39,23 +36,18 @@ class _AnswerPageState extends State<AnswerPage> {
   }
 
   _createPeerConnection() async {
-
     Map<String, dynamic> configuration = {
-      "iceServers" : [
-        {
-          "urls" : "stun:stun.l.google.com:19302"
-        }
+      "iceServers": [
+        {"urls": "stun:stun.l.google.com:19302"}
       ]
     };
 
     _peerConnection = await createPeerConnection(configuration);
 
-    var mediaConstraints = {
-      "audio" : true,
-      "video" : true
-    };
+    var mediaConstraints = {"audio": true, "video": true};
 
-    await navigator.mediaDevices.getUserMedia(mediaConstraints)
+    await navigator.mediaDevices
+        .getUserMedia(mediaConstraints)
         .then((mediaStream) {
       _localRenderer.srcObject = mediaStream;
       mediaStream.getTracks().forEach((element) {
@@ -66,7 +58,6 @@ class _AnswerPageState extends State<AnswerPage> {
     _peerConnection.onIceConnectionState = (e) => print(e);
 
     _peerConnection.onTrack = _handleTrack;
-
   }
 
   _handleTrack(RTCTrackEvent event) {
@@ -74,33 +65,28 @@ class _AnswerPageState extends State<AnswerPage> {
   }
 
   _handleVideoOffer(msg) async {
-
     _createPeerConnection();
 
-    RTCSessionDescription description = new RTCSessionDescription(msg['session'], "offer");
-
-
-
+    RTCSessionDescription description =
+        new RTCSessionDescription(msg['session'], "offer");
   }
 
   _handleIceCandidate(RTCIceCandidate e) {
-    if(e.candidate != null){
-
+    if (e.candidate != null) {
       print("Candidate is available");
       print(e.toMap());
 
       var data = jsonEncode({
-        "notification_type" : "callCandidate",
-        "interviewID" : widget.interview.interviewId,
-        "candidate" : {
-          "candidate" : e.candidate,
-          "sdpMid" : e.sdpMid,
-          "sdpMlineIndex" : e.sdpMlineIndex
+        "notification_type": "callCandidate",
+        "interviewID": widget.interview.interviewId,
+        "candidate": {
+          "candidate": e.candidate,
+          "sdpMid": e.sdpMid,
+          "sdpMlineIndex": e.sdpMLineIndex
         }
       });
 
       SendPushNotification().send(data, widget.interview.employerToken);
-
     }
   }
 
@@ -113,7 +99,6 @@ class _AnswerPageState extends State<AnswerPage> {
         height: size.height,
         decoration: BoxDecoration(
           color: kLightColor,
-
         ),
         child: Column(
           children: [
@@ -124,17 +109,23 @@ class _AnswerPageState extends State<AnswerPage> {
                 child: CircleAvatar(
                   radius: 80,
                   backgroundColor: Colors.white,
-                  backgroundImage: AppSetting.showUserImage(widget.interview.employerLogo),
+                  backgroundImage:
+                      AppSetting.showUserImage(widget.interview.employerLogo),
                 ),
                 endRadius: 120),
-            SizedBox(height: 10,),
-            Text("${widget.interview.employerName}" , style: TextStyle(
-                fontSize: 25,
-                color: Colors.white,
-                fontWeight: FontWeight.bold
-            ),),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              "${widget.interview.employerName}",
+              style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
+            ),
             Spacer(),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -142,7 +133,9 @@ class _AnswerPageState extends State<AnswerPage> {
                     child: IconCircleButton(
                       backgroundColor: Colors.redAccent,
                       radius: 60,
-                      icon: widget.interview.interviewType == "0" ? Icons.call_end_rounded : Icons.videocam_off_rounded,
+                      icon: widget.interview.interviewType == "0"
+                          ? Icons.call_end_rounded
+                          : Icons.videocam_off_rounded,
                       iconColor: Colors.white,
                       title: "Cancel",
                       textColor: Colors.white,
@@ -153,10 +146,10 @@ class _AnswerPageState extends State<AnswerPage> {
                   ),
                   Container(
                     child: IconCircleButton(
-                      onPressed: () {
-
-                      },
-                      icon: widget.interview.interviewType == "0" ? Icons.call : Icons.videocam,
+                      onPressed: () {},
+                      icon: widget.interview.interviewType == "0"
+                          ? Icons.call
+                          : Icons.videocam,
                       iconColor: Colors.green,
                       radius: 60,
                       backgroundColor: Colors.white,
@@ -165,7 +158,8 @@ class _AnswerPageState extends State<AnswerPage> {
                     ),
                   )
                 ],
-              ),),
+              ),
+            ),
             Spacer()
           ],
         ),

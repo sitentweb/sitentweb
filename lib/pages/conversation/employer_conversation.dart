@@ -15,11 +15,11 @@ class EmployerConversationRoom extends StatefulWidget {
   const EmployerConversationRoom({Key key}) : super(key: key);
 
   @override
-  _EmployerConversationRoomState createState() => _EmployerConversationRoomState();
+  _EmployerConversationRoomState createState() =>
+      _EmployerConversationRoomState();
 }
 
 class _EmployerConversationRoomState extends State<EmployerConversationRoom> {
-
   var userType;
   var userID;
 
@@ -55,45 +55,67 @@ class _EmployerConversationRoomState extends State<EmployerConversationRoom> {
         child: FutureBuilder<GetAllChatRoomModel>(
           future: GetRoom().getChatRoom(userID),
           builder: (context, snapshot) {
-            if(snapshot.hasError){
+            if (snapshot.hasError) {
               print("snapshot has error!");
               return Container();
-            }else if(snapshot.hasData){
-              if(snapshot.data.status){
+            } else if (snapshot.hasData) {
+              if (snapshot.data.status) {
                 return ListView.builder(
                   physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: snapshot.data.data.length,
-                    itemBuilder: (context, index) {
-                      var chat = snapshot.data.data[index];
+                  itemCount: snapshot.data.data.length,
+                  itemBuilder: (context, index) {
+                    var chat = snapshot.data.data[index];
 
-                      // SENDER ID IS CHAT USER ID
-                      // RECEIVER ID IS SESSION USER ID;
-                      var senderId = chat.userId;
-                      var receiverId = userID;
-                      return ListRoomCard(
-                        roomId: chat.roomId,
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(imageHero: "image${chat.roomId}" , roomId: chat.roomId, userImage: chat.userPhoto, userName: chat.userName, senderID: senderId, receiverID:  receiverId),));
-                        },
-                         leading: Hero(
-                           tag: "image${chat.roomId}",
-                           child: CircleAvatar(
-                             backgroundColor: Colors.white,
-                              backgroundImage: chat.userPhoto != null ? NetworkImage(base_url+chat.userPhoto) : AssetImage(application_logo),
-                           ),
-                         ),
-                        title: chat.userName != null ? "${chat.userName}" : "No name",
-                        subtitle: Text("${chat.lastMessage ?? ""}" , overflow: TextOverflow.ellipsis,),
-                        trailing: Icon(Icons.chevron_right_rounded),
-                      );
-
-                    },
+                    // SENDER ID IS CHAT USER ID
+                    // RECEIVER ID IS SESSION USER ID;
+                    var senderId = chat.userId;
+                    var receiverId = userID;
+                    return ListRoomCard(
+                      roomId: chat.roomId,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                  imageHero: "image${chat.roomId}",
+                                  roomId: chat.roomId,
+                                  userImage: chat.userPhoto,
+                                  userName: chat.userName,
+                                  senderID: senderId,
+                                  receiverID: receiverId),
+                            ));
+                      },
+                      leading: Hero(
+                        tag: "image${chat.roomId}",
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          backgroundImage:
+                              chat.userPhoto != null || chat.userPhoto != ''
+                                  ? NetworkImage(base_url + chat.userPhoto)
+                                  : AssetImage(application_logo),
+                        ),
+                      ),
+                      title: chat.userName != null
+                          ? "${chat.userName}"
+                          : "No name",
+                      subtitle: Container(
+                        width: 250,
+                        child: Text(
+                          "${chat.lastMessage ?? ""}",
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      trailing: Icon(Icons.chevron_right_rounded),
+                    );
+                  },
                 );
-              }else{
+              } else {
                 print("No Room Here");
-                return EmptyData(message: "No Room Here",);
+                return EmptyData(
+                  message: "No Room Here",
+                );
               }
-            }else{
+            } else {
               return CircularLoading();
             }
           },
@@ -110,7 +132,15 @@ class ListRoomCard extends StatelessWidget {
   final Widget trailing;
   final roomId;
   final void Function() onTap;
-  const ListRoomCard({Key key, this.title, this.subtitle, this.leading, this.trailing, this.onTap, this.roomId}) : super(key: key);
+  const ListRoomCard(
+      {Key key,
+      this.title,
+      this.subtitle,
+      this.leading,
+      this.trailing,
+      this.onTap,
+      this.roomId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -120,39 +150,36 @@ class ListRoomCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.symmetric(
-            vertical: 10,
-            horizontal: 10
-          ),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(50)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: Offset(2 , 3),
-                spreadRadius: 5
-              )
-            ]
-          ),
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: Offset(2, 3),
+                    spreadRadius: 5)
+              ]),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               leading,
-              SizedBox(width: 10,),
+              SizedBox(
+                width: 10,
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("$title" , style: GoogleFonts.lora(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15
-                  ),),
+                  Text(
+                    "$title",
+                    style: GoogleFonts.lora(
+                        fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
                   subtitle
                 ],
               ),
               Spacer(),
-
               Container(
                 child: trailing,
               )

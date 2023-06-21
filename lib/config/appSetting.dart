@@ -4,7 +4,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/main.dart';
@@ -96,12 +98,7 @@ class AppSetting {
 
     AndroidNotification android = message.notification?.android;
     if (notification != null && android != null) {
-
-      
-
-
       await flutterLocalNotificationsPlugin.show(
-        
           notification.hashCode,
           notification.title,
           notification.body,
@@ -113,13 +110,9 @@ class AppSetting {
               fullScreenIntent: true,
               importance: Importance.max,
               icon: android?.smallIcon,
-              
             ),
-
           ),
-          payload: message.data['newMessage']
-          );
-
+          payload: message.data['newMessage']);
     }
   }
 
@@ -135,7 +128,7 @@ class AppSetting {
   }
 
   static showUserImage(String image) {
-    if (image != null || image != "") {
+    if (image.isNotEmpty) {
       return NetworkImage(base_url + image);
     } else {
       return AssetImage(application_logo);
@@ -164,9 +157,11 @@ class AppSetting {
     final DynamicLinkParameters _parameters = DynamicLinkParameters(
         link: Uri.parse("https://remarkhr.com/$webLink/?job=$webLink"),
         uriPrefix: "https://remarkhrapp.page.link",
+        iosParameters:
+            IOSParameters(bundleId: "com.remark.visko", minimumVersion: "0"),
         androidParameters: AndroidParameters(
             minimumVersion: 0,
-            packageName: "com.example.remark_app",
+            packageName: "com.remark.viskohr",
             fallbackUrl: Uri.parse("https://remakrhr.com/$webLink")));
 
     ShortDynamicLink shortUrl = await _dynamicLinks.buildShortLink(_parameters);
@@ -234,5 +229,17 @@ class AppSetting {
     }
 
     return internetConnect;
+  }
+
+  static showSnackbar({String title, String message, String type}) {
+    var snackbar = GetSnackBar(
+      title: title,
+      message: message,
+      backgroundColor: type == 'success' ? Colors.green : Colors.red,
+      snackStyle: SnackStyle.GROUNDED,
+      duration: Duration(seconds: 2),
+    );
+
+    Get.showSnackbar(snackbar);
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
@@ -9,6 +9,7 @@ import 'package:remark_app/components/user/register_buttons.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/config/userSetting.dart';
 import 'package:remark_app/model/user/fetch_user_data.dart';
+import 'package:remark_app/pages/auth/login.dart';
 import 'package:remark_app/pages/profile/edit_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -113,7 +114,114 @@ class _ViewProfileState extends State<ViewProfile> {
     return userType == "2"
         ? EmployerViewProfile(context)
         : userType == "0"
-            ? RegisterAs()
+            ? Column(
+                children: [
+                  RegisterAs(),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Divider(),
+                  Container(
+                    width: size.width,
+                    child: MaterialButton(
+                      onPressed: () async {
+                        print('Delete Account');
+                        return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text(
+                                  "Are you sure want to delete your account?"),
+                              content: Wrap(
+                                children: [
+                                  Container(
+                                    height: 130,
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                            "This will remove of all your data related to your profile, and won't be got back, if you want to learn more about account deletion please visit https://remarkhr.com."),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Divider()
+                                ],
+                              ),
+                              buttonPadding: EdgeInsets.symmetric(vertical: 0),
+                              actions: [
+                                Container(
+                                  margin:
+                                      EdgeInsets.only(bottom: 20, right: 30),
+                                  alignment: Alignment.centerRight,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final resp = await UserApi()
+                                              .deleteUser(userID);
+
+                                          if (resp.status) {
+                                            await UserSetting
+                                                .unsetUserSession();
+
+                                            Get.off(() => Login());
+                                          } else {
+                                            print(resp.data);
+                                          }
+                                        },
+                                        child: Text(
+                                          "Yes",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 25,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          print(
+                                              "Request Denied from user Account");
+                                        },
+                                        child: Text(
+                                          "No",
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                )
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      color: Colors.redAccent,
+                      child: Text(
+                        "Detele Account",
+                        style: TextStyle(fontSize: 15, color: Colors.white),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 5),
+                    child: Text("or"),
+                  ),
+                  RichText(
+                    text: TextSpan(children: [
+                      TextSpan(
+                          text:
+                              "If you want to delete your profile, you have to login to website https://remarkhr.com",
+                          style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    ]),
+                  )
+                ],
+              )
             : EmployeeViewProfile(context);
   }
 
@@ -306,7 +414,116 @@ class _ViewProfileState extends State<ViewProfile> {
                             userDetail("Skills", userSkills),
                             userDetail("Current Location", userLocation),
                             userDetail("Preferred Location", userJobLocation),
-                            userDetail("Languages", userLanguages)
+                            userDetail("Languages", userLanguages),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Divider(),
+                            Container(
+                              width: size.width,
+                              child: MaterialButton(
+                                onPressed: () async {
+                                  print('Delete Account');
+                                  return showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                            "Are you sure want to delete your account?"),
+                                        content: Wrap(
+                                          children: [
+                                            Container(
+                                              height: 130,
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                      "This will remove of all your data related to your profile, and won't be got back, if you want to learn more about account deletion please visit https://remarkhr.com."),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Divider()
+                                          ],
+                                        ),
+                                        buttonPadding:
+                                            EdgeInsets.symmetric(vertical: 0),
+                                        actions: [
+                                          Container(
+                                            margin: EdgeInsets.only(
+                                                bottom: 20, right: 30),
+                                            alignment: Alignment.centerRight,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    final resp = await UserApi()
+                                                        .deleteUser(userID);
+
+                                                    if (resp.status) {
+                                                      await UserSetting
+                                                          .unsetUserSession();
+
+                                                      Get.off(() => Login());
+                                                    } else {
+                                                      print(resp.data);
+                                                    }
+                                                  },
+                                                  child: Text(
+                                                    "Yes",
+                                                    style: TextStyle(
+                                                        color: Colors.red),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: 25,
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    print(
+                                                        "Request Denied from user Account");
+                                                  },
+                                                  child: Text(
+                                                    "No",
+                                                    style: TextStyle(
+                                                        color: Colors.grey),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                color: Colors.redAccent,
+                                child: Text(
+                                  "Detele Account",
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.white),
+                                ),
+                                padding: EdgeInsets.symmetric(vertical: 18),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.symmetric(vertical: 5),
+                              child: Text("or"),
+                            ),
+                            RichText(
+                              text: TextSpan(children: [
+                                TextSpan(
+                                    text:
+                                        "If you want to delete your profile, you have to login to website https://remarkhr.com",
+                                    style: TextStyle(
+                                        fontSize: 14, color: Colors.grey)),
+                              ]),
+                            )
                           ],
                         ),
                       ),

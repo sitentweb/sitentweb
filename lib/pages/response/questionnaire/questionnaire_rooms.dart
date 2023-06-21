@@ -19,7 +19,7 @@ import 'package:remark_app/pages/response/questionnaire/preview_questionnaire.da
 import 'package:remark_app/pages/response/questionnaire/questionnaire.dart';
 import 'package:remark_app/pages/response/questionnaire/questionnaire_employees.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_select/smart_select.dart';
+import 'package:awesome_select/awesome_select.dart';
 import 'package:timeago/timeago.dart' as timeAgo;
 
 class QuestionnaireRooms extends StatefulWidget {
@@ -216,9 +216,9 @@ class _QuestionnaireRoomsState extends State<QuestionnaireRooms> {
                                                                     titleStyle:
                                                                         GoogleFonts
                                                                             .poppins(),
-                                                                    activeAccentColor:
+                                                                    accentColor:
                                                                         kDarkColor,
-                                                                    activeColor:
+                                                                    color:
                                                                         kDarkColor)),
                                                             modalConfig:
                                                                 S2ModalConfig(
@@ -409,16 +409,20 @@ class _QuestionnaireRoomsState extends State<QuestionnaireRooms> {
                                         ListTile(
                                           onTap: () {
                                             Navigator.pop(context);
-                                            pushNewScreen(
-                                                context,
+                                            pushNewScreen(context,
                                                 withNavBar: false,
-                                                customPageRoute: MaterialPageRoute(
+                                                customPageRoute:
+                                                    MaterialPageRoute(
                                                   maintainState: true,
-                                                  builder: (context) => EditQuestionnaire(quiz: room),
-                                                )
-                                            );
+                                                  builder: (context) =>
+                                                      EditQuestionnaire(
+                                                          quiz: room),
+                                                ));
                                           },
-                                          title: Text("Edit" , style: GoogleFonts.poppins(),),
+                                          title: Text(
+                                            "Edit",
+                                            style: GoogleFonts.poppins(),
+                                          ),
                                           leading: Icon(Icons.edit),
                                         )
                                       ],

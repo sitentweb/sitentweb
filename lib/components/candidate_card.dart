@@ -75,7 +75,7 @@ class _CandidateCardState extends State<CandidateCard> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+      padding: EdgeInsets.symmetric(vertical: 3, horizontal: 0),
       child: Card(
         elevation: 2,
         child: Padding(
@@ -90,6 +90,7 @@ class _CandidateCardState extends State<CandidateCard> {
                     builder: (context) => ViewCandidate(
                       jobID: widget.jobID,
                       userUserName: widget.employeeUserName,
+                      employeeID: widget.employeeID,
                     ),
                   );
                 },

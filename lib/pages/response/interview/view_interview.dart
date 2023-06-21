@@ -231,7 +231,7 @@ class _ViewInterviewState extends State<ViewInterview> {
       candidates.add(jsonEncode({
         "candidate": e.candidate,
         "sdpMid": e.sdpMid,
-        "sdpMlineIndex": e.sdpMlineIndex
+        "sdpMlineIndex": e.sdpMLineIndex
       }));
 
       if (userType == "1") {
@@ -254,7 +254,6 @@ class _ViewInterviewState extends State<ViewInterview> {
       // });
 
       // SendPushNotification().send(data, widget.interview.employerToken);
-
     }
   }
 

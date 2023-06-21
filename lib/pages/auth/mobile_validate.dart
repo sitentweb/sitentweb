@@ -2,12 +2,14 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:remark_app/apis/auth/login.dart';
 import 'package:remark_app/apis/sms_gateway/send_sms.dart';
 import 'package:remark_app/components/snackbar_alerts/icon_text.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
+import 'package:remark_app/controllers/auth_controller.dart';
 import 'package:remark_app/model/auth/loginModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:sms_otp_auto_verify/sms_otp_auto_verify.dart';
@@ -20,6 +22,8 @@ class MobileValidate extends StatefulWidget {
 }
 
 class _MobileValidateState extends State<MobileValidate> {
+  AuthController authController = Get.put(AuthController());
+
   bool isLoading = false;
   String userMobile = "";
   TextEditingController _mobileNumber = TextEditingController();
@@ -68,7 +72,8 @@ class _MobileValidateState extends State<MobileValidate> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
-        child: Container(
+          child: Obx(
+        () => Container(
           height: size.height,
           child: SingleChildScrollView(
               child: Stack(
@@ -120,7 +125,7 @@ class _MobileValidateState extends State<MobileValidate> {
                       height: size.height * 0.1,
                       child: Center(
                         child: Text(
-                          "Enter Phone Number",
+                          "Enter Phone Number ${authController.loginType.value}",
                           style: GoogleFonts.poppins(
                               fontSize: 22, fontWeight: FontWeight.bold),
                         ),
@@ -149,7 +154,7 @@ class _MobileValidateState extends State<MobileValidate> {
                               padding: EdgeInsets.symmetric(horizontal: 15),
                               child: TextFormField(
                                 focusNode: _mobile,
-                                controller: _mobileNumber,
+                                controller: authController.mobileNumber.value,
                                 keyboardType: TextInputType.number,
                                 style: GoogleFonts.poppins(fontSize: 20),
                                 autofocus: true,
@@ -184,54 +189,66 @@ class _MobileValidateState extends State<MobileValidate> {
                     SizedBox(
                       height: 50,
                     ),
-                    !isLoading
+                    authController.isLoading.isFalse
                         ? GestureDetector(
                             onTap: () async {
                               // String signature = await SmsRetrieved.getAppSignature();
 
-                              var otp = AppSetting.randomOTPGenerator();
-                              SharedPreferences pref =
-                                  await SharedPreferences.getInstance();
-                              pref.setInt('otp', otp);
-                              if (validateMobileNumber(_mobileNumber.text)) {
-                                setState(() {
-                                  isLoading = true;
-                                });
+                              await authController.doLogin();
 
-                                pref.setString('otpSignature', 'sd');
+                              // var otp = AppSetting.randomOTPGenerator();
+                              // SharedPreferences pref =
+                              //     await SharedPreferences.getInstance();
+                              // pref.setInt('otp', otp);
+                              // if (validateMobileNumber(_mobileNumber.text)) {
+                              //   setState(() {
+                              //     isLoading = true;
+                              //   });
 
-                                await SendSMS().sendNewSms(
-                                    _mobileNumber.text, otp.toString(), 'sd');
+                              // var snackbar = SnackBar(content: Text("OTP : ${otp.toString()}"));
 
-                                // var snackbar = SnackBar(content: Text("OTP : ${otp.toString()}"));
+                              // ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
-                                // ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                              //   LoginApiModel loginResp = await LoginApi()
+                              //       .loginApi(
+                              //           _mobileNumber.text, otp.toString());
+                              //   if (loginResp.status) {
+                              //     pref.setString('otpSignature', 'sd');
 
-                                LoginApiModel loginResp = await LoginApi()
-                                    .loginApi(
-                                        _mobileNumber.text, otp.toString());
-                                if (loginResp.status) {
-                                  pref.setString(
-                                      'userMobile', _mobileNumber.text);
-                                  Navigator.pushNamed(
-                                      context, '/otp_validation');
-                                }
+                              //     await SendSMS().sendNewSms(
+                              //         _mobileNumber.text, otp.toString(), 'sd');
+                              //     pref.setString(
+                              //         'userMobile', _mobileNumber.text);
+                              //     Navigator.pushNamed(
+                              //         context, '/otp_validation');
+                              //   } else {
+                              //     SnackBar snackBar = SnackBar(
+                              //         backgroundColor: Colors.white,
+                              //         content: IconSnackBar(
+                              //           textColor: Colors.red,
+                              //           iconData: Icons.dangerous,
+                              //           textData: loginResp.message,
+                              //         ));
 
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              } else {
-                                final snackBar = SnackBar(
-                                  content: IconSnackBar(
-                                    iconData: Icons.dangerous,
-                                    textData: "Invalid Mobile Number",
-                                    textColor: Colors.red,
-                                  ),
-                                );
+                              //     ScaffoldMessenger.of(context)
+                              //         .showSnackBar(snackBar);
+                              //   }
 
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-                              }
+                              //   setState(() {
+                              //     isLoading = false;
+                              //   });
+                              // } else {
+                              //   final snackBar = SnackBar(
+                              //     content: IconSnackBar(
+                              //       iconData: Icons.dangerous,
+                              //       textData: "Invalid Mobile Number",
+                              //       textColor: Colors.red,
+                              //     ),
+                              //   );
+
+                              //   ScaffoldMessenger.of(context)
+                              //       .showSnackBar(snackBar);
+                              // }
 
                               // Navigator.pushNamed(context, '/otp_validation');
                             },
@@ -278,7 +295,7 @@ class _MobileValidateState extends State<MobileValidate> {
             ],
           )),
         ),
-      ),
+      )),
     );
   }
 }

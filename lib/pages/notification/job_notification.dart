@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import 'package:remark_app/apis/jobs/view_job.dart';
 import 'package:remark_app/apis/notification/notification_api.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
-import 'package:remark_app/components/appbar/appbar.dart';
-import 'package:remark_app/components/drawer/application_drawer.dart';
 import 'package:remark_app/components/empty/empty_data.dart';
 import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/config/appSetting.dart';
-import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/model/notification_list_model.dart';
 import 'package:remark_app/pages/candidates/view_candidate.dart';
-import 'package:remark_app/pages/jobs/search_job.dart';
 import 'package:remark_app/pages/jobs/view_job.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeAgo;
@@ -38,14 +33,12 @@ class _JobNotificationState extends State<JobNotification> {
     super.initState();
   }
 
-
   getUserData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
     setState(() {
       userType = pref.getString("userType");
     });
-
   }
 
   receiveNotification() async {
@@ -72,8 +65,9 @@ class _JobNotificationState extends State<JobNotification> {
                         onTap: () async {
                           if (notice.notificationType == "0") {
                             await NotificationApi()
-                                .updateNotification(notice.notificationId).then((value) {
-                                  print("Status Changed");
+                                .updateNotification(notice.notificationId)
+                                .then((value) {
+                              print("Status Changed");
                             });
 
                             setState(() {
@@ -81,20 +75,20 @@ class _JobNotificationState extends State<JobNotification> {
                             });
                           }
 
-                          if(userType == "2"){
+                          if (userType == "2") {
                             var employeeID = notice.notificationUserId;
                             await UserApi()
                                 .fetchUserData(employeeID)
                                 .then((user) {
-                                  pushNewScreen(
-                                      context,
-                                      customPageRoute: MaterialPageRoute(builder: (context) => ViewCandidate(
-                                        jobID: notice.notificationJobId,
-                                        userUserName: user.data.userUsername,
-                                      ),
+                              pushNewScreen(context,
+                                  customPageRoute: MaterialPageRoute(
+                                    builder: (context) => ViewCandidate(
+                                      jobID: notice.notificationJobId,
+                                      employeeID: notice.notificationUserId,
+                                      userUserName: user.data.userUsername,
+                                    ),
                                   ),
-                                    withNavBar: false
-                              );
+                                  withNavBar: false);
                               // showMaterialModalBottomSheet(
                               //   context: context,
                               //   useRootNavigator: true,
@@ -115,7 +109,8 @@ class _JobNotificationState extends State<JobNotification> {
                             Expanded(
                               child: Text(
                                 "${notice.notificationTitle}",
-                                style: GoogleFonts.poppins(fontSize: 14 ,fontWeight: FontWeight.bold),
+                                style: GoogleFonts.poppins(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
                               ),
                             ),
                             SizedBox(
@@ -134,22 +129,27 @@ class _JobNotificationState extends State<JobNotification> {
                           children: [
                             Expanded(
                               child: GestureDetector(
-                                  onTap: () async {
-                                    showMaterialModalBottomSheet(
-                                        context: context,
-                                        useRootNavigator: true,
-                                        builder: (context) => ViewJob(
-                                              jobID: notice.notificationJobId,
-                                              userID:
-                                                  notice.notificationReceiverId,
-                                            ));
-                                  },
-                                  child: Text("${notice.notificationSubTitle}" , style: GoogleFonts.poppins(), overflow: TextOverflow.ellipsis, ) ,),
+                                onTap: () async {
+                                  showMaterialModalBottomSheet(
+                                      context: context,
+                                      useRootNavigator: true,
+                                      builder: (context) => ViewJob(
+                                            jobID: notice.notificationJobId,
+                                            userID:
+                                                notice.notificationReceiverId,
+                                          ));
+                                },
+                                child: Text(
+                                  "${notice.notificationSubTitle}",
+                                  style: GoogleFonts.poppins(),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ),
                             Text(
                               timeAgo.format(notice.notificationCreatedAt),
-                              style:
-                              GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12, color: Colors.grey),
                             )
                           ],
                         ),

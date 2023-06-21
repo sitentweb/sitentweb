@@ -16,14 +16,17 @@ class EmployeeQuestionnaireReport extends StatefulWidget {
   final String employeePhoto;
   final String employeeName;
   final String quizRoomID;
-  const EmployeeQuestionnaireReport({Key key, this.quizRoomID, this.employeePhoto, this.employeeName}) : super(key: key);
+  const EmployeeQuestionnaireReport(
+      {Key key, this.quizRoomID, this.employeePhoto, this.employeeName})
+      : super(key: key);
 
   @override
-  _EmployeeQuestionnaireReportState createState() => _EmployeeQuestionnaireReportState();
+  _EmployeeQuestionnaireReportState createState() =>
+      _EmployeeQuestionnaireReportState();
 }
 
-class _EmployeeQuestionnaireReportState extends State<EmployeeQuestionnaireReport> {
-
+class _EmployeeQuestionnaireReportState
+    extends State<EmployeeQuestionnaireReport> {
   Future<FetchQuizDataModel> _quizData;
   List<QuestionnaireQuestionsModel> _questions = [];
   int rightAnswers = 0;
@@ -41,35 +44,30 @@ class _EmployeeQuestionnaireReportState extends State<EmployeeQuestionnaireRepor
   }
 
   getQuizData() async {
-      _quizData = FetchQuizRoomApi().fetchQuizData(widget.quizRoomID);
+    _quizData = FetchQuizRoomApi().fetchQuizData(widget.quizRoomID);
 
-      getQuizQuestion();
+    getQuizQuestion();
   }
 
   getQuizQuestion() {
-
     _quizData.then((value) {
       List<dynamic> questionData = jsonDecode(value.data.quiz);
       QuestionnaireQuestionsModel ques;
       questionData.forEach((element) {
         ques = QuestionnaireQuestionsModel(
             options: [
-              element['answer_A'],
-              element['answer_B'],
-              element['answer_C'],
-              element['answer_D']
+              element['answerA'],
+              element['answerB'],
+              element['answerC'],
+              element['answerD']
             ],
             question: element['question'],
             rightAnswer: element['right_answer'].toString(),
-            employeeAnswer: element['employee_answer'].toString()
-        );
+            employeeAnswer: element['employee_answer'].toString());
 
         _questions.add(ques);
-
       });
-
     });
-
   }
 
   @override
@@ -77,86 +75,105 @@ class _EmployeeQuestionnaireReportState extends State<EmployeeQuestionnaireRepor
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder<FetchQuizDataModel>(
-          future: _quizData,
-          builder: (context, snapshot) {
-            if(snapshot.hasData){
-              if(snapshot.data.status){
-
-                var quiz = snapshot.data.data;
-                return Container(
-                  width: size.width,
-                  height: size.height,
-                  child: Column(
-                    children: [
-                      // AppBAr
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            color: kDarkColor
-                        ),
-                        child: Row(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              FutureBuilder<FetchQuizDataModel>(
+                future: _quizData,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data.status) {
+                      var quiz = snapshot.data.data;
+                      return Container(
+                        width: size.width,
+                        height: size.height,
+                        child: Column(
                           children: [
+                            // AppBAr
                             Container(
-                              padding: EdgeInsets.all(8),
-                              child: InkWell(
-                                onTap: () => Navigator.pop(context),
-                                child: Icon(Icons.arrow_back , color: Colors.white,),
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(color: kDarkColor),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(8),
+                                    child: InkWell(
+                                      onTap: () => Navigator.pop(context),
+                                      child: Icon(
+                                        Icons.arrow_back,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    radius: 18,
+                                    backgroundImage: AppSetting.showUserImage(
+                                        widget.employeePhoto),
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    "${widget.employeeName}",
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
                               ),
                             ),
-                            SizedBox(width: 5,),
-                            CircleAvatar(
-                              backgroundColor: Colors.white,
-                              radius: 18,
-                              backgroundImage: AppSetting.showUserImage(widget.employeePhoto),
+                            // BODY
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              width: size.width,
+                              child: quiz.quizStatus == "1"
+                                  ? quiz.quizStopTime.isEmpty
+                                      ? StartedQuiz(
+                                          quiz: quiz,
+                                        )
+                                      : StoppedQuiz(quiz: quiz, q: _questions)
+                                  : Container(),
                             ),
-                            SizedBox(width: 5,),
-                            Text("${widget.employeeName}" , style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold
-                            ),)
+                            Expanded(
+                              child: Container(
+                                child: Swiper(
+                                  loop: false,
+                                  itemCount: _questions.length,
+                                  itemBuilder: (context, index) {
+                                    var q = _questions[index];
+                                    print("Question is ${q.question}");
+                                    return ShowQuizResult(
+                                      index: index,
+                                      quiz: quiz,
+                                      q: q,
+                                      qStatus: quiz.quizStatus,
+                                    );
+                                  },
+                                ),
+                              ),
+                            )
                           ],
                         ),
-                      ),
-                      // BODY
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        width: size.width,
-                        child: quiz.quizStatus == "1" ? quiz.quizStopTime.isEmpty ? StartedQuiz(quiz: quiz,) : StoppedQuiz(quiz: quiz, q:_questions) : Container(),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: Swiper(
-                            loop: false,
-                            itemCount: _questions.length,
-                            itemBuilder: (context, index) {
-                              var q = _questions[index];
-                              print("Question is ${q.question}");
-                              return ShowQuizResult(
-                                index: index,
-                                quiz: quiz,
-                                q: q,
-                                qStatus: quiz.quizStatus,
-                              );
-                            },
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }else{
-                return Center(
-                  child: Text("No Quiz Data Found"),
-                );
-              }
-            }else if(snapshot.hasError){
-              print(snapshot.hasError);
-              return Text("${snapshot.hasError}");
-            }else{
-              return CircularLoading();
-            }
-          },
+                      );
+                    } else {
+                      return Center(
+                        child: Text("No Quiz Data Found"),
+                      );
+                    }
+                  } else if (snapshot.hasError) {
+                    print(snapshot.hasError);
+                    return Text("${snapshot.hasError}");
+                  } else {
+                    return CircularLoading();
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -177,10 +194,10 @@ class StartedQuiz extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Started at ${quiz.quizStartTime}" , style: TextStyle(
-              fontWeight: FontWeight.bold
-            ),),
-
+            Text(
+              "Started at ${quiz.quizStartTime}",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -195,17 +212,14 @@ class StoppedQuiz extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     var totalQuiz = jsonDecode(quiz.quiz).length;
     int totalRightAnswers = 0;
 
     q.forEach((ques) {
-      if(ques.rightAnswer == ques.employeeAnswer){
+      if (ques.rightAnswer == ques.employeeAnswer) {
         totalRightAnswers++;
       }
     });
-
-
 
     return Card(
       elevation: 5,
@@ -217,37 +231,58 @@ class StoppedQuiz extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.circle , size: 10, color: Colors.green,),
-                SizedBox(width: 5,),
-                Text("Started at ${quiz.quizStartTime}" , style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold
-                ),)
+                Icon(
+                  Icons.circle,
+                  size: 10,
+                  color: Colors.green,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  "Started at ${quiz.quizStartTime}",
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                )
               ],
             ),
             SizedBox(
               height: 5,
             ),
-
             Row(
               children: [
-                Icon(Icons.circle , size: 10, color: Colors.red,),
-                SizedBox(width: 5,),
-                Text("Submitted at ${quiz.quizStopTime}" , style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold
-                ),)
+                Icon(
+                  Icons.circle,
+                  size: 10,
+                  color: Colors.red,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  "Submitted at ${quiz.quizStopTime}",
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                )
               ],
             ),
-            SizedBox(height: 5,),
+            SizedBox(
+              height: 5,
+            ),
             Row(
               children: [
-                Icon(Icons.verified , size: 14, color: Colors.blue,),
-                SizedBox(width: 5,),
-                Text("Score : $totalRightAnswers/$totalQuiz" , style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold
-                ),)
+                Icon(
+                  Icons.verified,
+                  size: 14,
+                  color: Colors.blue,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  "Score : $totalRightAnswers/$totalQuiz",
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                )
               ],
             )
-
           ],
         ),
       ),
@@ -260,22 +295,18 @@ class ShowQuizResult extends StatelessWidget {
   final QuestionnaireQuestionsModel q;
   final qStatus;
   final Data quiz;
-  const ShowQuizResult({Key key,  this.q, this.qStatus, this.index, this.quiz}) : super(key: key);
+  const ShowQuizResult({Key key, this.q, this.qStatus, this.index, this.quiz})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
     var quizColorNotSelected;
     var quizColorSelected;
-    if(qStatus == "1"){
-
-    }
+    if (qStatus == "1") {}
 
     Size size = MediaQuery.of(context).size;
     return Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 10
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Container(
           width: size.width,
           height: size.height,
@@ -287,11 +318,10 @@ class ShowQuizResult extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: 15),
                 decoration: BoxDecoration(
                     color: kDarkColor,
-                    borderRadius: BorderRadius.all(Radius.circular(50))
-                ),
-                child: Text("Question ${index + 1}" , style: GoogleFonts.poppins(
-                    color: Colors.white
-                ),
+                    borderRadius: BorderRadius.all(Radius.circular(50))),
+                child: Text(
+                  "Question ${index + 1}",
+                  style: GoogleFonts.poppins(color: Colors.white),
                 ),
               ),
               SizedBox(
@@ -300,38 +330,50 @@ class ShowQuizResult extends StatelessWidget {
               Container(
                 alignment: Alignment.center,
                 height: 80,
-                child: Text("${q.question}" , style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18
-                ),),
+                child: Text(
+                  "${q.question}",
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold, fontSize: 18),
+                ),
               ),
               SizedBox(
                 height: 10,
               ),
-              Container(
-                padding: EdgeInsets.only(top: 50),
-                height: 350,
-                child: ListView.builder(
-                  itemCount: q.options.length,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, opIndex) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(
-                          vertical: 10
-                      ),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                          color: quiz.quizStatus == "1" && quiz.quizStopTime.isEmpty ? Colors.grey[300] : quiz.quizStatus == "0" ? Colors.grey[300] : int.parse(q.employeeAnswer) != opIndex ?  int.parse(q.rightAnswer) != opIndex ? Colors.grey[300] : Colors.green[200] : q.employeeAnswer == q.rightAnswer ? Colors.green[400] : Colors.redAccent
-                      ),
-                      padding: EdgeInsets.all(15),
-                      child: Text("${q.options[opIndex]}" , style: GoogleFonts.poppins(),),
-                    );
-                  },
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(top: 50),
+                  child: ListView.builder(
+                    itemCount: q.options.length,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, opIndex) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(30)),
+                            color: quiz.quizStatus == "1" &&
+                                    quiz.quizStopTime.isEmpty
+                                ? Colors.grey[300]
+                                : quiz.quizStatus == "0"
+                                    ? Colors.grey[300]
+                                    : int.parse(q.employeeAnswer) != opIndex
+                                        ? int.parse(q.rightAnswer) != opIndex
+                                            ? Colors.grey[300]
+                                            : Colors.green[200]
+                                        : q.employeeAnswer == q.rightAnswer
+                                            ? Colors.green[400]
+                                            : Colors.redAccent),
+                        padding: EdgeInsets.all(15),
+                        child: Text(
+                          "${q.options[opIndex]}",
+                          style: GoogleFonts.poppins(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
           ),
-        )
-    );
+        ));
   }
 }

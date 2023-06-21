@@ -15,6 +15,7 @@ var dynamic_job = dynamic_base + '/job';
 // API Urls
 
 const String base_url = 'https://apimanager.remarkhr.com';
+const String new_base_url = 'https://testapi.remarkhr.com';
 
 //SMS GATEWAY GLOBAL 91
 // const String smsBaseUrl = 'http://www.global91sms.in/app/smsapi/index.php';
@@ -39,6 +40,7 @@ const String smsType = 'TRANS';
 
 // Authentication URLs
 const String loginApiUrl = base_url + '/loginApi';
+const String loginEmailApiUrl = base_url + '/loginWithParty';
 const String getUserByMobileNumberApiUrl = base_url + '/userDetails';
 const String removeUserTokenApiUrl = base_url + '/removeUserToken';
 const String getDashboardDataApiUrl = base_url + '/getDashBoardDataApi';
@@ -99,3 +101,22 @@ const String rescheduleInterviewApiUrl = base_url + '/rescheduleInterview';
 const String deleteInterviewApiUrl = base_url + '/deleteInterview';
 const String fetchSavedCandidatesApiUrl = base_url + '/getSavedProfile';
 const String sendInquiryApiUrl = base_url + "/sendInquiry";
+
+const String deleteCompanyApiUrl = base_url + "/deleteCompany";
+const String fetchCompanyListApiUrl = base_url + "/fetchAllCompanies";
+const String deleteUserApiUrl = base_url + "/deleteUser";
+
+const apiUrl = <String, dynamic>{
+  "login": new_base_url + '/auth/login',
+  "verify-otp": new_base_url + '/auth/verify-otp',
+  "fetch-limit-jobs": new_base_url + '/job/fetch_limit_jobs',
+  "search-jobs": new_base_url + '/job/search-jobs',
+  "post-job": new_base_url + '/job/post-job',
+  "fetch-single-posted-job": new_base_url + '/job/fetch-single-posted-job',
+  "update-job": new_base_url + '/job/update-job',
+  'fetch-posted-jobs': new_base_url + '/job/fetch-posted-jobs',
+  'start-verify-mobile-number':
+      new_base_url + '/user/start-verify-mobile-number',
+  'update-verified-mobile-number':
+      new_base_url + '/user/update-verified-mobile-number'
+};

@@ -4,13 +4,17 @@ import 'dart:convert';
 import 'package:code_fields/code_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:remark_app/apis/sms_gateway/send_sms.dart';
 import 'package:remark_app/apis/user/UserApi.dart';
+import 'package:remark_app/components/loading/circular_loading.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
 import 'package:remark_app/config/userSetting.dart';
+import 'package:remark_app/controllers/auth_controller.dart';
+import 'package:remark_app/controllers/firebase_controller.dart';
 import 'package:remark_app/pages/homepage/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -25,6 +29,8 @@ class OtpValidate extends StatefulWidget {
 }
 
 class _OtpValidateState extends State<OtpValidate> {
+  AuthController authController = Get.put(AuthController());
+  FirebaseController firebaseController = Get.put(FirebaseController());
   Timer _timer;
   int _start = 59;
   bool showResend = false;
@@ -64,63 +70,78 @@ class _OtpValidateState extends State<OtpValidate> {
   }
 
   resendOTP() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
+    // SharedPreferences pref = await SharedPreferences.getInstance();
 
-    var otp = AppSetting.randomOTPGenerator();
-    pref.setInt('otp', otp);
+    // var otp = AppSetting.randomOTPGenerator();
+    // pref.setInt('otp', otp);
 
-    var mobileNumber = pref.getString("userMobile");
+    // var mobileNumber = pref.getString("userMobile");
 
-    await SendSMS().sendNewSms(mobileNumber, otp.toString(), '');
+    // await SendSMS().sendNewSms(mobileNumber, otp.toString(), '');
 
     setState(() {
       _start = 59;
       showResend = false;
     });
 
-    _otp.clearCode();
+    // _otp.clearCode();
+
+    // startTimer();
+    authController.doLogin();
 
     startTimer();
   }
 
   validateOTP() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
+    final auth = await authController.verifyOTP();
 
-    var StoredOTP = pref.getInt('otp');
-    if (_validateOTP == StoredOTP.toString() && _start != 0) {
-      print('correct otp');
+    if (auth.status) {
+      SharedPreferences pref = await SharedPreferences.getInstance();
 
-      var _token = await _firebaseMessaging.getToken();
-      var _mobile = pref.getString('userMobile');
-      print(_token);
+      // var StoredOTP = pref.getInt('otp');
+      // if (_validateOTP == StoredOTP.toString() && _start != 0) {
+      //   print('correct otp');
+
+      await firebaseController.generateToken();
+      var _token = firebaseController.generatedToken.value;
+      // var _token = await _firebaseMessaging.getToken();
+      var _mobile = authController.mobileNumber.value.text;
+      //   print(_token);
 
       var userResp =
           await UserApi().getUserByMobileNumber(_mobile.toString(), _token);
       UserDataModel user = userResp;
 
-      print(user.data.userType);
-      print(user.data.userOrganization);
+      //   print(user.data.userType);
+      //   print(user.data.userOrganization);
 
       UserSetting.setUserSession(user);
 
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => HomePage(userType: user.data.userType)));
-    } else {
-      print('incorrect otp');
+      authController.refreshAuth();
 
-      setState(() {
-        verifying = false;
-      });
-
-      final snackBarMessage = SnackBar(
-        content: Text("Invalid OTP"),
-      );
-
-      // ScaffoldMessenger.of(context)
-      //     .showSnackBar(snackBarMessage);
+      await Get.offAll(() => HomePage(
+            userType: user.data.userType,
+          ));
     }
+
+    //   Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(
+    //           builder: (context) => HomePage(userType: user.data.userType)));
+    // } else {
+    //   print('incorrect otp');
+
+    //   setState(() {
+    //     verifying = false;
+    //   });
+
+    //   final snackBarMessage = SnackBar(
+    //     content: Text("Invalid OTP"),
+    //   );
+
+    //   // ScaffoldMessenger.of(context)
+    //   //     .showSnackBar(snackBarMessage);
+    // }
   }
 
   @override
@@ -134,8 +155,8 @@ class _OtpValidateState extends State<OtpValidate> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      body: SafeArea(
-        child: Container(
+      body: SafeArea(child: Obx(() {
+        return Container(
           width: size.width,
           height: size.height,
           child: SingleChildScrollView(
@@ -199,7 +220,7 @@ class _OtpValidateState extends State<OtpValidate> {
                         width: size.width,
                         child: Center(
                           child: Text(
-                            "Enter the correct otp we have sent on your mobile number",
+                            "Enter the correct otp we have sent on your mobile number ${authController.isLogged}",
                             style: GoogleFonts.poppins(color: Colors.grey),
                             textAlign: TextAlign.center,
                           ),
@@ -244,12 +265,8 @@ class _OtpValidateState extends State<OtpValidate> {
                           androidSmsAutofillMethod:
                               AndroidSmsAutofillMethod.smsRetrieverApi,
                           autofocus: true,
-                          controller: _otpInput,
+                          controller: authController.otp.value,
                           onCompleted: (code) {
-                            setState(() {
-                              _validateOTP = code;
-                              verifying = true;
-                            });
                             validateOTP();
                           },
                         ),
@@ -294,14 +311,14 @@ class _OtpValidateState extends State<OtpValidate> {
                       Container(
                         child: GestureDetector(
                           onTap: () async {
-                            setState(() {
-                              verifying = true;
-                            });
+                            // setState(() {
+                            //   verifying = true;
+                            // });
                             validateOTP();
 
                             // Navigator.pushReplacementNamed(context, '/homepage')
                           },
-                          child: !verifying
+                          child: authController.isLoading.isFalse
                               ? Container(
                                   width: size.width * 0.8,
                                   height: 50,
@@ -320,7 +337,7 @@ class _OtpValidateState extends State<OtpValidate> {
                                     "Verify",
                                     style: TextStyle(color: Colors.white),
                                   )))
-                              : CircularProgressIndicator(),
+                              : CircularLoading(),
                         ),
                       ),
                       SizedBox(
@@ -358,8 +375,8 @@ class _OtpValidateState extends State<OtpValidate> {
               ],
             ),
           ),
-        ),
-      ),
+        );
+      })),
     );
   }
 }

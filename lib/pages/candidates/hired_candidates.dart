@@ -17,7 +17,6 @@ class HiredCandidates extends StatefulWidget {
 }
 
 class _HiredCandidatesState extends State<HiredCandidates> {
-
   var userID;
   Future<FetchHiredCandidatesModel> _fetchHiredCandidates;
 
@@ -46,50 +45,70 @@ class _HiredCandidatesState extends State<HiredCandidates> {
         backwardsCompatibility: true,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Icon(Icons.arrow_back , color: kDarkColor),
+          child: Icon(Icons.arrow_back, color: kDarkColor),
         ),
         centerTitle: true,
-        title: Hero(tag:"splashscreenImage" ,child: Container(
-            child: Image.asset(application_logo , width: 40,))),
+        title: Hero(
+            tag: "splashscreenImage",
+            child: Container(
+                child: Image.asset(
+              application_logo,
+              width: 40,
+            ))),
       ),
       body: SafeArea(
         child: Container(
           child: FutureBuilder<FetchHiredCandidatesModel>(
             future: _fetchHiredCandidates,
             builder: (context, snapshot) {
-              if(snapshot.hasData){
-                return snapshot.data.status ? ListView.builder(
-                  itemCount: snapshot.data.data.length,
-                  itemBuilder: (context, index) {
-                    var candidates = snapshot.  data.data[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: ListTile(
-                        tileColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20))
-                        ),
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ViewCandidate(jobID: candidates.jobId, userUserName: candidates.userUsername,)));
+              if (snapshot.hasData) {
+                return snapshot.data.status
+                    ? ListView.builder(
+                        itemCount: snapshot.data.data.length,
+                        itemBuilder: (context, index) {
+                          var candidates = snapshot.data.data[index];
+                          return Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: ListTile(
+                              tileColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ViewCandidate(
+                                              jobID: candidates.jobId,
+                                              userUserName:
+                                                  candidates.userUsername,
+                                              employeeID: candidates.aUserId,
+                                            )));
+                              },
+                              title: Text("${candidates.userName}"),
+                              leading: CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.white,
+                                backgroundImage: AppSetting.showUserImage(
+                                    candidates.userPhoto),
+                              ),
+                              subtitle: Text("${candidates.jobTitle}"),
+                              trailing: Text(
+                                timeAgo.format(candidates.statusDate),
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          );
                         },
-                        title: Text("${candidates.userName}"),
-                        leading: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.white,
-                          backgroundImage: AppSetting.showUserImage(candidates.userPhoto),
-                        ),
-                        subtitle: Text("${candidates.jobTitle}"),
-                        trailing: Text(timeAgo.format(candidates.statusDate) , style: TextStyle(
-                          fontSize: 12
-                        ),),
-                      ),
-                    );
-                  },
-                ) : Center(child: EmptyData(message: "No Data Found",))  ;
-              }else if(snapshot.hasError){
+                      )
+                    : Center(
+                        child: EmptyData(
+                        message: "No Data Found",
+                      ));
+              } else if (snapshot.hasError) {
                 print(snapshot.error);
                 return Text("${snapshot.error}");
-              }else{
+              } else {
                 return CircularLoading();
               }
             },

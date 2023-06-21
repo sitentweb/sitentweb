@@ -22,7 +22,6 @@ class EditQuestionnaire extends StatefulWidget {
 }
 
 class _EditQuestionnaireState extends State<EditQuestionnaire> {
-
   bool isCreating = false;
 
   List<QuestionnaireQuestionsModel> questions = [];
@@ -39,8 +38,6 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
 
   var userID;
 
-
-
   int _rightAnswer = 0;
 
   TextEditingController _option1 = TextEditingController();
@@ -49,19 +46,17 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
   TextEditingController _option4 = TextEditingController();
 
   Future addMoreQuiz() async {
-
     setState(() {
       _quizLength++;
       questions.add(QuestionnaireQuestionsModel(
           rightAnswer: "0",
           question: "",
-          options: ["" , "" , "" , ""],
+          options: ["", "", "", ""],
           employeeAnswer: "",
           answerD: "",
           answerC: "",
           answerB: "",
-          answerA: ""
-      ));
+          answerA: ""));
       _questionController.text = "";
       _option4.text = "";
       _option3.text = "";
@@ -71,56 +66,52 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
       selectedValue = 0;
     });
 
-    print("Added to ${questions.length-1}");
+    print("Added to ${questions.length - 1}");
 
     moveToAddedIndex(questions.length);
-
   }
 
   moveToAddedIndex(index) {
-
     _swiperController.move(index, animation: true);
-
   }
 
   _sendToEmployees(data) async {
-
     // CREATING DATA FOR DATABASE
 
     var quizData = jsonEncode({
-      "quiz_id" : widget.quiz.quizId,
-      "employer_id" : "$userID",
-      "quiz_title" : _questionnaireTitle.text ?? "",
-      "quiz_time" : {
-        "hour" : "$quizFinishTimeHour",
-        "minute" : "$quizFinishTimeMinute"
+      "quiz_id": widget.quiz.quizId,
+      "employer_id": "$userID",
+      "quiz_title": _questionnaireTitle.text ?? "",
+      "quiz_time": {
+        "hour": "$quizFinishTimeHour",
+        "minute": "$quizFinishTimeMinute"
       },
-      "quiz" : data,
-      "quiz_expire_time" : ""
+      "quiz": data,
+      "quiz_expire_time": ""
     });
 
     print(quizData);
 
     await FetchQuizRoomApi().updateEmpQuiz(quizData).then((response) {
       var snackBar;
-      if(response.status){
+      if (response.status) {
         print("Quiz Updated Successfully");
         snackBar = SnackBar(
-          content: Text("Questionnaire Updated Successfully" , style: GoogleFonts.poppins(
-              color: Colors.white
-          ),),
+          content: Text(
+            "Questionnaire Updated Successfully",
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
           backgroundColor: kLightColor,
         );
-
-
-      }else{
+      } else {
         setState(() {
           isCreating = false;
         });
         snackBar = SnackBar(
-          content: Text("Something went wrong" , style: GoogleFonts.poppins(
-              color: Colors.white
-          ),),
+          content: Text(
+            "Something went wrong",
+            style: GoogleFonts.poppins(color: Colors.white),
+          ),
           backgroundColor: Colors.redAccent,
         );
       }
@@ -130,20 +121,23 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
       Future.delayed(Duration(seconds: 3));
 
       Navigator.pop(context);
-
     });
-
   }
 
-  _updateNewQuestionnaire(int index , String question , String answerA , String answerB , String answerC , String answerD , String rightAnswer) async {
-
+  _updateNewQuestionnaire(
+      int index,
+      String question,
+      String answerA,
+      String answerB,
+      String answerC,
+      String answerD,
+      String rightAnswer) async {
     questions[index].question = question;
     questions[index].answerA = answerA;
     questions[index].answerB = answerB;
     questions[index].answerC = answerC;
     questions[index].answerD = answerD;
     questions[index].rightAnswer = rightAnswer.toString();
-
   }
 
   @override
@@ -163,7 +157,6 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
   }
 
   _dataIntoTextControllers() async {
-
     var _quizTime = jsonDecode(widget.quiz.quizTime);
 
     var _qTime = "${_quizTime['hour']} Hours ${_quizTime['minute']} Minutes";
@@ -174,18 +167,23 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
     List _ques = jsonDecode(widget.quiz.quiz);
 
     _ques.forEach((element) {
-      element['options'] = [element['answer_A'] , element['answer_B'] , element['answer_C'] , element['answer_D']];
+      element['options'] = [
+        element['answer_A'],
+        element['answer_B'],
+        element['answer_C'],
+        element['answer_D']
+      ];
       element['employee_answer'] = element['employee_answer'].toString();
     });
 
     var q = jsonEncode(_ques);
 
-     List<QuestionnaireQuestionsModel> _quesQuiz = questionnaireQuestionsModelFromJson(q);
+    List<QuestionnaireQuestionsModel> _quesQuiz =
+        questionnaireQuestionsModelFromJson(q);
 
-     setState(() {
-       questions = _quesQuiz;
-     });
-
+    setState(() {
+      questions = _quesQuiz;
+    });
 
     _questionController.text = questions[0].question;
     _option1.text = questions[0].answerA;
@@ -193,7 +191,6 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
     _option3.text = questions[0].answerC;
     _option4.text = questions[0].answerD;
     selectedValue = int.parse(questions[0].rightAnswer);
-
   }
 
   @override
@@ -203,10 +200,8 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: IconThemeData.fallback(),
-        title: Text("${widget.quiz.quizTitle}" , style: GoogleFonts.poppins(
-          color: kDarkColor,
-          fontSize: 14
-        )),
+        title: Text("${widget.quiz.quizTitle}",
+            style: GoogleFonts.poppins(color: kDarkColor, fontSize: 14)),
         elevation: 0,
       ),
       body: SafeArea(
@@ -215,21 +210,19 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
             child: Column(
               children: [
                 Container(
-                    padding: EdgeInsets.symmetric(vertical: 10 , horizontal: 20),
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                     child: TextField(
                       controller: _questionnaireTitle,
                       decoration: InputDecoration(
                           hintText: "Questionnaire Title",
                           hintStyle: GoogleFonts.poppins(),
-                          helperText: "Note : Title will also visible to employee",
-                          helperStyle: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold
-                          )
-                      ),
-                    )
-                ),
+                          helperText:
+                              "Note : Title will also visible to employee",
+                          helperStyle:
+                              GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                    )),
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 10 , horizontal: 20),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: TextField(
                     controller: _quizFinishTime,
                     decoration: InputDecoration(
@@ -238,27 +231,33 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
                         hintText: "00 Hours 00 Minutes",
                         hintStyle: GoogleFonts.poppins(),
                         helperText: "Finishing time for employee",
-                        helperStyle: GoogleFonts.poppins()
-                    ),
+                        helperStyle: GoogleFonts.poppins()),
                     onTap: () {
                       showTimePicker(
                         context: context,
-                        initialTime: TimeOfDay(hour: 00 , minute: 00),
+                        initialTime: TimeOfDay(hour: 00, minute: 00),
                       ).then((value) {
                         print(value);
-                        if(value != null) {
-                          var time = value.hour.toString().padLeft(2 , '0') + " Hours " + value.minute.toString().padLeft(2 , '0') + " Minutes";
+                        if (value != null) {
+                          var time = value.hour.toString().padLeft(2, '0') +
+                              " Hours " +
+                              value.minute.toString().padLeft(2, '0') +
+                              " Minutes";
                           setState(() {
                             _quizFinishTime.text = time;
-                            quizFinishTimeHour = value.hour.toString().padLeft(2, '0');
-                            quizFinishTimeMinute = value.minute.toString().padLeft(2 , '0');
+                            quizFinishTimeHour =
+                                value.hour.toString().padLeft(2, '0');
+                            quizFinishTimeMinute =
+                                value.minute.toString().padLeft(2, '0');
                           });
                         }
                       });
                     },
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Container(
                   height: size.height * 0.9,
                   child: Swiper(
@@ -283,9 +282,7 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
                       var q = questions[index];
 
                       return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: ListView(
                             physics: NeverScrollableScrollPhysics(),
                             children: [
@@ -295,11 +292,12 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
                                 padding: EdgeInsets.symmetric(vertical: 15),
                                 decoration: BoxDecoration(
                                     color: kDarkColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(50))
-                                ),
-                                child: Text("Question ${index + 1}" , style: GoogleFonts.poppins(
-                                    color: Colors.white
-                                ),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(50))),
+                                child: Text(
+                                  "Question ${index + 1}",
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.white),
                                 ),
                               ),
                               SizedBox(
@@ -316,8 +314,7 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
                                     decoration: InputDecoration(
                                       hintText: "Enter your Question",
                                     ),
-                                  )
-                              ),
+                                  )),
                               SizedBox(
                                 height: 8,
                               ),
@@ -329,172 +326,175 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
                                       InkWell(
                                         child: Container(
                                             margin: EdgeInsets.symmetric(
-                                                vertical: 5
-                                            ),
+                                                vertical: 5),
                                             decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(Radius.circular(30)),
-                                                color: Colors.grey[300]
-                                            ),
-                                            padding: EdgeInsets.symmetric(vertical: 5),
-                                            child: options( 0 ,"Options" , _option1 ,q, 0 , selectedValue)
-                                        ),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(30)),
+                                                color: Colors.grey[300]),
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            child: options(0, "Options",
+                                                _option1, q, 0, selectedValue)),
                                       ),
                                       InkWell(
                                         child: Container(
                                             margin: EdgeInsets.symmetric(
-                                                vertical: 5
-                                            ),
+                                                vertical: 5),
                                             decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(Radius.circular(30)),
-                                                color: Colors.grey[300]
-                                            ),
-                                            padding: EdgeInsets.symmetric(vertical: 5),
-                                            child: options( 1,"Options", _option2,q, 1 , selectedValue)
-                                        ),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(30)),
+                                                color: Colors.grey[300]),
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            child: options(1, "Options",
+                                                _option2, q, 1, selectedValue)),
                                       ),
                                       InkWell(
                                         child: Container(
                                             margin: EdgeInsets.symmetric(
-                                                vertical: 5
-                                            ),
+                                                vertical: 5),
                                             decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(Radius.circular(30)),
-                                                color: Colors.grey[300]
-                                            ),
-                                            padding: EdgeInsets.symmetric(vertical: 5),
-                                            child: options(2,"Options" , _option3,q, 2 , selectedValue)
-                                        ),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(30)),
+                                                color: Colors.grey[300]),
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            child: options(2, "Options",
+                                                _option3, q, 2, selectedValue)),
                                       ),
                                       InkWell(
                                         child: Container(
                                             margin: EdgeInsets.symmetric(
-                                                vertical: 5
-                                            ),
+                                                vertical: 5),
                                             decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.all(Radius.circular(30)),
-                                                color: Colors.grey[300]
-                                            ),
-                                            padding: EdgeInsets.symmetric(vertical: 5),
-                                            child: options(3,"Options" , _option4, q, 3 , selectedValue)
-                                        ),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(30)),
+                                                color: Colors.grey[300]),
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            child: options(3, "Options",
+                                                _option4, q, 3, selectedValue)),
                                       )
                                     ],
-                                  )
-                              ),
+                                  )),
                               SizedBox(
                                 height: 5,
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text("Select a correct answer, so that we can calculate the score after employee submit the questionnaire" , style: GoogleFonts.poppins(),),
+                                child: Text(
+                                  "Select a correct answer, so that we can calculate the score after employee submit the questionnaire",
+                                  style: GoogleFonts.poppins(),
+                                ),
                               ),
                               SizedBox(
                                 height: 10,
                               ),
-
                               Divider(),
                               Container(
                                 padding: EdgeInsets.all(0),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
                                   children: [
-                                    if(index != 0)
+                                    if (index != 0)
+                                      IconCircleButton(
+                                        onPressed: () {
+                                          _updateNewQuestionnaire(
+                                              index,
+                                              _questionController.text,
+                                              _option1.text,
+                                              _option2.text,
+                                              _option3.text,
+                                              _option4.text,
+                                              selectedValue.toString());
+                                          _swiperController.previous(
+                                              animation: true);
+                                        },
+                                        icon: Icons.chevron_left_rounded,
+                                        title: "Previous",
+                                      ),
                                     IconCircleButton(
                                       onPressed: () {
-                                        _updateNewQuestionnaire(
-                                            index,
-                                            _questionController.text,
-                                            _option1.text,
-                                            _option2.text,
-                                            _option3.text,
-                                            _option4.text,
-                                            selectedValue.toString()
-                                        );
-                                        _swiperController.previous(animation: true);
-                                      },
-                                      icon: Icons.chevron_left_rounded,
-                                      title: "Previous",
-                                    ),
-                                    IconCircleButton(
-                                      onPressed: () {
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => PreviewQuestionnaire(questionnaire: questions,),));
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PreviewQuestionnaire(
+                                                questionnaire: questions,
+                                              ),
+                                            ));
                                       },
                                       icon: Icons.remove_red_eye,
                                       title: "Preview",
                                     ),
-                                    if(index == questions.length-1)
-                                    IconCircleButton(
-                                      onPressed: () async {
-
-                                        await addMoreQuiz().then((value) {
-
-                                        });
-                                        // control swiper to next
-
-                                      },
-                                      icon: Icons.add,
-                                      title: "Add",
-                                    ),
-                                    if(index != questions.length-1)
-                                    IconCircleButton(
-                                      onPressed: () {
-                                        _updateNewQuestionnaire(
-                                            index,
-                                            _questionController.text,
-                                            _option1.text,
-                                            _option2.text,
-                                            _option3.text,
-                                            _option4.text,
-                                            selectedValue.toString()
-                                        );
-                                        _swiperController.next(animation: true);
-                                      },
-                                      icon: Icons.chevron_right_rounded,
-                                      title: "Next",
-                                    )
+                                    if (index == questions.length - 1)
+                                      IconCircleButton(
+                                        onPressed: () async {
+                                          await addMoreQuiz().then((value) {});
+                                          // control swiper to next
+                                        },
+                                        icon: Icons.add,
+                                        title: "Add",
+                                      ),
+                                    if (index != questions.length - 1)
+                                      IconCircleButton(
+                                        onPressed: () {
+                                          _updateNewQuestionnaire(
+                                              index,
+                                              _questionController.text,
+                                              _option1.text,
+                                              _option2.text,
+                                              _option3.text,
+                                              _option4.text,
+                                              selectedValue.toString());
+                                          _swiperController.next(
+                                              animation: true);
+                                        },
+                                        icon: Icons.chevron_right_rounded,
+                                        title: "Next",
+                                      )
                                   ],
                                 ),
                               )
                             ],
-                          )
-                      );
+                          ));
                     },
                   ),
                 ),
-
-
                 Divider(),
                 Container(
-                  child: !isCreating ? MaterialButton(
-                    minWidth: size.width,
-                    padding: EdgeInsets.all(0),
-                    onPressed: () {
+                  child: !isCreating
+                      ? MaterialButton(
+                          minWidth: size.width,
+                          padding: EdgeInsets.all(0),
+                          onPressed: () {
+                            setState(() {
+                              isCreating = true;
+                            });
 
-                      setState(() {
-                        isCreating = true;
-                      });
+                            List data = [];
+                            questions.forEach((quiz) {
+                              data.add({
+                                "question": "${quiz.question.trim()}",
+                                "answerA": "${quiz.options[0].trim()}",
+                                "answerB": "${quiz.options[1].trim()}",
+                                "answerC": "${quiz.options[2].trim()}",
+                                "answerD": "${quiz.options[3].trim()}",
+                                "right_answer": "${quiz.rightAnswer}",
+                                "employee_answer": 0
+                              });
+                            });
 
-                      List data = [];
-                      questions.forEach((quiz) {
-                        data.add({
-                          "question" : "${quiz.question.trim()}",
-                          "answer_A" : "${quiz.options[0].trim()}",
-                          "answer_B" : "${quiz.options[1].trim()}",
-                          "answer_C" : "${quiz.options[2].trim()}",
-                          "answer_D" : "${quiz.options[3].trim()}",
-                          "right_answer" : "${quiz.rightAnswer}",
-                          "employee_answer" : 0
-                        });
-                      });
-
-                      _sendToEmployees(data);
-
-                    },
-                    child: Text("Submit" , style: GoogleFonts.poppins(
-                        color: kDarkColor,
-                        fontWeight: FontWeight.bold
-                    ),),
-                  ) : CircularLoading(),
+                            _sendToEmployees(data);
+                          },
+                          child: Text(
+                            "Submit",
+                            style: GoogleFonts.poppins(
+                                color: kDarkColor, fontWeight: FontWeight.bold),
+                          ),
+                        )
+                      : CircularLoading(),
                 )
               ],
             ),
@@ -504,7 +504,8 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
     );
   }
 
-  Widget options(int ind,hint , textController,QuestionnaireQuestionsModel q , value , groupValue) {
+  Widget options(int ind, hint, textController, QuestionnaireQuestionsModel q,
+      value, groupValue) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
       child: Row(
@@ -518,13 +519,11 @@ class _EditQuestionnaireState extends State<EditQuestionnaire> {
               },
               style: GoogleFonts.poppins(),
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(vertical: 5 , horizontal: 10),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 hintText: "Option",
-                hintStyle: GoogleFonts.poppins(
-                    fontSize: 14
-                ),
+                hintStyle: GoogleFonts.poppins(fontSize: 14),
                 border: InputBorder.none,
-
               ),
             ),
           ),
