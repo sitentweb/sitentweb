@@ -59,8 +59,8 @@ dependencies:
   contained_tab_bar_view: ^0.7.1
   flutter_advanced_switch: ^2.1.0
   flutter_swiper: ^1.1.6
-  flutter_webrtc: ^0.9.26
-  sdp_transform: ^0.3.0
+  flutter_webrtc: 
+  sdp_transform: ^0.3.2
   image_picker: 0.8.0+4
   awesome_select: ^6.0.0
   flutter_tags: ^0.4.9+1

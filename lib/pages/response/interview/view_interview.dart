@@ -11,6 +11,7 @@ import 'package:remark_app/apis/responses/interview/all_interviews_api.dart';
 import 'package:remark_app/components/buttons/icon_circle_button.dart';
 import 'package:remark_app/config/appSetting.dart';
 import 'package:remark_app/config/constants.dart';
+import 'package:remark_app/controllers/calling_controller.dart';
 import 'package:remark_app/model/response/interview/get_all_interviews_model.dart';
 import 'package:remark_app/notifier/interview_calling_notifier.dart';
 import 'package:remark_app/pages/jobs/search_job.dart';
@@ -26,6 +27,7 @@ class ViewInterview extends StatefulWidget {
 }
 
 class _ViewInterviewState extends State<ViewInterview> {
+  CallingController callingController = CallingController();
   int screenResponse = 0;
   List candidates = [];
   RTCPeerConnection _peerConnection;
@@ -398,18 +400,21 @@ class _ViewInterviewState extends State<ViewInterview> {
 
   // GOT USER MEDIA DEVICES
   _getUserMediaDevices() async {
-    Map<String, dynamic> constraints = {"audio": true, "video": true};
+    await callingController.getMediaDevices();
 
-    _localStream =
-        await navigator.mediaDevices.getUserMedia(constraints).then((stream) {
-      _localStream = stream;
-      Provider.of<InterviewCallingNotifier>(context, listen: false)
-          .addLocalRendererStream(_localRenderer, stream);
+    // Map<String, dynamic> constraints = {"audio": true, "video": true};
 
-      return _localStream;
-    });
+    // _localStream =
+    //     await navigator.mediaDevices.getUserMedia(constraints).then((stream) {
+    //   _localStream = stream;
+    //   Provider.of<InterviewCallingNotifier>(context, listen: false)
+    //       .addLocalRendererStream(_localRenderer, stream);
 
-    return _localStream;
+    //   return _localStream;
+    // });
+
+    // return _localStream;
+    return false;
   }
 
   // INITIALIZED THE RENDERERS

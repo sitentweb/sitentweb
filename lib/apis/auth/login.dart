@@ -74,6 +74,7 @@ class LoginApi {
       });
 
       if (response.statusCode == 200) {
+        print(response.body);
         thisResponse = GlobalModel(
             status: jsonDecode(response.body)['status'],
             message: jsonDecode(response.body)['message'],
